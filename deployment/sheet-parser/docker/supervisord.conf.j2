@@ -1,0 +1,22 @@
+[supervisord]
+nodaemon=true
+
+[inet_http_server]
+port = 0.0.0.0:9001
+username = user
+password = 123
+
+[program:jupyter]
+command=jupyter-lab --notebook-dir=/home/jovyan/notebooks --ip=0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=%(ENV_NB_PREFIX)s
+user={{ user }}
+autorestart=true
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+redirect_stderr=true
+environment=
+    HOME=/home/jovyan,
+    SHELL=/bin/bash,
+    PYTHONHASHSEED=1234568
+
+[setup_plotly]
+command=bash /setup.sh
