@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Iterator
 
 import pandas as pd
 
@@ -40,7 +41,7 @@ class Document(ABC):
         """
         pass
 
-    def iterall(self) -> tuple[Fragment]:
+    def iterall(self) -> Iterator[Fragment]:
         """
         Iterate over all fragments of the Document.
 
@@ -50,7 +51,7 @@ class Document(ABC):
         for fragment in self.fragments:
             yield fragment
 
-    def iterall_str(self) -> str:
+    def iterall_str(self) -> Iterator[str]:
         """
         Iterate over all values of fragments of the Document.
 
