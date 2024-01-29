@@ -3,3 +3,5 @@
 
 # service file of ide
 .idea/
+__pychache__/
+*/.ipynb_checkpoints/
