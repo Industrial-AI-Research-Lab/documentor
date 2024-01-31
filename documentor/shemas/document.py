@@ -1,31 +1,20 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Iterator
 
 import pandas as pd
 
+from documentor.shemas.fragment import Fragment
+
 
 class DocumentParsingException(Exception):
+    """
+    Exception for errors while parsing document from csv.
+    """
     pass
 
 
-class Fragment(ABC):
-    """
-    Abstract class for fragments of document.
-
-    Each fragment represents a structural unit of a document,
-    for example, a table cell, a log entry, a paragraph of a document with a string value and parameters.
-    """
-
-    @abstractmethod
-    def __str__(self) -> str:
-        """
-        String representation of fragment's value.
-        :return: value of fragment
-        :rtype: str
-        """
-        pass
-
-
+@dataclass(frozen=True)
 class Document(ABC):
     """
     Abstract class for documents of any type. Documents consist of fragments.
@@ -36,12 +25,13 @@ class Document(ABC):
     def fragments(self) -> list[Fragment]:
         """
         List of fragments of Document.
+
         :return: list of fragments
         :rtype: list[Fragment]
         """
         pass
 
-    def iterall(self) -> Iterator[Fragment]:
+    def iter_all(self) -> Iterator[Fragment]:
         """
         Iterate over all fragments of the Document.
 
@@ -51,7 +41,7 @@ class Document(ABC):
         for fragment in self.fragments:
             yield fragment
 
-    def iterall_str(self) -> Iterator[str]:
+    def iter_all_str(self) -> Iterator[str]:
         """
         Iterate over all values of fragments of the Document.
 
@@ -84,3 +74,52 @@ class Document(ABC):
         :rtype: pd.DataFrame
         """
         pass
+
+
+@dataclass(frozen=True)
+class StructureNode(ABC):
+    """
+    Class for nodes with elements of hierarchical structure of document.
+    """
+    _children: list['StructureNode'] | None = None
+
+    @property
+    @abstractmethod
+    def fragments(self) -> list[Fragment]:
+        """
+        Get all fragments of the node and its children.
+
+        :return: list of fragments
+        :rtype: list[Fragment]
+        """
+        pass
+
+    def children(self) -> list['StructureNode'] | None:
+        """
+        Get children nodes of the node, if the node has children.
+        Otherwise, return None.
+
+        :return: children of the node or None
+        :rtype: list[StructureNode] | None
+        """
+        if self._children is None:
+            return None
+        return self._children
+
+
+class StructuredDocument(Document, ABC):
+    """
+    Abstract class for documents with hierarchical structure. Documents hierarchy is represented by tree.
+    The document is a root of the tree.
+    """
+    _root: StructureNode
+
+    @property
+    def root(self) -> StructureNode:
+        """
+        Get root of hierarchical structure of document.
+
+        :return: the root
+        :rtype: StructureNode
+        """
+        return self._root

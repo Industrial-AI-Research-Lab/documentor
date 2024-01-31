@@ -1,11 +1,17 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
 from documentor.shemas.document import Document
 
 
 class ExtensionException(Exception):
+    """
+    Exception for errors while parsing files.
+    """
     pass
 
 
+@dataclass(frozen=True)
 class SimpleParser(ABC):
     @abstractmethod
     def from_file(self, path: str) -> Document:
