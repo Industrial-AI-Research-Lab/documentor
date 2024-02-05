@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Iterator
 
-from documentor.shemas.document import Document
-from documentor.shemas.fragment import Fragment
+from documentor.abstract.document import Document
+from documentor.abstract.fragment import Fragment
 
 
 class Docset(ABC):

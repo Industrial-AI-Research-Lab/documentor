@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
 class Fragment(ABC):
     """
     Abstract class for fragments of document.

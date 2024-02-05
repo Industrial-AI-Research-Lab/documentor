@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from documentor.shemas.document import Document
+from documentor.abstract.document import Document
 
 
 class ExtensionException(Exception):

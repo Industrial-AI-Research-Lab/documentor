@@ -4,7 +4,7 @@ from typing import Iterator
 
 import pandas as pd
 
-from documentor.shemas.fragment import Fragment
+from documentor.abstract.fragment import Fragment
 
 
 class DocumentParsingException(Exception):
@@ -14,7 +14,6 @@ class DocumentParsingException(Exception):
     pass
 
 
-@dataclass(frozen=True)
 class Document(ABC):
     """
     Abstract class for documents of any type. Documents consist of fragments.
