@@ -7,7 +7,6 @@ from documentor.abstract.fragment import Fragment
 FragmentLabelType = int | str
 
 
-@dataclass(frozen=True)
 class LabeledFragment(Fragment, ABC):
     """
     Abstract class for labeled fragments of document.

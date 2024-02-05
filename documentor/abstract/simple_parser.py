@@ -11,7 +11,6 @@ class ExtensionException(Exception):
     pass
 
 
-@dataclass(frozen=True)
 class SimpleParser(ABC):
     @abstractmethod
     def from_file(self, path: str) -> Document:

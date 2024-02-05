@@ -75,7 +75,6 @@ class Document(ABC):
         pass
 
 
-@dataclass(frozen=True)
 class StructureNode(ABC):
     """
     Class for nodes with elements of hierarchical structure of document.
