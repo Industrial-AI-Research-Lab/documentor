@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from documentor.abstract.fragment import Fragment
+
 FragmentClassType = int
 
 
@@ -8,7 +10,7 @@ class FragmentClassifier(ABC):
     Abstract class for fragment classifier.
     """
     @abstractmethod
-    def simple_classify(self, fragment: str) -> FragmentClassType:
+    def simple_classify(self, fragment: Fragment) -> FragmentClassType:
         """
         Classify fragment to one of the simple types.
 

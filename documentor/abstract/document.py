@@ -50,20 +50,6 @@ class Document(ABC):
         for fragment in self.fragments:
             yield fragment.__str__()
 
-    @classmethod
-    @abstractmethod
-    def from_df(cls, df: pd.DataFrame) -> 'Document':
-        """
-        Create Document from pandas DataFrame.
-
-        :param df: DataFrame with data about fragments
-        :type df: pd.DataFrame
-        :return: Document object
-        :rtype: Document
-        :raises DocumentParsingException: if DataFrame is not valid
-        """
-        pass
-
     @abstractmethod
     def to_df(self) -> pd.DataFrame:
         """
