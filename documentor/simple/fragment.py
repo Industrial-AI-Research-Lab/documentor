@@ -1,5 +1,24 @@
+import pandas as pd
+
 from documentor.abstract.document import Fragment
-from documentor.semantic.preprocessing.lemmatization import Lemmatizer
+from documentor.semantic.preprocessing.lemmatization import lemmatize
+
+
+class SimpleTokenizedFragment(Fragment):
+    """
+    Represents a token of simple fragment
+    """
+    data: list[str]
+
+    def __init__(self, tokens, *args, **kwargs):
+        """
+        Initialize class
+        :param token: one token
+        """
+        self.data = tokens
+
+    def __str__(self, *args, **kwargs):
+        return str(self.data)
 
 
 class SimpleFragment(Fragment):
@@ -8,21 +27,13 @@ class SimpleFragment(Fragment):
 
     """
     data: str
-    lemmas: list[str]
 
     def __init__(self, row, *args, **kwargs):
         self.data = row
 
-    def lemmatization(self, *args, **kwargs):
-        """
-        Lemmatize the text
-        :return:
-        """
-        self.lemmas = Lemmatizer.lemmatize(self.data, args, kwargs)
-
     def __str__(self, *args, **kwargs):
         """
         Represents a simple fragment of document
-        :return:
+        :return: str
         """
-        return self.data
+        return str(self.data)
