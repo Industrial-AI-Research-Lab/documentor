@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from documentor.abstract.document import Document
+from documentor.structuries.document import Document
 
 
 class ExtensionException(Exception):
