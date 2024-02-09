@@ -4,6 +4,7 @@ from documentor.abstract.document import Document
 from documentor.abstract.fragment import Fragment
 from documentor.simple.fragment import SimpleFragment, SimpleTokenizedFragment
 from documentor.semantic.preprocessing.lemmatization import lemmatize
+from documentor.semantic.preprocessing.tokenization import get_words_embedding
 
 
 class SimpleDocument(Document):
@@ -12,10 +13,9 @@ class SimpleDocument(Document):
     :param data: The data from document
     :type data: list[Fragment]
     """
-    row_data: list[SimpleFragment]
-    tokens: list[SimpleTokenizedFragment]
+    data: pd.DataFrame  # [SimpleFragment | SimpleTokenizedFragment]
 
-    def __init__(self, data: list[str]) -> None:
+    def __init__(self, data: list[str] = None) -> None:
         self.row_data = [SimpleFragment(k) for k in data]
 
     @classmethod
@@ -45,11 +45,25 @@ class SimpleDocument(Document):
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame(self.row_data)
 
-    def lemmatize(self, *args, **kwargs):
+    def lemmatize(self, *args, **kwargs) -> 'SimpleDocument':
         """
         text partitioning into lemmatized tokens
         :return: None
         :rtype: None
         """
-        self.tokens = [SimpleTokenizedFragment(lemmatize(row, args, kwargs))
-                       for row in [str(d) for d in self.row_data]]
+        lemas = [" ".join(lemmatize(row, args, kwargs))
+                  for row in [str(d) for d in self.row_data]]
+        return SimpleDocument(lemas)
+
+    def tokenize(self, model, *args, **kwargs) -> 'SimpleDocument':
+        """
+        embedding text via model
+        :param model:
+        :type model:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        tokens = [get_words_embedding(fragment) for fragment in self.row_data]
+

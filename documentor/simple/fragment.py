@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from documentor.abstract.document import Fragment
@@ -6,9 +7,26 @@ from documentor.semantic.preprocessing.lemmatization import lemmatize
 
 class SimpleTokenizedFragment(Fragment):
     """
-    Represents a token of simple fragment
+    Represents a fragment with tokens
     """
     data: list[str]
+
+    def __init__(self, tokens, *args, **kwargs):
+        """
+        Initialize class
+        :param token: one token
+        """
+        self.data = tokens
+
+    def __str__(self, *args, **kwargs):
+        return str(self.data)
+
+
+class SimpleVectorizedFragment(Fragment):
+    """
+    Represents a fragment with vectors
+    """
+    data: np.ndarray
 
     def __init__(self, tokens, *args, **kwargs):
         """
