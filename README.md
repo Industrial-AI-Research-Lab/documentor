@@ -1,4 +1,9 @@
+<div style="float: right; width: 200px; height: 200px;">
+  <img src="images/tmp_logo.png" width="200" alt="tmp-logo">
+</div>
+
 # DocuMentor
+
 
 [![Acknowledgement ITMO](https://raw.githubusercontent.com/aimclub/open-source-ops/master/badges/ITMO_badge.svg)](https://itmo.ru/)
 [![Acknowledgement SAI](https://raw.githubusercontent.com/aimclub/open-source-ops/master/badges/SAI_badge.svg)](https://sai.itmo.ru/)
@@ -6,17 +11,25 @@
 [![Visitors](https://api.visitorbadge.io/api/combined?path=https%3A%2F%2Fgithub.com%2FIndustrial-AI-Research-Lab%2Fdocumentor&countColor=%23263759&style=plastic&labelStyle=lower)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2FIndustrial-AI-Research-Lab%2Fdocumentor)
 [![PythonVersion](https://img.shields.io/badge/python_3.10-passing-success)](https://img.shields.io/badge/python_3.10-passing-success)                                                                                                                                                                                  
 
-<div style="float: right; width: 200px; height: 200px;">
-  <img src="images/tmp_logo.png" width="200" alt="tmp-logo">
-</div>
 
-## Main Sections
+## The purpose of the project
 
-## Description
+The DocuMentor library is designed to simplify and automate the parsing and semantic analysis of various types of 
+documents, including word, excel and log files.
 
-Library for automation of document, sheet and log files processing.
+The library performs the following tasks:
+1. Data extraction
+2. Conversion of specialized terms
+3. Hierarchical analysis of the document structure
+4. Entity recognition in documents
 
-## Structure
+## Core features
+
+## Installation
+
+## Examples
+
+## Project structure
 
 - [documentor](documentor/README.md) - main library folder
 - [deployment](deployment/README.md) - folder for storing scripts and dockerfiles for deploying the library or its components
@@ -25,3 +38,15 @@ Library for automation of document, sheet and log files processing.
 - [tests](tests/README.md) - folder for storing tests for the library
 - [experiments](experiments/README.md) - folder for storing experiments with the library
 - [docs](docs/README.md) - folder for storing documentation for the library
+
+## Documentation
+
+## Getting started
+
+## License
+
+## Acknowledgements
+
+## Contacts
+
+## Citation
