@@ -16,7 +16,8 @@ class ExtensionException(Exception):
 
 class SheetParser(SimpleParser):
 
-    def from_file(self, path: str, sheet_name: str, first_cell: str | None, last_cell: str | None) -> SheetDocument:
+
+    def from_file(self, path: str, sheet_name: str, first_cell: str | None = None, last_cell: str | None = None) -> SheetDocument:
         """
         Create Document from file.
 
@@ -77,7 +78,7 @@ class SheetParser(SimpleParser):
                     frag = SheetFragment(cell_data)
                     new_df = pd.concat([new_df, frag.fragment], ignore_index=True)
 
-        return SheetDocument(doc_df=new_df)
+        return SheetDocument(df=new_df)
 
     def from_csv(self, path: str, sep: str | None) -> SheetDocument:
         """
@@ -93,7 +94,7 @@ class SheetParser(SimpleParser):
         df = pd.read_csv(path, sep)
         return SheetDocument(df)
 
-    def to_csv(self, document: SheetDocument, path: str, sep: str | None):
+    def to_csv(self, document: SheetDocument, path: str, sep: str | None = None):
         """
         Save SheetDocument to csv file.
 

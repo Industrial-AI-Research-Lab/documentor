@@ -18,7 +18,7 @@ class SheetFragment(Fragment):
     fragment = pd.DataFrame()
 
     def __init__(self, data: list):
-        self.frag = pd.DataFrame(data=[data], columns=self.COLUMNS)
+        self.fragment = pd.DataFrame(data=[data], columns=self.COLUMNS)
 
     def __str__(self) -> str:
         """
