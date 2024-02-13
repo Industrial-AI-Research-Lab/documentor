@@ -1,13 +1,13 @@
 import pandas as pd
 
 from sklearn import metrics
-from sklearn.cluster import DBSCAN, OPTICS, KMeans
+from sklearn.cluster import DBSCAN
 
 from documentor.structuries.classifier import FragmentClassifier
-from documentor.sheets.label_data import SheetLabeledFragment
-from documentor.sheets.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide, grid_optics,
-                                          grid_kmeans, grid_dbscan, AlgorithmType)
-from documentor.sheets.fragment import SheetFragment
+from documentor.types.excel.label_data import SheetLabeledFragment
+from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide, grid_optics,
+                                               grid_kmeans, grid_dbscan, AlgorithmType)
+from documentor.types.excel.fragment import SheetFragment
 
 SheetFragmentClassType = int | str
 

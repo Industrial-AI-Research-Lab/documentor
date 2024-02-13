@@ -4,7 +4,7 @@ import pandas as pd
 
 from documentor.structuries.document import Document
 from documentor.structuries.fragment import Fragment
-from documentor.sheets.fragment import SheetFragment
+from documentor.types.excel.fragment import SheetFragment
 
 
 class SheetDocument(Document):
