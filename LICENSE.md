@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2023, IAIRLab, ITMO University
+Copyright (c) 2024, IAIRLab, ITMO University
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

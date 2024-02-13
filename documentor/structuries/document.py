@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Iterator
 
 import pandas as pd
 
-from documentor.abstract.fragment import Fragment
+from documentor.structuries.fragment import Fragment
 
 
 class DocumentParsingException(Exception):
@@ -18,54 +17,30 @@ class Document(ABC):
     """
     Abstract class for documents of any type. Documents consist of fragments.
     """
-    data: pd.DataFrame
+    _data: pd.DataFrame
 
-    @property
     @abstractmethod
-    def fragments(self) -> list[Fragment]:
+    def build_fragments(self) -> list[Fragment]:
         """
         List of fragments of Document.
+
+        Note: if speed is important, it is preferable to use iter_rows method.
 
         :return: list of fragments
         :rtype: list[Fragment]
         """
         pass
 
-    def iter_all(self) -> Iterator[Fragment]:
+    def iter_rows(self) -> Iterator[int, pd.Series]:
         """
         Iterate over all fragments of the Document.
 
         :return: the document fragments
-        :rtype: Iterator[Fragment]
+        :rtype: Iterator[int, pd.Series]
         """
-        for fragment in self.fragments:
-            yield fragment
+        for ind, rows in self._data.iterrows():
+            yield ind, rows
 
-    def iter_all_str(self) -> Iterator[str]:
-        """
-        Iterate over all values of fragments of the Document.
-
-        :return: the document fragments
-        :rtype: Iterator[str]
-        """
-        for fragment in self.fragments:
-            yield fragment.__str__()
-
-    @classmethod
-    @abstractmethod
-    def from_df(cls, df: pd.DataFrame) -> 'Document':
-        """
-        Create Document from pandas DataFrame.
-
-        :param df: DataFrame with data about fragments
-        :type df: pd.DataFrame
-        :return: Document object
-        :rtype: Document
-        :raises DocumentParsingException: if DataFrame is not valid
-        """
-        pass
-
-    @abstractmethod
     def to_df(self) -> pd.DataFrame:
         """
         Convert Document to pandas DataFrame.
@@ -73,7 +48,7 @@ class Document(ABC):
         :return: pandas DataFrame with data about fragments
         :rtype: pd.DataFrame
         """
-        pass
+        return self._data.copy()
 
 
 class StructureNode(ABC):
