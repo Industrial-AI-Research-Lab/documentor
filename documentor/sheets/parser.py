@@ -4,7 +4,6 @@ import pandas as pd
 from documentor.abstract.parser import SimpleParser
 
 from documentor.sheets.document import SheetDocument
-from documentor.sheets.fragment import SheetFragment
 
 
 class ExtensionException(Exception):

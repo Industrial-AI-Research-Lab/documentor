@@ -39,7 +39,7 @@ class SheetFragmentClassifier(FragmentClassifier):
                 y_pred_map = algo_y_pred_map
                 y_num = algo_y_num
                 al = grid['algo'].__name__
-                self.cluster_model = grid['algo'](algo_params)
+                self.cluster_model = grid['algo'](**algo_params)
                 self.dict_map = algo_dict_map
             elif (metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) == v_measure and
                   metrics.silhouette_score(X, algo_y_num) > silhouette_koef):
@@ -49,7 +49,7 @@ class SheetFragmentClassifier(FragmentClassifier):
                 y_pred_map = algo_y_pred_map
                 y_num = algo_y_num
                 al = grid['algo'].__name__
-                self.cluster_model = grid['algo'](algo_params)
+                self.cluster_model = grid['algo'](**algo_params)
                 self.dict_map = algo_dict_map
 
         return y_num_map, al_y_to_pred, y_pred_map, y_num, al
@@ -57,7 +57,7 @@ class SheetFragmentClassifier(FragmentClassifier):
     def result_output(self, df: pd.DataFrame, df_types: list[str], type: str):
         old_indexes, X, y, y_to_pred = devide(df, df_types)
         y_num_map, al_y_to_pred, y_pred_map, y_num, al = self.cluster(y_to_pred, X, y)
-        print(f'type: {type}, algorithm: {al}')
+        print(f'\ntype: {type}, algorithm: {al}')
         plots(X, y, y_num_map)
         print_metrics(al_y_to_pred, y_pred_map, y_num, X)
 
