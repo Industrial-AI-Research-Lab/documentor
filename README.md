@@ -34,11 +34,16 @@ TBD
 ## Examples
 
 All examples made in jupyter notebooks, so you should have jupyter installed to run them.
+Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the jupytext library:
+```shell
+# pip install jupytext
+jupytext --to notebook file_name.md 
+```
 
 - usage of specialized terms search - [TBD](README.md)
-- usage of table border detection for excel - [TBD](README.md)
-- usage of excel to csv parser  - [link](examples/table parsing.ipynb)
-- usage of sheet fragment classification  - [link](examples/table fragmentation.ipynb)
+- usage of table border detection for excel - [link](examples/table_detection.md)
+- usage of excel to csv parser  - [link](examples/table parsing.md)
+- usage of sheet fragment classification  - [link](examples/table fragmentation.md)
 
 ## Project structure
 
