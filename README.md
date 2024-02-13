@@ -33,6 +33,8 @@ TBD
 
 ## Examples
 
+All examples made in jupyter notebooks, so you should have jupyter installed to run them.
+
 - usage of specialized terms search - [TBD](README.md)
 - usage of table border detection for excel - [TBD](README.md)
 - usage of excel to csv parser  - [link](examples/table parsing.ipynb)
