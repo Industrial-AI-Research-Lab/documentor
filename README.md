@@ -75,6 +75,6 @@ By ITMO University, Saint Petersburg, Russia
 
 ## Contacts
 
-Any questions and suggestions can be sent to the following contacts:
+Questions and suggestions can be asked to Mikhail Kovalchuk by the following contacts:
 - [Telegram](https://t.me/hungry_muskrat)
 - [Email](mailto:mkovalchuk@itmo.ru) 
