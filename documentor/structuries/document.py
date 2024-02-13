@@ -3,13 +3,30 @@ from typing import Iterator
 
 import pandas as pd
 
-from documentor.structuries.fragment import Fragment
+from documentor.text.fragment import TextFragment
 from documentor.structuries.type_check import check_data_frame, check_dict_str_str
 
 
-class BaseDocument(ABC):
+class Document(ABC):
+    """
+    Abstract class for document.
+    """
     _data: pd.DataFrame
     _columns: dict[str, str] = {}
+
+    @abstractmethod
+    def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
+        """
+        Initializes an instance of the class by pandas DataFrame. The DataFrame should contain column.
+
+        :param data: A pandas DataFrame containing the data.
+        :type data: pd.DataFrame
+        :param name_mapper: A dictionary mapping column names in 'data' to new names. Default is None.
+        :type name_mapper: dict[str, str]
+        :return: None
+        :raises TypeError: if the object is not pandas DataFrame or name_mapper is not dict[str, str] or None
+        """
+        pass
 
     @classmethod
     def needed_columns(cls) -> dict[str, str]:
@@ -19,15 +36,15 @@ class BaseDocument(ABC):
         :return: column names with description
         :rtype: dict[str, str]
         """
-        return cls._columns
+        pass
 
     @abstractmethod
-    def build_fragments(self) -> list[Fragment]:
+    def build_fragments(self) -> list[TextFragment]:
         """
         List of fragments of Document.
 
         :return: list of fragments
-        :rtype: list[Fragment]
+        :rtype: list[TextFragment]
         """
         pass
 
@@ -37,7 +54,7 @@ class BaseDocument(ABC):
         Iterate over all fragments of the Document with their row numbers.
 
         :return: the document fragments with their row numbers
-        :rtype: Iterator[tuple[int, Fragment]]
+        :rtype: Iterator[tuple[int, TextFragment]]
         """
         pass
 
@@ -51,6 +68,16 @@ class BaseDocument(ABC):
         """
         pass
 
+    @property
+    def data(self) -> pd.DataFrame:
+        """
+        Get the data of the document.
+
+        :return: the data
+        :rtype: pd.DataFrame
+        """
+        return self._data
+
     @abstractmethod
     def to_df(self) -> pd.DataFrame:
         """
@@ -62,7 +89,7 @@ class BaseDocument(ABC):
         pass
 
 
-class Document(BaseDocument):
+class TextDocument(Document):
     """
     Simple realization of document with string fragments.
     """
@@ -104,23 +131,23 @@ class Document(BaseDocument):
         """
         return cls._columns
 
-    def build_fragments(self) -> list[Fragment]:
+    def build_fragments(self) -> list[TextFragment]:
         """
         List of fragments of Document.
 
         Note: If speed is important, it is preferable to use iter_rows() method.
 
         :return: list of fragments
-        :rtype: list[Fragment]
+        :rtype: list[TextFragment]
         """
-        return [Fragment(row['value']) for _, row in self._data.iterrows()]
+        return [TextFragment(row['value']) for _, row in self._data.iterrows()]
 
     def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:
         """
         Iterate over all fragments of the Document with their row numbers.
 
         :return: the document fragments with their row numbers
-        :rtype: Iterator[tuple[int, Fragment]]
+        :rtype: Iterator[tuple[int, TextFragment]]
         """
         for i, row in self._data.iterrows():
             yield i, row
@@ -142,4 +169,4 @@ class Document(BaseDocument):
         :return: pandas DataFrame with data about fragments
         :rtype: pd.DataFrame
         """
-        return self._data
+        return self._data.copy()

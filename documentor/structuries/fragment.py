@@ -4,14 +4,7 @@ from typing import Any
 from documentor.structuries.type_check import check_str
 
 
-class BaseFragment(ABC):
-    """
-    Abstract class for fragments of any type. Fragments are structural units of a document.
-
-    Each fragment represents a structural unit of a document,
-    for example, a table cell, a log entry, a paragraph of a document with a string value and parameters.
-    """
-
+class FragmentInterface(ABC):
     @property
     @abstractmethod
     def value(self) -> str:
@@ -23,6 +16,7 @@ class BaseFragment(ABC):
         """
         pass
 
+    @abstractmethod
     def __str__(self) -> str:
         """
         String representation of fragment's value.
@@ -30,7 +24,7 @@ class BaseFragment(ABC):
         :return: value of fragment
         :rtype: str
         """
-        return self.value
+        pass
 
     @abstractmethod
     def params(self) -> dict[str, Any]:
@@ -43,20 +37,14 @@ class BaseFragment(ABC):
         pass
 
 
-class Fragment(BaseFragment):
+class Fragment(FragmentInterface, ABC):
     """
-    Simple realization of fragment with string value.
+    Abstract class for fragments of any type. Fragments are structural units of a document.
 
     Each fragment represents a structural unit of a document,
     for example, a table cell, a log entry, a paragraph of a document with a string value and parameters.
-
-    :param value: value of fragment
     """
     _value: str
-
-    @property
-    def value(self) -> str:
-        return self._value
 
     def __init__(self, value: str) -> None:
         """
@@ -70,9 +58,29 @@ class Fragment(BaseFragment):
         check_str(value)
         self._value = value
 
+    @property
+    def value(self) -> str:
+        """
+        Get value of the fragment.
+
+        :return: value of the fragment
+        :rtype: str
+        """
+        return self._value
+
+    def __str__(self) -> str:
+        """
+        String representation of fragment's value.
+
+        :return: value of fragment
+        :rtype: str
+        """
+        return self.value
+
     def params(self) -> dict[str, Any]:
         """
         Returns an empty dictionary.
+
         :return: empty dictionary
         :rtype: dict
         """

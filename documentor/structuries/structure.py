@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from documentor.structuries.document import Document
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.document import TextDocument
+from documentor.text.fragment import TextFragment
 
 
 class StructureNode(ABC):
@@ -12,12 +12,12 @@ class StructureNode(ABC):
 
     @property
     @abstractmethod
-    def fragments(self) -> list[Fragment]:
+    def fragments(self) -> list[TextFragment]:
         """
         Get all fragments of the node and its children.
 
         :return: list of fragments
-        :rtype: list[Fragment]
+        :rtype: list[TextFragment]
         """
 
     def children(self) -> list['StructureNode'] | None:
@@ -33,7 +33,7 @@ class StructureNode(ABC):
         return self._children
 
 
-class StructuredDocument(Document, ABC):
+class StructuredDocument(TextDocument, ABC):
     """
     Abstract class for documents with hierarchical structure. Documents hierarchy is represented by tree.
     The document is a root of the tree.
