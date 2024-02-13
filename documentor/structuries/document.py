@@ -31,7 +31,7 @@ class Document(ABC):
         """
         pass
 
-    def iter_rows(self) -> Iterator[int, pd.Series]:
+    def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:
         """
         Iterate over all fragments of the Document.
 

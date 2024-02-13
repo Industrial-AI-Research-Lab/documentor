@@ -1,8 +1,8 @@
 import pandas as pd
 
-from documentor.abstract.document import Document
-from documentor.abstract.fragment import Fragment
-from documentor.simple.fragment import SimpleFragment, SimpleTokenizedFragment
+from documentor.structuries.document import Document
+from documentor.structuries.fragment import Fragment
+from documentor.simple.fragment import SimpleFragment
 
 from documentor.semantic.models.base import BaseSemanticModel
 
@@ -10,39 +10,20 @@ from documentor.semantic.models.base import BaseSemanticModel
 class SimpleDocument(Document):
     """
     A simple document
-    :param data: The data from document
-    :type data: list[Fragment]
+    :param _data: The data from document
+    :type _data: pd.DataFrame
     """
-    data: pd.DataFrame
+    _fragments: list[Fragment]
 
-    def __init__(self, data: list[str] = None) -> None:
-        if data is not None:
-            self.data = [SimpleFragment(k) for k in data]
+    def __init__(self, data: any):
+        self._data = data
 
-    @classmethod
-    def from_df(cls, df: pd.DataFrame, target_column: str | None = None,
-                *args, **kwargs) -> 'SimpleDocument':
+    def build_fragments(self) -> list[Fragment]:
         """
-        Validate dataframe and transform it into a simple document
-        :param df: pandas DataFrame with data
-        :type df: pd.DataFrame
-        :param target_column: Column name from which the text will be extracted
-        :type target_column: str
-        :return: SimpleDocument object
-        :rtype: SimpleDocument
+        List of fragments of Document.
+        :return: list of fragments
+        :rtype: list[Fragment]
         """
-        if target_column is None:
-            target_column = df.columns[0]
-
-        new_instance = SimpleDocument()
-        new_instance.data = [SimpleFragment(k) for k in df[target_column].values.tolist()]
-
-        return new_instance
-
-    @property
-    def fragments(self) -> list[Fragment]:
-        return [SimpleFragment(d) for d in self.data]
-
-    def to_df(self) -> pd.DataFrame:
-        return pd.DataFrame(self.data)
-
+        if self._fragments is None:
+            self._fragments = [SimpleFragment(d) for d in self._data.values.tolist()]
+        return self._fragments

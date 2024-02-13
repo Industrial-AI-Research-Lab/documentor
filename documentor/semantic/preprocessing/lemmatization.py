@@ -1,5 +1,5 @@
 from natasha import (Segmenter, MorphVocab, Doc)
-from documentor.abstract.document import Document
+from structuries.document import Document
 
 segmenter = Segmenter()
 morph_vocab = MorphVocab()
@@ -14,7 +14,7 @@ def lemmatize(document: Document, *args, **kwargs):
     :rtype: list
     """
 
-    for fragment in document.fragments:
+    for fragment in document.build_fragments():
         doc = Doc(fragment.data)
         doc.segment(segmenter)
         doc.tag_set(morph_vocab)
@@ -22,4 +22,4 @@ def lemmatize(document: Document, *args, **kwargs):
         for token in doc.tokens:
             token.lemmatize(morph_vocab)
 
-        fragment.lemas = [word.lemma for word in doc.tokens]
+        fragment.lemmas = [word.lemma for word in doc.tokens]
