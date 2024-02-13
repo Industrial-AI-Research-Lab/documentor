@@ -27,5 +27,7 @@ class WikiWord2VecModel(BaseSemanticModel):
         :return: vector
         :rtype: np.ndarray
         """
-        return self.model.get_word_vector(X)
-
+        try:
+            return self.model.get_word_vector(X)
+        except KeyError:
+            return None

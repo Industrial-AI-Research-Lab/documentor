@@ -11,7 +11,6 @@ from documentor.semantic.models.base import BaseSemanticModel
 class SimpleFragment(Fragment):
     """
     Represents a simple fragment of document
-
     """
     data: str
     tokens: np.ndarray | None
@@ -26,3 +25,15 @@ class SimpleFragment(Fragment):
         :return: str
         """
         return str(self.data)
+
+    def value(self) -> str:
+        return self.data
+
+    def find_terms(self):
+        """
+        Finds all the specialized terms in this fragment
+        :return:
+        """
+        if self.lemmas is None or self.tokens is None:
+            raise ValueError("lemmas and tokens cannot be None")
+        return [pair[0] for pair in zip(self.lemmas, self.tokens) if pair[1] is None]
