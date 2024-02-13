@@ -1,5 +1,5 @@
 <div style="float: right; width: 200px; height: 200px;">
-  <img src="images/tmp_logo.png" width="200" alt="tmp-logo">
+  <img src="images/logo.png" width="200" alt="tmp-logo">
 </div>
 
 # DocuMentor
