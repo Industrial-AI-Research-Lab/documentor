@@ -1,4 +1,4 @@
-from semantic.models.base import BaseSemanticModel
+from documentor.semantic.models.base import BaseSemanticModel
 import numpy as np
 
 from wikipedia2vec import Wikipedia2Vec

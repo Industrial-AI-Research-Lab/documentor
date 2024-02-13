@@ -1,5 +1,6 @@
 from natasha import (Segmenter, MorphVocab, Doc)
-from structuries.document import Document
+
+from documentor.structuries.document import Document
 
 segmenter = Segmenter()
 morph_vocab = MorphVocab()
