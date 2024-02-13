@@ -25,10 +25,18 @@ The library performs the following tasks:
 
 ## Core features
 
+TBD
+
 ## Installation
+
+TBD
 
 ## Examples
 
+- usage of specialized terms search - [TBD](README.md)
+- usage of table border detection for excel - [TBD](README.md)
+- usage of sheet fragment classification  - [TBD](README.md)
+- 
 ## Project structure
 
 - [documentor](documentor/README.md) - main library folder
@@ -41,12 +49,32 @@ The library performs the following tasks:
 
 ## Documentation
 
+TBD
+
 ## Getting started
+
+TBD
+
+## Development tasks
+
+- Test implementation for developed functionality
+- Documentation for the library
+- Implementation of pipelines for the full process of semantic document parsing
+- Improving the search for table boundaries using genetic selection of heuristics and convolutional neural networks
+- Improvement of the algorithm for searching and replacing specialized terms
+- Implementation of the hierarchy allocation algorithm in word documents, taking into account semantics
+- Implementation of the algorithm for recognizing entities in documents
 
 ## License
 
+[BSD 3-Clause License](LICENSE.md)
+
 ## Acknowledgements
+
+By ITMO University, Saint Petersburg, Russia 
 
 ## Contacts
 
-## Citation
+Any questions and suggestions can be sent to the following contacts:
+- [Telegram](https://t.me/hungry_muskrat)
+- [Email](mailto:mkovalchuk@itmo.ru) 
