@@ -7,3 +7,4 @@ __pychache__/
 */.ipynb_checkpoints/
 
 # all jupyter notebook
+*.ipynb
