@@ -1450,7 +1450,7 @@
 1448,,,1326,NoneType,73,21,0,False,False,True,True,True,False,True,[22],21,False
 1449,,,1327,NoneType,74,1,0,False,False,False,False,False,False,False,['00000000'],0,False
 1450,,,1328,NoneType,74,2,0,False,False,False,False,False,False,False,['00000000'],0,False
-1451,,,1329,NoneType,74,3,0,False,False,False,False,False,False,False,['00000000'],0,False
+1451,,,1329,NoneType,74,3,0,False,False,False,True,True,True,False,['00000000'],0,False
 1452,,,1330,NoneType,74,4,0,False,False,False,False,False,False,False,['00000000'],0,False
 1453,,,1331,NoneType,74,5,0,False,False,False,False,False,False,False,['00000000'],0,False
 1454,,,1332,NoneType,74,6,0,False,False,False,False,False,False,False,['00000000'],0,False
@@ -1468,7 +1468,7 @@
 1466,,,1344,NoneType,74,18,0,False,False,False,False,False,False,False,['00000000'],0,False
 1467,,,1345,NoneType,74,19,0,False,False,False,False,False,False,False,['00000000'],0,False
 1468,,,1346,NoneType,74,20,0,False,False,False,False,False,False,False,['00000000'],0,False
-1469,,,1347,NoneType,74,21,0,False,False,False,False,False,False,False,['00000000'],0,False
+1469,,,1347,NoneType,74,21,0,False,False,False,True,True,False,True,['00000000'],0,False
 1470,,,1348,NoneType,75,1,0,False,False,False,False,False,False,False,['00000000'],0,False
 1471,,,1349,NoneType,75,2,0,False,False,False,False,False,False,False,['00000000'],0,False
 1472,TOTALS,TOTALS,1350,str,75,3,6,False,False,True,True,True,True,False,[22],21,False

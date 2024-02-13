@@ -111,4 +111,4 @@ class SheetParser(SimpleParser):
         :type sep: str | None
         :raises OSError: if document can't be written to file
         """
-        document.doc_df.to_csv(path, sep=sep if sep else ",")
+        document.to_df().to_csv(path, sep=sep if sep else ",")

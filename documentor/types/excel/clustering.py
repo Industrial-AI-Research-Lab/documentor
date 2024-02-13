@@ -14,7 +14,7 @@ class AlgorithmType(Enum):
     Possible variants of the clustering algorithm.
     """
     DBSCAN = DBSCAN()
-    KMEANS = KMeans()
+    KMeans = KMeans()
     OPTICS = OPTICS()
 
 
