@@ -24,7 +24,7 @@ class SheetDocument(Document):
         self._data = df
 
     @property
-    def fragments(self) -> list[SheetFragment]:
+    def build_fragments(self) -> list[SheetFragment]:
         """
         List of fragments of Document.
 
