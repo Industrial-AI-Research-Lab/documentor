@@ -1,5 +1,5 @@
 from copy import copy
-
+from sklearn.cluster import DBSCAN, OPTICS, KMeans
 import numpy as np
 import pandas as pd
 from plotly import express as px, graph_objects as go
@@ -7,11 +7,11 @@ from sklearn import metrics
 from sklearn.manifold import TSNE
 from sklearn.model_selection import ParameterGrid
 
-grid_optics = {'min_samples': range(2, 20, 1),
-               'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}
-grid_kmeans = {'algorithm': ['lloyd', 'elkan', 'auto', 'full'], 'n_clusters': range(5, 40)}
-grid_dbscan = {'eps': np.arange(1, 5, 0.5), 'min_samples': range(1, 10),
-               'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}
+grid_optics = {'algo': OPTICS, 'params': {'min_samples': range(2, 20, 1),
+               'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
+grid_kmeans = {'algo': KMeans, 'params': {'algorithm': ['lloyd', 'elkan', 'auto', 'full'], 'n_clusters': range(5, 40)}}
+grid_dbscan = {'algo': DBSCAN, 'params': {'eps': np.arange(1, 5, 0.5), 'min_samples': range(1, 10),
+               'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
 
 
 def print_metrics(y_to_pred, y_pred, y_num, X):
@@ -108,7 +108,7 @@ def selecting(type: list[str], df: pd.DataFrame):
     return df, old_indexes
 
 
-def devide(df: pd.DataFrame, type: list(str)):
+def devide(df: pd.DataFrame, type: list[str]):
     type_df, old_indexes = selecting(type, df)
     type_y = type_df[["cluster_name"]]
     type_y['cluster_name'].str.strip()

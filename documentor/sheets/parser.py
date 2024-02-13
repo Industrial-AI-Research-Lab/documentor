@@ -15,7 +15,9 @@ class ExtensionException(Exception):
 
 
 class SheetParser(SimpleParser):
-
+    COLUMNS = ['Content', 'Start_content', 'Relative_Id', 'Type', 'Row', 'Column',
+               'Length', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Top_border',
+               'Bottom_border', 'Left_border', 'Right_border', 'Color', 'Font_color', 'Is_Formula']
 
     def from_file(self, path: str, sheet_name: str, first_cell: str | None = None, last_cell: str | None = None) -> SheetDocument:
         """
@@ -75,8 +77,8 @@ class SheetParser(SimpleParser):
                      True if cel.border.left.style else False, True if cel.border.right.style else False,
                      [cel.fill.start_color.index], cel.font.color.value if cel.font.color else 0,
                      True if cel.value != sheet_formulas[cel.coordinate].value else False]
-                    frag = SheetFragment(cell_data)
-                    new_df = pd.concat([new_df, frag.fragment], ignore_index=True)
+                    fragment = pd.DataFrame(data=[cell_data], columns=self.COLUMNS)
+                    new_df = pd.concat([new_df, fragment], ignore_index=True)
 
         return SheetDocument(df=new_df)
 
