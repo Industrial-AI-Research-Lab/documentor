@@ -1,11 +1,11 @@
 from natasha import (Segmenter, MorphVocab, Doc)
-
+from documentor.abstract.document import Document
 
 segmenter = Segmenter()
 morph_vocab = MorphVocab()
 
 
-def lemmatize(text, *args, **kwargs):
+def lemmatize(document: Document, *args, **kwargs):
     """
     Lemmatize text
     :param text:
@@ -13,10 +13,13 @@ def lemmatize(text, *args, **kwargs):
     :return: list of lemmatized words
     :rtype: list
     """
-    doc = Doc(text)
-    doc.segment(segmenter)
-    doc.tag_set(morph_vocab)
-    for token in doc.tokens:
-        token.lemmatize(morph_vocab)
 
-    return [word.lemma for word in doc.tokens]
+    for fragment in document.fragments:
+        doc = Doc(fragment.data)
+        doc.segment(segmenter)
+        doc.tag_set(morph_vocab)
+
+        for token in doc.tokens:
+            token.lemmatize(morph_vocab)
+
+        fragment.lemas = [word.lemma for word in doc.tokens]

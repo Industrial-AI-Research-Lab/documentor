@@ -18,6 +18,7 @@ class Document(ABC):
     """
     Abstract class for documents of any type. Documents consist of fragments.
     """
+    data: pd.DataFrame
 
     @property
     @abstractmethod
