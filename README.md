@@ -33,7 +33,7 @@ TBD
 
 ## Examples
 
-- usage of specialized terms search - [TBD](README.md)
+- usage of specialized terms search - [TBD](notebooks/semantic_example.ipynb)
 - usage of table border detection for excel - [TBD](README.md)
 - usage of sheet fragment classification  - [TBD](README.md)
 - 
