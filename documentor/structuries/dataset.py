@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Iterator
 
-from documentor.structuries.document import TextDocument
-from documentor.text.fragment import TextFragment
+from documentor.structuries.document import Document
+from documentor.structuries.fragment import Fragment
 
 
 class Docset(ABC):
@@ -17,21 +17,21 @@ class Docset(ABC):
 
     @property
     @abstractmethod
-    def iter_doc(self) -> Iterator[TextDocument]:
+    def iter_doc(self) -> Iterator[Document]:
         """
         List of documents of dataset.
 
 
         :return: of documents
-        :rtype: list[TextDocument]
+        :rtype: list[Document]
         """
         pass
 
-    def iter_all(self) -> Iterator[TextFragment]:
+    def iter_all(self) -> Iterator[Fragment]:
         """
         Iterate over all fragments of all documents of the dataset.
         :return: all fragments
-        :rtype: Iterator[TextFragment]
+        :rtype: Iterator[Fragment]
         """
         for document in self.iter_doc:
             for fragment in document.iter_all():

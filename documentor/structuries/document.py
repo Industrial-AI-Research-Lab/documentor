@@ -3,8 +3,14 @@ from typing import Iterator
 
 import pandas as pd
 
-from documentor.text.fragment import TextFragment
-from documentor.structuries.type_check import check_data_frame, check_dict_str_str
+from documentor.structuries.fragment import Fragment
+
+
+class DocumentParsingException(Exception):
+    """
+    Exception for errors while parsing document from csv.
+    """
+    pass
 
 
 class Document(ABC):

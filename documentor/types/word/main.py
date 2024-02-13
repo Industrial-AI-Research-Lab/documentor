@@ -1,5 +1,6 @@
 import pandas as pd
 
+from documentor.structuries.document import Document, StructuredDocument, StructureNode, Fragment
 from documentor.structuries.document import TextDocument, StructuredDocument, StructureNode
 from documentor.text.fragment import TextFragment
 

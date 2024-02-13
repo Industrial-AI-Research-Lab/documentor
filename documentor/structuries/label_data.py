@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
-from documentor.structuries.document import TextDocument
-from documentor.structuries.fragment import FragmentWrapper, Fragment, FragmentInterface
+from documentor.structuries.document import Document
+from documentor.structuries.fragment import Fragment
 
 FragmentLabelType = int | str
 
