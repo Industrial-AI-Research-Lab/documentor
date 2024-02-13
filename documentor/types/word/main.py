@@ -1,6 +1,6 @@
 import pandas as pd
 
-from documentor.abstract.document import Document, StructuredDocument, StructureNode, Fragment
+from documentor.structuries.document import Document, StructuredDocument, StructureNode, Fragment
 
 class SimpleFragment(Fragment):
     data: str = ''
