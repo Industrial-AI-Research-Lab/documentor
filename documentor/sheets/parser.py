@@ -4,7 +4,6 @@ import pandas as pd
 from documentor.abstract.parser import SimpleParser
 
 from documentor.sheets.document import SheetDocument
-from documentor.sheets.fragment import SheetFragment
 
 
 class ExtensionException(Exception):
@@ -15,8 +14,11 @@ class ExtensionException(Exception):
 
 
 class SheetParser(SimpleParser):
+    COLUMNS = ['Content', 'Start_content', 'Relative_Id', 'Type', 'Row', 'Column',
+               'Length', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Top_border',
+               'Bottom_border', 'Left_border', 'Right_border', 'Color', 'Font_color', 'Is_Formula']
 
-    def from_file(self, path: str, sheet_name: str, first_cell: str | None, last_cell: str | None) -> SheetDocument:
+    def from_file(self, path: str, sheet_name: str, first_cell: str | None = None, last_cell: str | None = None) -> SheetDocument:
         """
         Create Document from file.
 
@@ -74,10 +76,10 @@ class SheetParser(SimpleParser):
                      True if cel.border.left.style else False, True if cel.border.right.style else False,
                      [cel.fill.start_color.index], cel.font.color.value if cel.font.color else 0,
                      True if cel.value != sheet_formulas[cel.coordinate].value else False]
-                    frag = SheetFragment(cell_data)
-                    new_df = pd.concat([new_df, frag.fragment], ignore_index=True)
+                    fragment = pd.DataFrame(data=[cell_data], columns=self.COLUMNS)
+                    new_df = pd.concat([new_df, fragment], ignore_index=True)
 
-        return SheetDocument(doc_df=new_df)
+        return SheetDocument(df=new_df)
 
     def from_csv(self, path: str, sep: str | None) -> SheetDocument:
         """
@@ -93,7 +95,7 @@ class SheetParser(SimpleParser):
         df = pd.read_csv(path, sep)
         return SheetDocument(df)
 
-    def to_csv(self, document: SheetDocument, path: str, sep: str | None):
+    def to_csv(self, document: SheetDocument, path: str, sep: str | None = None):
         """
         Save SheetDocument to csv file.
 
