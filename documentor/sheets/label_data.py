@@ -8,9 +8,18 @@ SheetFragmentLabelType = int | str
 
 class SheetLabeledFragment(SheetFragment):
     """
-    Abstract class for labeled fragments of document.
+    Class for tagged fragments of a sheet format document.
     """
     mark: SheetFragmentLabelType
+
+    def __init__(self, mark: str):
+        """
+        Assigning a cluster to a sheet document fragment.
+        :param mark: name of the assigned cluster
+        :type mark: str
+        """
+        self.mark = mark
+        self.fragment['cluster_name'] = mark
 
     @property
     def label(self) -> SheetFragmentLabelType:
@@ -25,7 +34,8 @@ class SheetLabeledFragment(SheetFragment):
 
 class SheetLabeledDocument(SheetDocument):
     """
-    Abstract class for document with labeled fragments. Not all fragments of document must be labeled, but at least one.
+    Class for sheet format document with labeled fragments.
+    Not all fragments of document must be labeled, but at least one.
     """
     marks = pd.Series()
 

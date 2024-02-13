@@ -1,7 +1,7 @@
 import openpyxl
 import pandas as pd
 
-from documentor.abstract.parser import SimpleParser
+from documentor.structuries.parser import SimpleParser
 
 from documentor.sheets.document import SheetDocument
 
@@ -14,6 +14,10 @@ class ExtensionException(Exception):
 
 
 class SheetParser(SimpleParser):
+    """
+    Class for primary sheet document processing.
+    """
+
     COLUMNS = ['Content', 'Start_content', 'Relative_Id', 'Type', 'Row', 'Column',
                'Length', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Top_border',
                'Bottom_border', 'Left_border', 'Right_border', 'Color', 'Font_color', 'Is_Formula']
@@ -105,7 +109,6 @@ class SheetParser(SimpleParser):
         :type path: str
         :param sep: separator for csv file
         :type sep: str | None
-        :return:
         :raises OSError: if document can't be written to file
         """
         document.doc_df.to_csv(path, sep=sep if sep else ",")

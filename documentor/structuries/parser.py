@@ -12,6 +12,9 @@ class ExtensionException(Exception):
 
 
 class SimpleParser(ABC):
+    """
+    An abstract class for primary document processing.
+    """
     @abstractmethod
     def from_file(self, path: str) -> Document:
         """

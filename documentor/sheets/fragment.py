@@ -1,24 +1,27 @@
 import pandas as pd
 
-from documentor.abstract.fragment import Fragment
+from documentor.structuries.fragment import Fragment
 
 
 class SheetFragment(Fragment):
     """
-    Abstract class for fragments of document.
-
-    Each fragment represents a structural unit of a document,
-    for example, a table cell, a log entry, a paragraph of a document with a string value and parameters.
+    Class for fragments of sheet format document.
+    Each fragment represents a cell of a sheet.
     """
 
-    COLUMNS = ['Content', 'Start_content', 'Relative_Id', 'Type', 'Row', 'Column',
-                'Length', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Top_border',
-                'Bottom_border', 'Left_border', 'Right_border', 'Color', 'Font_color', 'Is_Formula']
+    _needed_columns = ['Content', 'Start_content', 'Relative_Id', 'Type', 'Row', 'Column',
+                       'Length', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Top_border',
+                       'Bottom_border', 'Left_border', 'Right_border', 'Color', 'Font_color', 'Is_Formula']
 
-    fragment = pd.DataFrame()
+    _value = pd.DataFrame()
 
     def __init__(self, data: list):
-        self.fragment = pd.DataFrame(data=[data], columns=self.COLUMNS)
+        """
+        Creating a fragment describing a sheet cell.
+        :param data: metadata of the cell
+        :type data: list
+        """
+        self._value = pd.DataFrame(data=[data], columns=self._needed_columns)
 
     def __str__(self) -> str:
         """

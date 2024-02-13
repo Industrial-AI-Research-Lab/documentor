@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from documentor.abstract.fragment import Fragment
+from documentor.structuries.fragment import Fragment
 
 FragmentClassType = int
 

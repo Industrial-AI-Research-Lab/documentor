@@ -6,31 +6,60 @@ from plotly import express as px, graph_objects as go
 from sklearn import metrics
 from sklearn.manifold import TSNE
 from sklearn.model_selection import ParameterGrid
+from enum import Enum
+
+
+class AlgorithmType(Enum):
+    """
+    Possible variants of the clustering algorithm.
+    """
+    DBSCAN = DBSCAN()
+    KMEANS = KMeans()
+    OPTICS = OPTICS()
+
 
 grid_optics = {'algo': OPTICS, 'params': {'min_samples': range(2, 20, 1),
-               'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
+                                          'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
 grid_kmeans = {'algo': KMeans, 'params': {'algorithm': ['lloyd', 'elkan', 'auto', 'full'], 'n_clusters': range(5, 40)}}
 grid_dbscan = {'algo': DBSCAN, 'params': {'eps': np.arange(1, 5, 0.5), 'min_samples': range(1, 10),
-               'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
+                                          'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
 
 
-def print_metrics(y_to_pred, y_pred, y_num, X):
+def print_metrics(y_to_pred: pd.DataFrame, y_pred: list[str], y_num: list[str], x: pd.DataFrame):
+    """
+    Outputs metrics of clustering results.
+
+    :param y_to_pred: y-column marked up by the algorithm
+    :type y_to_pred: DataFrame
+    :param y_pred: y-column marked up by the user
+    :type y_pred: list[str]
+    :param y_num: numerically marked up y-column
+    :type y_num: list[str]
+    :param x: metadata of sheet cells
+    :type x: DataFrame
+    """
     print('Метрики для размеченных данных')
-    print('ARI', metrics.adjusted_rand_score(y_to_pred, y_pred))
-    print('AMI', metrics.adjusted_mutual_info_score(y_to_pred, y_pred))
     print('Homogenity', metrics.homogeneity_score(y_to_pred, y_pred))
     print('Completeness', metrics.completeness_score(y_to_pred, y_pred))
     print('V-measure', metrics.v_measure_score(y_to_pred, y_pred))
     print()
-    print('Метрики для оценки связности данных')
-    print('Коэффициент силуэта', metrics.silhouette_score(X, y_num))
-    print('Индекс Калински-Харабаса', metrics.calinski_harabasz_score(X, y_num))
-    print('Индекс Дэвиса-Болдина', metrics.davies_bouldin_score(X, y_num))
+    print('Метрика для оценки связности данных')
+    print('Коэффициент силуэта', metrics.silhouette_score(x, y_num))
 
 
-def plots(X, y, y_num):
+def plots(x: pd.DataFrame, y: pd.DataFrame, y_num: list):
+    """
+    Getting graphs of clustering results.
+
+    :param x: metadata of sheet cells
+    :type x: DataFrame
+    :param y: user-defined markup (only marked)
+    :type y: DataFrame
+    :param y_num: fully marked up by the algorithm y-column
+    :type y_num: list
+    """
     X_embedded = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=3)
-    qw = X_embedded.fit_transform(X)
+    qw = X_embedded.fit_transform(x)
     n_df = pd.DataFrame(qw, columns=['x', 'y'])
     y = y.fillna(0)
     n_df['cluster_number'] = y_num
@@ -58,7 +87,18 @@ def plots(X, y, y_num):
     fig1.show()
 
 
-def map_vectors(cluster_vector: list, labeled_vector: list):
+def map_vectors(cluster_vector: list[int], labeled_vector: list[str | float]) -> [list[str], dict[int, str]]:
+    """
+    Comparison of algorithm markup and user markup.
+
+    :param cluster_vector: algorithm markup list
+    :type cluster_vector: list[int]
+    :param labeled_vector: user markup list
+    :type labeled_vector: labeled_vector: list[str | float]
+    :return: fully marked up by the algorithm y-column, y-column marked up by the algorithm,
+    dictionary of markup number and name comparisons
+    :rtype: list[str], dict[int, str]
+    """
     res_dict = {}
     cluster_set = set(cluster_vector)
     labeled_dict = {v: labeled_vector.count(v) for v in set(labeled_vector)}
@@ -70,7 +110,7 @@ def map_vectors(cluster_vector: list, labeled_vector: list):
             label_value = max(set(sublist), key=sublist.count)
             for k, v in sub_dict.items():
                 if sub_dict[k] == labeled_dict[k] and sub_dict[k] != label_value:
-                    res_dict[max(cluster_vector)+1] = sub_dict[k]
+                    res_dict[max(cluster_vector) + 1] = sub_dict[k]
             res_dict[cluster_value] = label_value
         else:
             res_dict[cluster_value] = 'trash'
@@ -78,14 +118,28 @@ def map_vectors(cluster_vector: list, labeled_vector: list):
     return res_list, res_dict
 
 
-def cluster_grid_search(algo, grid, y_to_pred, X):
+def cluster_grid_search(algo: AlgorithmType, grid: dict, y_to_pred: pd.DataFrame, x: pd.DataFrame) -> dict:
+    """
+    Selection of parameters for the clustering algorithm.
+
+    :param algo: clusterization algorithm used
+    :type x: AlgorithmType
+    :param grid: a set of parameters for search
+    :type x: dict
+    :param y_to_pred: user-defined markup (only marked)
+    :type y_to_pred: DataFrame
+    :param x: metadata of sheet cells
+    :type x: DataFrame
+    :return: best parameters for the algorithm
+    :rtype: dict
+    """
     best_params = None
     best_metric = -1
 
     cluster = algo()
     for params in ParameterGrid(grid):
         cluster.set_params(**params)
-        cluster.fit(X)
+        cluster.fit(x)
         y_num = cluster.labels_
         y_pred = [y_num[i] for i in y_to_pred.index]
         y_to_t_pred = y_to_pred['cluster_name'].tolist()
@@ -98,7 +152,17 @@ def cluster_grid_search(algo, grid, y_to_pred, X):
     return best_params
 
 
-def selecting(type: list[str], df: pd.DataFrame):
+def selecting(type: list[str], df: pd.DataFrame) -> [pd.DataFrame, list[int]]:
+    """
+    Selects cells of a certain data type.
+
+    :param type: list of data types included in the dataset
+    :type type: list[str]
+    :param df: dataset describing the metadata of all cells in the worksheet
+    :type df: DataFrame
+    :return: df of define type ,cell indexes in the original dataset,
+    :rtype: DataFrame, list[int]
+    """
     df = df.loc[df['Type'].isin(type)]
     old_indexes = df.index
     df.index = pd.RangeIndex(0, len(df.index))
@@ -108,7 +172,18 @@ def selecting(type: list[str], df: pd.DataFrame):
     return df, old_indexes
 
 
-def devide(df: pd.DataFrame, type: list[str]):
+def devide(df: pd.DataFrame, type: list[str]) -> [list[int], pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Prepares the dataset for clustering.
+
+    :param df: dataset describing the metadata of all cells in the worksheet
+    :type df: DataFrame
+    :param type: list of data types included in the dataset
+    :type type: list[str]
+    :return: cell indexes in the original dataset, metadata of sheet cells, user-defined markup (all cells),
+    user-defined markup (only marked)
+    :rtype: [list[int], pd.DataFrame, pd.DataFrame, pd.DataFrame]
+    """
     type_df, old_indexes = selecting(type, df)
     type_y = type_df[["cluster_name"]]
     type_y['cluster_name'].str.strip()
