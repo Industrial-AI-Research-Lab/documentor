@@ -41,6 +41,17 @@ class Document(ABC):
         for ind, rows in self._data.iterrows():
             yield ind, rows
 
+    def iter_all_str(self) -> Iterator[str]:
+        """
+        Iterate over all values of fragments of the Document.
+
+        :return: the document fragments
+        :rtype: Iterator[str]
+        """
+        for fragment in self.fragments:
+            yield fragment.__str__()
+
+    @abstractmethod
     def to_df(self) -> pd.DataFrame:
         """
         Convert Document to pandas DataFrame.

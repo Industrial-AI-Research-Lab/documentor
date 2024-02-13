@@ -1,5 +1,5 @@
 <div style="float: right; width: 200px; height: 200px;">
-  <img src="images/tmp_logo.png" width="200" alt="tmp-logo">
+  <img src="images/logo.png" width="200" alt="tmp-logo">
 </div>
 
 # DocuMentor
@@ -35,8 +35,9 @@ TBD
 
 - usage of specialized terms search - [TBD](notebooks/semantic_example.ipynb)
 - usage of table border detection for excel - [TBD](README.md)
-- usage of sheet fragment classification  - [TBD](README.md)
-- 
+- usage of excel to csv parser  - [link](examples/table parsing.ipynb)
+- usage of sheet fragment classification  - [link](examples/table fragmentation.ipynb)
+
 ## Project structure
 
 - [documentor](documentor/README.md) - main library folder
@@ -75,6 +76,6 @@ By ITMO University, Saint Petersburg, Russia
 
 ## Contacts
 
-Any questions and suggestions can be sent to the following contacts:
+Questions and suggestions can be asked to Mikhail Kovalchuk by the following contacts:
 - [Telegram](https://t.me/hungry_muskrat)
 - [Email](mailto:mkovalchuk@itmo.ru) 
