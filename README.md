@@ -35,8 +35,9 @@ TBD
 
 - usage of specialized terms search - [TBD](README.md)
 - usage of table border detection for excel - [TBD](README.md)
-- usage of sheet fragment classification  - [TBD](README.md)
-- 
+- usage of excel to csv parser  - [link](examples/table parsing.ipynb)
+- usage of sheet fragment classification  - [link](examples/table fragmentation.ipynb)
+
 ## Project structure
 
 - [documentor](documentor/README.md) - main library folder
