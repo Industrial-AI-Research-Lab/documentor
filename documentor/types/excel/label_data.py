@@ -1,5 +1,5 @@
-from documentor.sheets.document import SheetDocument
-from documentor.sheets.fragment import SheetFragment
+from documentor.types.excel.document import SheetDocument
+from documentor.types.excel.fragment import SheetFragment
 
 import pandas as pd
 

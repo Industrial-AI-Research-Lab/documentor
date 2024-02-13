@@ -3,7 +3,7 @@ import pandas as pd
 
 from documentor.structuries.parser import SimpleParser
 
-from documentor.sheets.document import SheetDocument
+from documentor.types.excel.document import SheetDocument
 
 
 class ExtensionException(Exception):
