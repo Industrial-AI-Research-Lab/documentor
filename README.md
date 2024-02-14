@@ -41,9 +41,8 @@ jupytext --to notebook file_name.md
 ```
 
 - usage of specialized terms search - [TBD](README.md)
-- usage of table border detection for excel - [link](examples/table_detection.md)
-- usage of excel to csv parser  - [link](examples/table parsing.md)
-- usage of sheet fragment classification  - [link](examples/table fragmentation.md)
+- usage of excel to csv parser  - [link](examples/table_parsing.md)
+- usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
 
 ## Project structure
 
