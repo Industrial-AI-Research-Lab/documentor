@@ -15,7 +15,7 @@ class DocumentParsingException(Exception):
 
 class Document(ABC):
     """
-    Abstract class for document.
+    Abstract class for documents of any type. Documents consist of fragments.
     """
     _data: pd.DataFrame
     _columns: dict[str, str] = {}
@@ -45,29 +45,20 @@ class Document(ABC):
         pass
 
     @abstractmethod
-    def build_fragments(self) -> list[TextFragment]:
+    def build_fragments(self) -> list[Fragment]:
         """
         List of fragments of Document.
 
+        Note: if speed is important, it is preferable to use iter_rows method.
+
         :return: list of fragments
-        :rtype: list[TextFragment]
+        :rtype: list[Fragment]
         """
         pass
 
-    @abstractmethod
     def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:
         """
-        Iterate over all fragments of the Document with their row numbers.
-
-        :return: the document fragments with their row numbers
-        :rtype: Iterator[tuple[int, TextFragment]]
-        """
-        pass
-
-    @abstractmethod
-    def iter_all_str(self) -> Iterator[str]:
-        """
-        Iterate over all values of fragments of the Document.
+        Iterate over all fragments of the Document.
 
         :return: the document fragments
         :rtype: Iterator[str]

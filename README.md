@@ -1,5 +1,5 @@
 <div style="float: right; width: 200px; height: 200px;">
-  <img src="images/tmp_logo.png" width="200" alt="tmp-logo">
+  <img src="images/logo.png" width="200" alt="tmp-logo">
 </div>
 
 # DocuMentor
@@ -29,14 +29,29 @@ TBD
 
 ## Installation
 
-TBD
+Download the library from the repository and install it using the following command:
+```shell
+pip install -r requirements.txt
+
+# for running examples jupyter notebooks:
+pip install jupyter jupytext
+
+# convert .md to .ipynb
+jupytext --to notebook file_name.md
+```
 
 ## Examples
 
-- usage of specialized terms search - [TBD](README.md)
-- usage of table border detection for excel - [TBD](README.md)
-- usage of sheet fragment classification  - [TBD](README.md)
-- 
+
+All examples made in jupyter notebooks, so you should have jupyter installed to run them.
+Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the 
+jupytext library (see installation section for details).
+
+- usage of specialized terms search - [link](examples/semantic_example.md)
+- usage of excel to csv parser  - [link](examples/table_parsing.md)
+- usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
+
+
 ## Project structure
 
 - [documentor](documentor/README.md) - main library folder

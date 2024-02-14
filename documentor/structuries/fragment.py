@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABC
 from typing import Any
+from abc import ABC, abstractmethod
 
 from documentor.structuries.type_check import check_str
 
