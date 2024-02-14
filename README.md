@@ -33,6 +33,7 @@ TBD
 
 ## Examples
 
+
 All examples made in jupyter notebooks, so you should have jupyter installed to run them.
 Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the jupytext library:
 ```shell
@@ -40,9 +41,10 @@ Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you ca
 jupytext --to notebook file_name.md 
 ```
 
-- usage of specialized terms search - [TBD](README.md)
+- usage of specialized terms search - [TBD](notebooks/semantic_example.ipynb)
 - usage of excel to csv parser  - [link](examples/table_parsing.md)
 - usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
+
 
 ## Project structure
 
