@@ -29,19 +29,25 @@ TBD
 
 ## Installation
 
-TBD
+Download the library from the repository and install it using the following command:
+```shell
+pip install -r requirements.txt
+
+# for running examples jupyter notebooks:
+pip install jupyter jupytext
+
+# convert .md to .ipynb
+jupytext --to notebook file_name.md
+```
 
 ## Examples
 
 
 All examples made in jupyter notebooks, so you should have jupyter installed to run them.
-Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the jupytext library:
-```shell
-# pip install jupytext
-jupytext --to notebook file_name.md 
-```
+Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the 
+jupytext library (see installation section for details).
 
-- usage of specialized terms search - [TBD](notebooks/semantic_example.ipynb)
+- usage of specialized terms search - [link](examples/semantic_example.md)
 - usage of excel to csv parser  - [link](examples/table_parsing.md)
 - usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
 
