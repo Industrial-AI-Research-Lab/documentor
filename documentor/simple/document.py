@@ -36,3 +36,11 @@ class SimpleDocument(Document):
         :rtype: set[str]
         """
         return set([word for fragment in self._fragments for word in fragment.find_terms()])
+
+    def to_df(self) -> pd.DataFrame:
+        """
+        Convert Document to DataFrame
+        :return: DataFrame of Document
+        :rtype: pd.DataFrame
+        """
+        return self._data.copy()
