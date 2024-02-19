@@ -29,15 +29,16 @@ TBD
 
 ## Installation
 
-Download the library from the repository and install it using the following command:
+For installation from the source code, you need to have the poetry package manager installed ([poetry](https://github.com/python-poetry/install.python-poetry.org)).
 ```shell
-pip install -r requirements.txt
+poetry install
+```
+If you want to run the jupyter notebooks, you need to install jupyter and jupytext:
+```shell
+poetry install -E jupyter
 
-# for running examples jupyter notebooks:
-pip install jupyter jupytext
-
-# convert .md to .ipynb
-jupytext --to notebook file_name.md
+# for convert .md to .ipynb
+jupytext --to notebook notebook_name.md 
 ```
 
 ## Examples
