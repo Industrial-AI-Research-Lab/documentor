@@ -27,10 +27,34 @@ class BaseSemanticModel(ABC):
     @abstractmethod
     def encode(self, X, *args, **kwargs) -> np.ndarray:
         """
-        process the data and return it
+        base method for encoding
         :param X: Data for processing
-        :type X: any collection words or one words
+        :type X: str or tuple[str]
         :return: numpy array of tokens
         :rtype: np.ndarray
+        """
+        ...
+
+    @abstractmethod
+    def encode_text(self, X: str, *args, **kwargs) -> np.ndarray | tuple[str] | None:
+        """
+        Method for encoding text that contain several words
+        :param X: a long string of words separated by spaces
+        :param X: str
+        :param args:
+        :param kwargs:
+        :return: matrix or tuple of processed words
+        """
+        ...
+
+    @abstractmethod
+    def encode_word(self, X: str, *args, **kwargs) -> np.ndarray | str | None:
+        """
+        Method for encoding a single word
+        :param X: a single word
+        :type X: str
+        :param args:
+        :param kwargs:
+        :return: matrix of processed word
         """
         ...
