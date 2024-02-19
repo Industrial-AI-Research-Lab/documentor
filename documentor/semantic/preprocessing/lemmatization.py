@@ -1,13 +1,6 @@
-from natasha import (Segmenter, MorphVocab, Doc, NewsEmbedding, NewsMorphTagger)
-import re
-
 from documentor.structuries.document import Document
 
-segmenter = Segmenter()
-morph_vocab = MorphVocab()
-emb = NewsEmbedding()
-morph_tag = NewsMorphTagger(emb)
-word_pattern = re.compile(r'^[a-zA-Zа-яА-ЯёЁ]+$')
+
 
 
 def lemmatize(document: Document, *args, **kwargs):
