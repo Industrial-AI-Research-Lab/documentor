@@ -26,7 +26,13 @@ class SimpleFragment(Fragment):
         """
         return str(self.data)
 
+    @property
     def value(self) -> str:
+        """
+        Get sentence from fragment
+        :return: sentence
+        :rtype: str
+        """
         return self.data
 
     def find_terms(self):
