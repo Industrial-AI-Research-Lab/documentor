@@ -5,14 +5,11 @@ from sklearn.cluster import DBSCAN
 
 from documentor.structuries.classifier import FragmentClassifier
 from documentor.types.excel.label_data import SheetLabeledFragment
-from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide, grid_optics,
-                                               grid_kmeans, grid_dbscan, AlgorithmType)
+from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide,
+                                               grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing)
 from documentor.types.excel.fragment import SheetFragment
 
 SheetFragmentClassType = int | str
-
-
-
 
 
 class SheetFragmentClassifier(FragmentClassifier):
@@ -23,13 +20,15 @@ class SheetFragmentClassifier(FragmentClassifier):
     _dict_map: dict[int: str]
     _cluster_model = AlgorithmType
 
-    def __init__(self, algo: AlgorithmType = DBSCAN, params: dict = {'eps':0.1, 'min_samples':3}):
+    def __init__(self, algo: AlgorithmType = DBSCAN, params=None):
         """
         Creating a classifier of cells in a sheet document.
 
         :param algo: clusterization algorithm used
         :type algo: AlgorithmType | None
         """
+        if params is None:
+            params = {'eps': 0.1, 'min_samples': 3}
         self._cluster_model = algo(**params)
         self._dict_map = {}
 
@@ -115,11 +114,12 @@ class SheetFragmentClassifier(FragmentClassifier):
         """
         col_names = [str(i) for i in df.columns]
         df.columns = col_names
-        df = df.drop(columns=['Content', 'Start_content', 'Row', 'Relative_Id'])
+        # df_copy = row_typing(df)
+        df_copy = df.drop(columns=['Content', 'Start_content', 'Row', 'Relative_Id'])
 
-        self.print_result(df, ['str', 'datetime.datetime', 'datetime.time'], 'string')
-        self.print_result(df, ['int', 'float'], 'number')
-        self.print_result(df, ['NoneType'], 'none')
+        self.print_result(df_copy, ['str', 'datetime.datetime', 'datetime.time'], 'string')
+        self.print_result(df_copy, ['int', 'float'], 'number')
+        self.print_result(df_copy, ['NoneType'], 'none')
 
     def simple_classify(self, fragment: SheetFragment) -> SheetLabeledFragment:
         """

@@ -1,4 +1,6 @@
 from copy import copy
+from itertools import chain
+
 from sklearn.cluster import DBSCAN, OPTICS, KMeans
 import numpy as np
 import pandas as pd
@@ -192,3 +194,56 @@ def devide(df: pd.DataFrame, type: list[str]) -> [list[int], pd.DataFrame, pd.Da
     type_X = type_X.fillna(0)
 
     return old_indexes, type_X, type_y, type_y_to_pred
+
+
+def row_typing(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    The function of classifying table rows.
+
+    :param df: dataset describing the metadata of all cells in the worksheet
+    :type df: DataFrame
+    :return: dataset describing the metadata of all cells in the worksheet with row tupes
+    :rtype: DataFrame
+    """
+    ndf = df[['Row', 'Column', 'Color', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Is_Formula', 'Type', 'Font_color']]
+    ndf["Color"] = pd.factorize(ndf["Color"])[0]
+    ndf["Type"] = pd.factorize(ndf["Type"])[0]
+    ndf["Font_color"] = pd.factorize(ndf["Font_color"])[0]
+    ndf['Row'] -= ndf['Row'].iloc[0]
+    ndf['Column'] -= ndf['Column'].iloc[0]
+    ndf.reset_index(drop=True, inplace=True)
+
+    arr = np.empty((ndf.tail(1)['Row'].iloc[0] + 1, ndf.tail(1)['Column'].iloc[0] + 1), dtype="object")
+    for i, row in ndf.iterrows():
+        arr[row['Row'], row['Column']] = row.values.tolist()
+    mass = [list(chain.from_iterable([arr[i][j] for j in range(len(arr[i]))])) for i in range(len(arr))]
+    rest_df = pd.DataFrame(data=mass)
+    rest_df = rest_df.fillna(0)
+
+    in_cols = []
+    for i in rest_df.columns:
+        if int(i) % 9 in [2, 3, 4, 5, 6, 7, 8]:
+            in_cols.append(True)
+        else:
+            in_cols.append(False)
+
+    rest_df = rest_df.iloc[:, in_cols]
+
+    ald = DBSCAN().fit(rest_df)
+    rest_df['labels'] = ald.labels_
+    rest_df['labels'] = rest_df['labels'].apply(lambda x: x + 1)
+    part_list = rest_df['labels']
+
+    to_merge_df = pd.DataFrame()
+    to_merge_df['Row'] = rest_df.index + ndf['Row'].iloc[0]
+    to_merge_df['labels'] = part_list
+    to_merge_df = to_merge_df.set_index('Row')
+
+    str_type_list = []
+    names = list(df.columns)
+    r_i = names.index('Row') + 1
+    for row in df.itertuples():
+        a = to_merge_df['labels'][row[r_i]] if row[r_i] in list(to_merge_df.index) else None
+        str_type_list.append(a)
+    df['row_type'] = str_type_list
+    return df
