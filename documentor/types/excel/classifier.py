@@ -53,7 +53,6 @@ class SheetClassifier(FragmentClassifier):
         old_indexes, x, y, y_to_pred = devide(df, df_types)
 
         v_measure = 0
-        silhouette_koef = 0
         for grid in [grid_dbscan, grid_optics, grid_kmeans]:
             algo_params = cluster_grid_search(grid['algo'], grid['params'], y_to_pred, x)
             algo_clustering = grid['algo'](**algo_params)
@@ -65,27 +64,16 @@ class SheetClassifier(FragmentClassifier):
             algo_y_num_map, algo_dict_map = map_vectors(algo_y_num, y['cluster_name'].tolist())
             algo_y_pred_map = [algo_y_num_map[i] for i in y_to_pred.index]
 
-            if metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) > v_measure:
+            if metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) >= v_measure:
                 v_measure = metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map)
-                silhouette_koef = metrics.silhouette_score(x, algo_y_num)
                 x['full_algo_labels'] = algo_y_num_map
                 x['algo_labels'] = algo_y_to_pred
                 x['user_labels'] = algo_y_pred_map
                 x['numeric_labels'] = algo_y_num
+                al = grid['algo'].__name__
+                cluster_model = grid['algo'](**algo_params)
+                dict_map = algo_dict_map
 
-                al = grid['algo'].__name__
-                cluster_model = grid['algo'](**algo_params)
-                dict_map = algo_dict_map
-            elif (metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) == v_measure and
-                  metrics.silhouette_score(x, algo_y_num) > silhouette_koef):
-                silhouette_koef = metrics.silhouette_score(x, algo_y_num)
-                x['full_algo_labels'] = algo_y_num_map
-                x['algo_labels'] = algo_y_to_pred
-                x['user_labels'] = algo_y_pred_map
-                x['numeric_labels'] = algo_y_num
-                al = grid['algo'].__name__
-                cluster_model = grid['algo'](**algo_params)
-                dict_map = algo_dict_map
         x['y'] = y
         x['old_indexes'] = old_indexes
         return x, al, cluster_model, dict_map
