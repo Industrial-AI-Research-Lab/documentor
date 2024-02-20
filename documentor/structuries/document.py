@@ -4,6 +4,8 @@ from typing import Iterator
 import pandas as pd
 
 from documentor.structuries.fragment import Fragment
+from documentor.structuries.type_check import check_data_frame, check_dict_str_str
+from documentor.text.fragment import TextFragment
 
 
 class DocumentParsingException(Exception):

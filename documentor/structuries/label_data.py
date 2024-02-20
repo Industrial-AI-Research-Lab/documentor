@@ -1,13 +1,12 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 
-from documentor.structuries.document import Document
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.document import TextDocument
+from documentor.structuries.fragment import FragmentInterface
 
 FragmentLabelType = int | str
 
 
-class LabeledFragment(FragmentWrapper):
+class LabeledFragment(FragmentInterface):
     """
     Abstract class for labeled fragments of document.
     """
