@@ -7,11 +7,16 @@ from documentor.structuries.fragment import Fragment
 FragmentLabelType = int | str
 
 
-class LabeledFragment(Fragment, ABC):
+class LabeledFragment(FragmentWrapper):
     """
     Abstract class for labeled fragments of document.
     """
-    @abstractmethod
+    _label: FragmentLabelType
+
+    def __init__(self, fragment: FragmentInterface, label: FragmentLabelType) -> None:
+        self._fragment = fragment
+        self._label = label
+
     @property
     def label(self) -> FragmentLabelType:
         """
@@ -20,13 +25,14 @@ class LabeledFragment(Fragment, ABC):
         :return: the label
         :rtype: FragmentLabelType
         """
-        pass
+        return self._label
 
 
-class LabeledDocument(Document, ABC):
+class LabeledDocument(TextDocument, ABC):
     """
     Abstract class for document with labeled fragments. Not all fragments of document must be labeled, but at least one.
     """
+
     @abstractmethod
     def labeled_fragments(self) -> list[LabeledFragment]:
         """

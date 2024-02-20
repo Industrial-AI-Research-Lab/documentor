@@ -1,8 +1,11 @@
 import pandas as pd
 
 from documentor.structuries.document import Document, StructuredDocument, StructureNode, Fragment
+from documentor.structuries.document import TextDocument, StructuredDocument, StructureNode
+from documentor.text.fragment import TextFragment
 
-class SimpleFragment(Fragment):
+
+class SimpleFragment(TextFragment):
     data: str = ''
     def __init__(self, row):
         self.data = row
@@ -11,8 +14,8 @@ class SimpleFragment(Fragment):
         return self.data
 
 
-class SimpleDocument(Document):
-    data: list[Fragment] = []
+class SimpleDocument(TextDocument):
+    data: list[TextFragment] = []
 
     def __init__(self):
         ...

@@ -18,6 +18,31 @@ class Document(ABC):
     Abstract class for documents of any type. Documents consist of fragments.
     """
     _data: pd.DataFrame
+    _columns: dict[str, str] = {}
+
+    @abstractmethod
+    def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
+        """
+        Initializes an instance of the class by pandas DataFrame. The DataFrame should contain column.
+
+        :param data: A pandas DataFrame containing the data.
+        :type data: pd.DataFrame
+        :param name_mapper: A dictionary mapping column names in 'data' to new names. Default is None.
+        :type name_mapper: dict[str, str]
+        :return: None
+        :raises TypeError: if the object is not pandas DataFrame or name_mapper is not dict[str, str] or None
+        """
+        pass
+
+    @classmethod
+    def needed_columns(cls) -> dict[str, str]:
+        """
+        Return for class needed column names in df for initialization.
+
+        :return: column names with description
+        :rtype: dict[str, str]
+        """
+        pass
 
     @abstractmethod
     def build_fragments(self) -> list[Fragment]:
@@ -36,20 +61,19 @@ class Document(ABC):
         Iterate over all fragments of the Document.
 
         :return: the document fragments
-        :rtype: Iterator[int, pd.Series]
-        """
-        for ind, rows in self._data.iterrows():
-            yield ind, rows
-
-    def iter_all_str(self) -> Iterator[str]:
-        """
-        Iterate over all values of fragments of the Document.
-
-        :return: the document fragments
         :rtype: Iterator[str]
         """
-        for fragment in self.fragments:
-            yield fragment.__str__()
+        pass
+
+    @property
+    def data(self) -> pd.DataFrame:
+        """
+        Get the data of the document.
+
+        :return: the data
+        :rtype: pd.DataFrame
+        """
+        return self._data
 
     @abstractmethod
     def to_df(self) -> pd.DataFrame:
@@ -59,52 +83,87 @@ class Document(ABC):
         :return: pandas DataFrame with data about fragments
         :rtype: pd.DataFrame
         """
-        return self._data.copy()
-
-
-class StructureNode(ABC):
-    """
-    Class for nodes with elements of hierarchical structure of document.
-    """
-    _children: list['StructureNode'] | None = None
-
-    @property
-    @abstractmethod
-    def fragments(self) -> list[Fragment]:
-        """
-        Get all fragments of the node and its children.
-
-        :return: list of fragments
-        :rtype: list[Fragment]
-        """
         pass
 
-    def children(self) -> list['StructureNode'] | None:
-        """
-        Get children nodes of the node, if the node has children.
-        Otherwise, return None.
 
-        :return: children of the node or None
-        :rtype: list[StructureNode] | None
-        """
-        if self._children is None:
-            return None
-        return self._children
-
-
-class StructuredDocument(Document, ABC):
+class TextDocument(Document):
     """
-    Abstract class for documents with hierarchical structure. Documents hierarchy is represented by tree.
-    The document is a root of the tree.
+    Simple realization of document with string fragments.
     """
-    _root: StructureNode
+    _data: pd.DataFrame
+    _columns: dict[str, str] = {
+        'value': 'The text value of the fragment'
+    }
 
-    @property
-    def root(self) -> StructureNode:
+    def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
         """
-        Get root of hierarchical structure of document.
+        Initializes an instance of the class by pandas DataFrame. The DataFrame should contain column.
 
-        :return: the root
-        :rtype: StructureNode
+        :param data: A pandas DataFrame containing the data.
+        :type data: pd.DataFrame
+        :param name_mapper: A dictionary mapping column names in 'data' to new names. Default is None.
+        :type name_mapper: dict[str, str]
+        :return: None
+        :raises TypeError: if the object is not pandas DataFrame or name_mapper is not dict[str, str] or None
         """
-        return self._root
+        check_data_frame(data)
+        columns = list[self._columns.keys()]
+        if name_mapper is not None:
+            check_dict_str_str(name_mapper)
+            columns = [name_mapper[k] if k in name_mapper else k for k in self._columns.keys()]
+        data = data[columns].copy()
+        if name_mapper is not None:
+            reversed_name_mapper = {v: k for k, v in name_mapper.items()}
+            name_mapper = dict(zip(columns, columns)) | reversed_name_mapper
+            data.rename(columns=name_mapper, inplace=True)
+        self._data = data
+
+    @classmethod
+    def needed_columns(cls) -> dict[str, str]:
+        """
+        Get the list of necessary columns for creating Document with their descriptions.
+
+        :return: list of pairs (column name, column description)
+        :rtype: list[tuple[str, str]]
+        """
+        return cls._columns
+
+    def build_fragments(self) -> list[TextFragment]:
+        """
+        List of fragments of Document.
+
+        Note: If speed is important, it is preferable to use iter_rows() method.
+
+        :return: list of fragments
+        :rtype: list[TextFragment]
+        """
+        return [TextFragment(row['value']) for _, row in self._data.iterrows()]
+
+    def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:
+        """
+        Iterate over all fragments of the Document with their row numbers.
+
+        :return: the document fragments with their row numbers
+        :rtype: Iterator[tuple[int, TextFragment]]
+        """
+        for i, row in self._data.iterrows():
+            yield i, row
+
+    def iter_all_str(self) -> Iterator[str]:
+        """
+        Iterate over all values of fragments of the Document.
+
+        :return: the document fragments
+        :rtype: Iterator[str]
+        """
+        for _, row in self.iter_rows():
+            yield row['value']
+
+    def to_df(self) -> pd.DataFrame:
+        """
+        Convert Document to pandas DataFrame.
+
+        :return: pandas DataFrame with data about fragments
+        :rtype: pd.DataFrame
+        """
+        return self._data.copy()
