@@ -30,3 +30,7 @@ class SheetFragment(Fragment):
         :rtype: str
         """
         return self.frag['Start_content'][0]
+
+    @property
+    def value(self) -> pd.DataFrame:
+        return self._value

@@ -61,3 +61,7 @@ class SheetDocument(Document):
         :rtype: pd.DataFrame
         """
         return self._data
+
+    def update_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        self._data = df
+        return self._data

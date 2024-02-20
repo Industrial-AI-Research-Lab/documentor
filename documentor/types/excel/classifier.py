@@ -4,6 +4,7 @@ from sklearn import metrics
 from sklearn.cluster import DBSCAN
 
 from documentor.structuries.classifier import FragmentClassifier
+from documentor.types.excel.document import SheetDocument
 from documentor.types.excel.label_data import SheetLabeledFragment
 from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide,
                                                grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing)
@@ -12,13 +13,17 @@ from documentor.types.excel.fragment import SheetFragment
 SheetFragmentClassType = int | str
 
 
-class SheetFragmentClassifier(FragmentClassifier):
+class SheetClassifier(FragmentClassifier):
     """
     Class for sheet format fragment classifier.
     """
 
-    _dict_map: dict[int: str]
-    _cluster_model = AlgorithmType
+    _str_dict_map: dict[int: str]
+    _str_cluster_model = AlgorithmType
+    _number_dict_map: dict[int: str]
+    _number_cluster_model = AlgorithmType
+    _none_dict_map: dict[int: str]
+    _none_cluster_model = AlgorithmType
 
     def __init__(self, algo: AlgorithmType = DBSCAN, params=None):
         """
@@ -32,23 +37,21 @@ class SheetFragmentClassifier(FragmentClassifier):
         self._cluster_model = algo(**params)
         self._dict_map = {}
 
-    def cluster(self, y_to_pred: pd.DataFrame, x: pd.DataFrame, y: pd.DataFrame) -> [list[str], list[str],
-                                                                                     list[str], list[int], str]:
+    def cluster(self, df: pd.DataFrame, df_types: list[str]) -> [pd.DataFrame, str, AlgorithmType, dict]:
         """
         Choosing the best clustering algorithm and obtaining a dictionary
         with a comparison of user and algorithmic markup.
 
-        :param y_to_pred: user-defined markup (only marked)
-        :type y_to_pred: DataFrame
-        :param x: metadata of sheet cells
-        :type x: DataFrame
-        :param y: user-defined markup (all cells)
-        :type y: DataFrame
-        :return: fully marked up by the algorithm y-column, y-column marked up by the algorithm,
-        y-column marked up by the user, numerically marked up y-column,
+        :param df: dataset describing the metadata of all cells in the worksheet
+        :type df: DataFrame
+        :param df_types: list of data types included in the dataset
+        :type df_types:list[str]
+        :return: DataFrame with labeled infor,
         the name of the selected algorithm
-        :rtype: [list[str], list[str], list[str], list[int], str]
+        :rtype: [DataFrame, str, AlgorithmType, dict]
         """
+        old_indexes, x, y, y_to_pred = devide(df, df_types)
+
         v_measure = 0
         silhouette_koef = 0
         for grid in [grid_dbscan, grid_optics, grid_kmeans]:
@@ -65,61 +68,76 @@ class SheetFragmentClassifier(FragmentClassifier):
             if metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) > v_measure:
                 v_measure = metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map)
                 silhouette_koef = metrics.silhouette_score(x, algo_y_num)
-                y_num_map = algo_y_num_map
-                al_y_to_pred = algo_y_to_pred
-                y_pred_map = algo_y_pred_map
-                y_num = algo_y_num
+                x['full_algo_labels'] = algo_y_num_map
+                x['algo_labels'] = algo_y_to_pred
+                x['user_labels'] = algo_y_pred_map
+                x['numeric_labels'] = algo_y_num
+
                 al = grid['algo'].__name__
-                self._cluster_model = grid['algo'](**algo_params)
-                self._dict_map = algo_dict_map
+                cluster_model = grid['algo'](**algo_params)
+                dict_map = algo_dict_map
             elif (metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) == v_measure and
                   metrics.silhouette_score(x, algo_y_num) > silhouette_koef):
                 silhouette_koef = metrics.silhouette_score(x, algo_y_num)
-                y_num_map = algo_y_num_map
-                al_y_to_pred = algo_y_to_pred
-                y_pred_map = algo_y_pred_map
-                y_num = algo_y_num
+                x['full_algo_labels'] = algo_y_num_map
+                x['algo_labels'] = algo_y_to_pred
+                x['user_labels'] = algo_y_pred_map
+                x['numeric_labels'] = algo_y_num
                 al = grid['algo'].__name__
-                self._cluster_model = grid['algo'](**algo_params)
-                self._dict_map = algo_dict_map
+                cluster_model = grid['algo'](**algo_params)
+                dict_map = algo_dict_map
+        x['y'] = y
+        x['old_indexes'] = old_indexes
+        return x, al, cluster_model, dict_map
 
-        return y_num_map, al_y_to_pred, y_pred_map, y_num, al
-
-    def print_result(self, df: pd.DataFrame, df_types: list[str], type: str) -> None:
+    def print_result(self, document: SheetDocument, al: str) -> None:
         """
         Displays the markup results.
 
-        :param df: dataset describing the metadata of all cells in the worksheet
-        :type df: DataFrame
-        :param df_types: list of data types included in the dataset
-        :type df_types:list[str]
-        :param type: the name of the dataset type for the user
-        :type type: str
+        :param document: SheetDocument with label information
+        :type document: SheetDocument
+        :param al: the name of the dataset type for the user
+        :type al: str
         """
-        old_indexes, X, y, y_to_pred = devide(df, df_types)
-        y_num_map, al_y_to_pred, y_pred_map, y_num, al = self.cluster(y_to_pred, X, y)
+        df = document.to_df()
+        x = df.drop(columns=['y', 'full_algo_labels', 'algo_labels', 'user_labels', 'numeric_labels'])
         print(f'\ntype: {type}, algorithm: {al}')
-        plots(X, y, y_num_map)
-        print_metrics(al_y_to_pred, y_pred_map, y_num, X)
+        plots(x, df['y'], df['full_algo_labels'])
+        print_metrics(df['algo_labels'], df['user_labels'], df['numeric_labels'], x)
 
-    def devide_and_cluster(self, df: pd.DataFrame) -> None:
+    def document_cluster(self, document: SheetDocument) -> SheetDocument:
         """
         Divides the dataset into parts by type.
         Determines the appropriate clustering algorithm for each part.
         Marks up data that is not labeled in the custom markup.
-        Displays the markup results.
 
-        :param df: dataset describing the metadata of all cells in the worksheet
-        :type df: DataFrame
+        :param document: sheet document information
+        :type document: SheetDocument with label information
         """
+        df = document.to_df()
         col_names = [str(i) for i in df.columns]
         df.columns = col_names
-        # df_copy = row_typing(df)
-        df_copy = df.drop(columns=['Content', 'Start_content', 'Row', 'Relative_Id'])
+        df_copy = row_typing(df)
+        df_copy = df_copy.drop(columns=['Content', 'Start_content', 'Row', 'Relative_Id'])
 
-        self.print_result(df_copy, ['str', 'datetime.datetime', 'datetime.time'], 'string')
-        self.print_result(df_copy, ['int', 'float'], 'number')
-        self.print_result(df_copy, ['NoneType'], 'none')
+        str_res_df, str_al, str_model, str_dict = self.cluster(df_copy, ['str', 'datetime.datetime', 'datetime.time'])
+        self._str_cluster_model = str_model
+        self._str_dict_map = str_dict
+        number_res_df, number_al, number_model, number_dict = self.cluster(df_copy, ['int', 'float'])
+        self._number_cluster_model = number_model
+        self._number_dict_map = number_dict
+        none_res_df, none_al, none_model, none_dict = self.cluster(df_copy, ['NoneType'])
+        self._none_cluster_model = none_model
+        self._none_dict_map = none_dict
+
+        ret_df = pd.DataFrame()
+        ret_df = pd.concat([ret_df, str_res_df], ignore_index=True)
+        ret_df = pd.concat([ret_df, number_res_df], ignore_index=True)
+        ret_df = pd.concat([ret_df, none_res_df], ignore_index=True)
+        ret_df = ret_df.sort_values('old_indexes')
+
+        document.update_data(ret_df)
+        return document.to_df()
 
     def simple_classify(self, fragment: SheetFragment) -> SheetLabeledFragment:
         """
@@ -130,6 +148,14 @@ class SheetFragmentClassifier(FragmentClassifier):
         :return: fragment of document with mark
         :rtype: SheetLabeledFragment
         """
-        fragment_type = self.cluster_model.fit(fragment.fragment)
-        classified_fragment = SheetLabeledFragment(fragment_type)
+        if fragment['Type'] in ['str', 'datetime.datetime', 'datetime.time']:
+            fragment_type = self._str_cluster_model.fit(fragment.value)
+            fragment_name = self._str_dict_map[fragment_type]
+        elif fragment['Type'] in ['int', 'float']:
+            fragment_type = self._number_cluster_model.fit(fragment.value)
+            fragment_name = self._number_dict_map[fragment_type]
+        else:
+            fragment_type = self._none_cluster_model.fit(fragment.value)
+            fragment_name = self._none_dict_map[fragment_type]
+        classified_fragment = SheetLabeledFragment(fragment_name)
         return classified_fragment
