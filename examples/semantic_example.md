@@ -21,7 +21,7 @@ import sys
 sys.path.append('.')
 sys.path.append('../')
 
-from documentor.simple.document import SimpleDocument
+from documentor.types.text.document import SimpleDocument
 from documentor.semantic.models.wiki2vec import WikiWord2VecModel
 from documentor.semantic.preprocessing.tokenization import tokenize
 from documentor.semantic.preprocessing.lemmatization import lemmatize

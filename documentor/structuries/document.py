@@ -3,22 +3,17 @@ from typing import Iterator
 
 import pandas as pd
 
+from documentor.structuries.columns import ColumnType
 from documentor.structuries.fragment import Fragment
+from documentor.structuries.type_check import TypeChecker as tc
 
 
-class DocumentParsingException(Exception):
-    """
-    Exception for errors while parsing document from csv.
-    """
-    pass
-
-
-class Document(ABC):
+class DocumentInterface(ABC):
     """
     Abstract class for documents of any type. Documents consist of fragments.
+
+
     """
-    _data: pd.DataFrame
-    _columns: dict[str, str] = {}
 
     @abstractmethod
     def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
@@ -35,12 +30,12 @@ class Document(ABC):
         pass
 
     @classmethod
-    def needed_columns(cls) -> dict[str, str]:
+    def _columns(cls) -> dict[str, bool, type]:
         """
-        Return for class needed column names in df for initialization.
+        Return for class needed column names in df for initialization with their descriptions.
 
         :return: column names with description
-        :rtype: dict[str, str]
+        :rtype: dict[str, bool, str]
         """
         pass
 
@@ -65,16 +60,6 @@ class Document(ABC):
         """
         pass
 
-    @property
-    def data(self) -> pd.DataFrame:
-        """
-        Get the data of the document.
-
-        :return: the data
-        :rtype: pd.DataFrame
-        """
-        return self._data
-
     @abstractmethod
     def to_df(self) -> pd.DataFrame:
         """
@@ -86,49 +71,39 @@ class Document(ABC):
         pass
 
 
-class TextDocument(Document):
+class Document(DocumentInterface):
     """
-    Simple realization of document with string fragments.
+    Simple realization of document with string fragments and mono class classification.
     """
     _data: pd.DataFrame
-    _columns: dict[str, str] = {
-        'value': 'The text value of the fragment'
-    }
+    _columns: dict[str, ColumnType] = {field: ColumnType(type) for field, type in Fragment.__annotations__.items()}
 
     def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
         """
-        Initializes an instance of the class by pandas DataFrame. The DataFrame should contain column.
+        Initializes an instance of the class by pandas DataFrame.
+
+        The DataFrame should contain next columns:
+        - value: value of fragments.
+
+        Optional columns that will be used in initialization if they are in DataFrame:
+        - ground_truth: ground truth label of fragments.
+        - label: label of fragments from classification.
+        - vector: vector representation of fragments.
+        - tokens: list of tokens of fragments.
+        - token_vectors: list of vectors of tokens of fragments.
 
         :param data: A pandas DataFrame containing the data.
         :type data: pd.DataFrame
-        :param name_mapper: A dictionary mapping column names in 'data' to new names. Default is None.
-        :type name_mapper: dict[str, str]
         :return: None
         :raises TypeError: if the object is not pandas DataFrame or name_mapper is not dict[str, str] or None
+        :raises ValueError: if the DataFrame does not contain necessary columns
         """
-        check_data_frame(data)
+        tc.check_data_frame_type(data)
+        tc.check_data_frame_columns(data, self._columns)
         columns = list[self._columns.keys()]
-        if name_mapper is not None:
-            check_dict_str_str(name_mapper)
-            columns = [name_mapper[k] if k in name_mapper else k for k in self._columns.keys()]
-        data = data[columns].copy()
-        if name_mapper is not None:
-            reversed_name_mapper = {v: k for k, v in name_mapper.items()}
-            name_mapper = dict(zip(columns, columns)) | reversed_name_mapper
-            data.rename(columns=name_mapper, inplace=True)
-        self._data = data
+        self._data = data[columns].copy()
 
-    @classmethod
-    def needed_columns(cls) -> dict[str, str]:
-        """
-        Get the list of necessary columns for creating Document with their descriptions.
-
-        :return: list of pairs (column name, column description)
-        :rtype: list[tuple[str, str]]
-        """
-        return cls._columns
-
-    def build_fragments(self) -> list[TextFragment]:
+    def build_fragments(self) -> list[Fragment]:
         """
         List of fragments of Document.
 
@@ -137,7 +112,7 @@ class TextDocument(Document):
         :return: list of fragments
         :rtype: list[TextFragment]
         """
-        return [TextFragment(row['value']) for _, row in self._data.iterrows()]
+        return [Fragment(row['value']) for _, row in self._data.iterrows()]
 
     def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:
         """

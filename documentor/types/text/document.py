@@ -2,9 +2,7 @@ import pandas as pd
 
 from documentor.structuries.document import Document
 from documentor.structuries.fragment import Fragment
-from documentor.simple.fragment import SimpleFragment
-
-from documentor.semantic.models.base import BaseSemanticModel
+from documentor.types.text.fragment import SimpleFragment
 
 
 class SimpleDocument(Document):
