@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from types import UnionType
 
-import pandas as pd
-
 
 @dataclass
 class ColumnType:

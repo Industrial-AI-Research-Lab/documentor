@@ -6,6 +6,7 @@ from overrides import overrides
 
 from documentor.structuries.columns import ColumnType
 from documentor.structuries.fragment import Fragment
+from documentor.structuries.structure import StructureNode, DocumentStructure
 from documentor.structuries.type_check import TypeChecker as tc
 
 
@@ -56,8 +57,10 @@ class Document(DocumentInterface):
     """
     _data: pd.DataFrame
     _columns: dict[str, ColumnType] = {field: ColumnType(type) for field, type in Fragment.param_types_dict().items()}
+    _root: StructureNode | None = None
+    _structure: DocumentStructure | None = None
 
-    def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
+    def __init__(self, data: pd.DataFrame):
         """
         Initializes an instance of the class by pandas DataFrame.
 

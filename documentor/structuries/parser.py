@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 
 import pandas as pd
 
@@ -17,6 +16,7 @@ class DocumentParser(ABC):
     """
     An abstract class for primary document processing.
     """
+
     @abstractmethod
     def parse_file(self, path: str) -> pd.DataFrame:
         """
