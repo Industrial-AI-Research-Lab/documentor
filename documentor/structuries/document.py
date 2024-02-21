@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Iterator
 
 import pandas as pd
+from overrides import overrides
 
 from documentor.structuries.columns import ColumnType
 from documentor.structuries.fragment import Fragment
@@ -10,34 +11,8 @@ from documentor.structuries.type_check import TypeChecker as tc
 
 class DocumentInterface(ABC):
     """
-    Abstract class for documents of any type. Documents consist of fragments.
-
-
+    Interface for document with fragments.
     """
-
-    @abstractmethod
-    def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
-        """
-        Initializes an instance of the class by pandas DataFrame. The DataFrame should contain column.
-
-        :param data: A pandas DataFrame containing the data.
-        :type data: pd.DataFrame
-        :param name_mapper: A dictionary mapping column names in 'data' to new names. Default is None.
-        :type name_mapper: dict[str, str]
-        :return: None
-        :raises TypeError: if the object is not pandas DataFrame or name_mapper is not dict[str, str] or None
-        """
-        pass
-
-    @classmethod
-    def _columns(cls) -> dict[str, bool, type]:
-        """
-        Return for class needed column names in df for initialization with their descriptions.
-
-        :return: column names with description
-        :rtype: dict[str, bool, str]
-        """
-        pass
 
     @abstractmethod
     def build_fragments(self) -> list[Fragment]:
@@ -51,6 +26,7 @@ class DocumentInterface(ABC):
         """
         pass
 
+    @abstractmethod
     def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:
         """
         Iterate over all fragments of the Document.
@@ -73,36 +49,34 @@ class DocumentInterface(ABC):
 
 class Document(DocumentInterface):
     """
-    Simple realization of document with string fragments and mono class classification.
+    Simple realization of document with string fragments.
+
+    Document is a collection of fragments. Otherwise, document does not store fragments, it works with pd.DataFrame,
+    which contain same column names as Fragment class field names.
     """
     _data: pd.DataFrame
-    _columns: dict[str, ColumnType] = {field: ColumnType(type) for field, type in Fragment.__annotations__.items()}
+    _columns: dict[str, ColumnType] = {field: ColumnType(type) for field, type in Fragment.param_types_dict().items()}
 
     def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
         """
         Initializes an instance of the class by pandas DataFrame.
 
-        The DataFrame should contain next columns:
-        - value: value of fragments.
-
-        Optional columns that will be used in initialization if they are in DataFrame:
-        - ground_truth: ground truth label of fragments.
-        - label: label of fragments from classification.
-        - vector: vector representation of fragments.
-        - tokens: list of tokens of fragments.
-        - token_vectors: list of vectors of tokens of fragments.
-
-        :param data: A pandas DataFrame containing the data.
-        :type data: pd.DataFrame
-        :return: None
-        :raises TypeError: if the object is not pandas DataFrame or name_mapper is not dict[str, str] or None
-        :raises ValueError: if the DataFrame does not contain necessary columns
+        The DataFrame should contain column names as Fragment class field names.
+        Namely, it must contain one required field:
+        - 'value' - value of the fragment.
+        Also, it can contain optional fields, which will be used for initialization of the document:
+        - 'ground_truth' - ground truth label of the fragment, if it is labeled
+        - 'label' - label of the fragment from classification
+        - 'vector' - vector representation of the fragment
+        - 'tokens' - list of tokens of the fragment
+        - 'token_vectors' - list of vectors of tokens of the fragment.
         """
         tc.check_data_frame_type(data)
         tc.check_data_frame_columns(data, self._columns)
         columns = list[self._columns.keys()]
         self._data = data[columns].copy()
 
+    @overrides
     def build_fragments(self) -> list[Fragment]:
         """
         List of fragments of Document.
@@ -112,8 +86,9 @@ class Document(DocumentInterface):
         :return: list of fragments
         :rtype: list[TextFragment]
         """
-        return [Fragment(row['value']) for _, row in self._data.iterrows()]
+        return [Fragment(**row.to_dict()) for _, row in self._data.iterrows()]
 
+    @overrides
     def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:
         """
         Iterate over all fragments of the Document with their row numbers.
@@ -124,16 +99,7 @@ class Document(DocumentInterface):
         for i, row in self._data.iterrows():
             yield i, row
 
-    def iter_all_str(self) -> Iterator[str]:
-        """
-        Iterate over all values of fragments of the Document.
-
-        :return: the document fragments
-        :rtype: Iterator[str]
-        """
-        for _, row in self.iter_rows():
-            yield row['value']
-
+    @overrides
     def to_df(self) -> pd.DataFrame:
         """
         Convert Document to pandas DataFrame.
@@ -142,3 +108,115 @@ class Document(DocumentInterface):
         :rtype: pd.DataFrame
         """
         return self._data.copy()
+
+    @property
+    def value(self) -> pd.Series:
+        """
+        Values of all fragments.
+
+        :return: all values
+        :rtype: pd.Series
+        """
+        return self._data['value']
+
+    @property
+    def ground_truth(self) -> pd.Series:
+        """
+        Ground truth labels of all fragments.
+
+        :return: all ground truth labels
+        :rtype: pd.Series
+        """
+        return self._data['ground_truth']
+
+    @property
+    def label(self) -> pd.Series:
+        """
+        Labels of all fragments.
+
+        :return: all labels
+        :rtype: pd.Series
+        """
+        return self._data['label']
+
+    @label.setter
+    def label(self, value: pd.Series) -> None:
+        """
+        Set labels of all fragments.
+
+        :param value: new labels
+        :type value: pd.Series
+        :return: None
+        :raises TypeError: value.dtype is not the same as Fragment.label type
+        """
+        tc.check_series(value, self._columns['label'])
+        self._data['label'] = value
+
+    @property
+    def vector(self) -> pd.Series:
+        """
+        Vector representations of all fragments.
+
+        :return: all vector representations
+        :rtype: pd.Series
+        """
+        return self._data['vector']
+
+    @vector.setter
+    def vector(self, value: pd.Series) -> None:
+        """
+        Set vector representations of all fragments.
+
+        :param value: new vector representations
+        :type value: pd.Series
+        :return: None
+        :raises TypeError: value.dtype is not the same as Fragment.vector type
+        """
+        tc.check_series(value, self._columns['vector'])
+        self._data['vector'] = value
+
+    @property
+    def tokens(self) -> pd.Series:
+        """
+        Tokens of all fragments.
+
+        :return: all tokens
+        :rtype: pd.Series
+        """
+        return self._data['tokens']
+
+    @tokens.setter
+    def tokens(self, value: pd.Series) -> None:
+        """
+        Set tokens of all fragments.
+
+        :param value: new tokens
+        :type value: pd.Series
+        :return: None
+        :raises TypeError: value.dtype is not the same as Fragment.tokens type
+        """
+        tc.check_series(value, self._columns['tokens'])
+        self._data['tokens'] = value
+
+    @property
+    def token_vectors(self) -> pd.Series:
+        """
+        Vectors of tokens of all fragments.
+
+        :return: all token vectors
+        :rtype: pd.Series
+        """
+        return self._data['token_vectors']
+
+    @token_vectors.setter
+    def token_vectors(self, value: pd.Series) -> None:
+        """
+        Set vectors of tokens of all fragments.
+
+        :param value: new token vectors
+        :type value: pd.Series
+        :return: None
+        :raises TypeError: value.dtype is not the same as Fragment.token_vectors type
+        """
+        tc.check_series(value, self._columns['token_vectors'])
+        self._data['token_vectors'] = value

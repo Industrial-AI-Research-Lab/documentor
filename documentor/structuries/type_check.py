@@ -31,6 +31,22 @@ class TypeChecker(metaclass=StaticClassMeta):
     """
     Static class for type checking.
     """
+
+    @staticmethod
+    def check_simple_type(obj: Any, expected_type: type | UnionType) -> None:
+        """
+        Check if object is of expected type.
+
+        :param obj: object to check
+        :type obj: Any
+        :param expected_type: expected type
+        :type expected_type: type | UnionType
+        :return:
+        :rtype: None
+        :raises TypeError: if object is not of expected type
+        """
+        _raise_if_not_expected_type(obj, expected_type)
+
     @staticmethod
     def check_str(s: Any) -> None:
         """
@@ -42,7 +58,7 @@ class TypeChecker(metaclass=StaticClassMeta):
         :rtype: None
         :raises TypeError: if object is not of type str
         """
-        _raise_if_not_expected_type(s, str)
+        TypeChecker.check_simple_type(s, str)
 
     @staticmethod
     def check_data_frame_type(df: Any) -> None:
@@ -55,6 +71,22 @@ class TypeChecker(metaclass=StaticClassMeta):
         :raises TypeError: if object is not of type pd.DataFrame
         """
         _raise_if_not_expected_type(df, pd.DataFrame)
+
+    @staticmethod
+    def check_series(s: pd.Series, column_type: ColumnType) -> None:
+        """
+        Check if Series has the right type.
+
+        :param s: Series
+        :type s: pd.Series
+        :param column_type: type of column
+        :type column_type: ColumnType
+        :return: None
+        :raises TypeError: if Series has wrong type
+        """
+        if not isinstance(s.dtype, column_type.type):
+            raise TypeError(
+                f"Series has wrong type. Expected {column_type.type}, got {s.dtype}")
 
     @staticmethod
     def check_df_column(df: pd.DataFrame, column_name: str, column_type: ColumnType) -> None:
@@ -76,9 +108,7 @@ class TypeChecker(metaclass=StaticClassMeta):
                 raise ValueError(f"Column {column_name} is not in DataFrame")
             else:
                 return
-        if not isinstance(df[column_name].dtype, column_type.type):
-            raise TypeError(
-                f"Column {column_name} has wrong type. Expected {column_type.type}, got {df[column_name].dtype}")
+        TypeChecker.check_series(df[column_name], column_type)
 
     @staticmethod
     def check_data_frame_columns(df: pd.DataFrame, columns: dict[str, ColumnType]) -> None:
