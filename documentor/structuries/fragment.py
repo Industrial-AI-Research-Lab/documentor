@@ -6,6 +6,7 @@ from typing import Any
 from overrides import overrides
 
 from documentor.structuries.custom_types import LabelType, VectorType
+from documentor.structuries.type_check import TypeChecker as tc
 
 
 class FragmentInterface(ABC):
@@ -18,17 +19,7 @@ class FragmentInterface(ABC):
     - a log entry
     - a sentence or paragraph of a document with a string value and parameters.
     """
-
-    @property
-    @abstractmethod
-    def value(self) -> str:
-        """
-        Get value of the fragment.
-
-        :return: value of the fragment
-        :rtype: str
-        """
-        pass
+    value: str
 
     @abstractmethod
     def __str__(self) -> str:
@@ -88,8 +79,13 @@ class Fragment(FragmentInterface):
     token_vectors: list[VectorType] | None = None
 
     def __post_init__(self) -> None:
-        # TODO: add type checking for all fields
-        pass
+        # TODO: add type checking for complex types
+        tc.check_str(self.value)
+        tc.check_simple_type(self.ground_truth, str | int | list | None)
+        tc.check_simple_type(self.label, str | int | list | None)
+        tc.check_simple_type(self.vector, list | None)
+        tc.check_simple_type(self.tokens, list | None)
+        tc.check_simple_type(self.token_vectors, list | None)
 
     @overrides
     def __str__(self) -> str:
