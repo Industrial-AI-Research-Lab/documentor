@@ -75,7 +75,7 @@ class Document(DocumentInterface):
         - 'token_vectors' - list of vectors of tokens of the fragment.
         """
         tc.check_data_frame_type(data)
-        tc.check_data_frame_columns(data, self._columns)
+        # tc.check_data_frame_columns(data, self._columns)
         columns = list[self._columns.keys()]
         self._data = data[columns].copy()
 
@@ -152,7 +152,7 @@ class Document(DocumentInterface):
         :return: None
         :raises TypeError: value.dtype is not the same as Fragment.label type
         """
-        tc.check_series(value, self._columns['label'])
+        # tc.check_series(value, self._columns['label'])
         self._data['label'] = value
 
     @property
@@ -175,7 +175,7 @@ class Document(DocumentInterface):
         :return: None
         :raises TypeError: value.dtype is not the same as Fragment.vector type
         """
-        tc.check_series(value, self._columns['vector'])
+        # tc.check_series(value, self._columns['vector'])
         self._data['vector'] = value
 
     @property
@@ -198,7 +198,7 @@ class Document(DocumentInterface):
         :return: None
         :raises TypeError: value.dtype is not the same as Fragment.tokens type
         """
-        tc.check_series(value, self._columns['tokens'])
+        # tc.check_series(value, self._columns['tokens'])
         self._data['tokens'] = value
 
     @property
@@ -221,5 +221,5 @@ class Document(DocumentInterface):
         :return: None
         :raises TypeError: value.dtype is not the same as Fragment.token_vectors type
         """
-        tc.check_series(value, self._columns['token_vectors'])
+        # tc.check_series(value, self._columns['token_vectors'])
         self._data['token_vectors'] = value

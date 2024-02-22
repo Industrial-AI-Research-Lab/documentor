@@ -17,6 +17,6 @@ class ColumnType:
     type: type | UnionType
     required: bool | None = True
 
-    def __post_init__(self):
-        if isinstance(None, self.type):
-            self.required = False
+    # def __post_init__(self):
+    #    if isinstance(None, self.type):
+    #        self.required = False

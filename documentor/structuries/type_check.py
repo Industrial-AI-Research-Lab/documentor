@@ -125,7 +125,12 @@ class TypeChecker(metaclass=StaticClassMeta):
         :raises TypeError: if columns have wrong types
         """
         for column_name, column_type in columns.items():
-            TypeChecker.check_df_column(df, column_name, column_type)
+            if column_name not in df.columns:
+                if column_type.required:
+                    raise ValueError(f"Column {column_name} is not in DataFrame")
+                else:
+                    return
+            TypeChecker.check_series(df[column_name], column_type)
 
     @staticmethod
     def _raise_if_not_expected_type(obj: Any, expected_type: type | UnionType) -> None:

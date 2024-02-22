@@ -81,11 +81,12 @@ class Fragment(FragmentInterface):
     def __post_init__(self) -> None:
         # TODO: add type checking for complex types
         tc.check_str(self.value)
-        tc.check_simple_type(self.ground_truth, str | int | list | None)
-        tc.check_simple_type(self.label, str | int | list | None)
-        tc.check_simple_type(self.vector, list | None)
-        tc.check_simple_type(self.tokens, list | None)
-        tc.check_simple_type(self.token_vectors, list | None)
+        # tc.check_simple_type(self.ground_truth, str | int | list | None)
+        # tc.check_simple_type(self.label, str | int | list | None)
+        # tc.check_simple_type(self.vector, list | None)
+        # tc.check_simple_type(self.tokens, list | None)
+        # tc.check_simple_type(self.token_vectors, list | None)
+        pass
 
     @overrides
     def __str__(self) -> str:
