@@ -24,6 +24,7 @@ jupyter = ["jupytext", "jupyter"]
 [tool.poetry.group.dev.dependencies]
 jupytext = "^1.16.1"
 jupyter = "^1.0.0"
+pytest = "^8.0.1"
 
 [build-system]
 requires = ["poetry-core"]
