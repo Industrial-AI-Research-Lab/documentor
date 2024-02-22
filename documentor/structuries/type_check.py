@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from types import UnionType
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Iterable
 
 import pandas as pd
 
@@ -45,7 +45,7 @@ class TypeChecker(metaclass=StaticClassMeta):
         :rtype: None
         :raises TypeError: if object is not of expected type
         """
-        _raise_if_not_expected_type(obj, expected_type)
+        TypeChecker._raise_if_not_expected_type(obj, expected_type)
 
     @staticmethod
     def check_str(s: Any) -> None:
@@ -70,7 +70,7 @@ class TypeChecker(metaclass=StaticClassMeta):
         :rtype: None
         :raises TypeError: if object is not of type pd.DataFrame
         """
-        _raise_if_not_expected_type(df, pd.DataFrame)
+        TypeChecker._raise_if_not_expected_type(df, pd.DataFrame)
 
     @staticmethod
     def check_series(s: pd.Series, column_type: ColumnType) -> None:
@@ -127,36 +127,36 @@ class TypeChecker(metaclass=StaticClassMeta):
         for column_name, column_type in columns.items():
             TypeChecker.check_df_column(df, column_name, column_type)
 
+    @staticmethod
+    def _raise_if_not_expected_type(obj: Any, expected_type: type | UnionType) -> None:
+        """
+        Raise TypeError if object is not of expected type.
 
-def _raise_if_not_expected_type(obj: Any, expected_type: type | UnionType) -> None:
-    """
-    Raise TypeError if object is not of expected type.
+        :param obj: object to check
+        :type obj: Any
+        :param expected_type: type to check or sewer of types in form of UnionType
+        :type expected_type: type | UnionType
+        :return:
+        :rtype: None
+        :raises TypeError: if object is not of expected type
+        """
+        if not isinstance(obj, expected_type):
+            raise TypeError(
+                ErrorMessages.TYPE_ERROR.format(expected=expected_type, actual=type(obj)))
 
-    :param obj: object to check
-    :type obj: Any
-    :param expected_type: type to check or sewer of types in form of UnionType
-    :type expected_type: type | UnionType
-    :return:
-    :rtype: None
-    :raises TypeError: if object is not of expected type
-    """
-    if not isinstance(obj, expected_type):
-        raise TypeError(
-            ErrorMessages.TYPE_ERROR.format(expected=expected_type, actual=type(obj)))
+    @staticmethod
+    def check_type_or_none_decorator(checker: Callable[[T], None]) -> Callable[[T], None]:
+        """
+        Decorator for checking if object is of expected type or None.
 
+        :param checker: function for checking type
+        :type checker: Callable[[T], None]
+        :return: wrapped function which check object type if it is not None
+        :rtype: Callable[[T], None]
+        """
 
-def check_type_or_none_decorator(checker: Callable[[T], None]) -> Callable[[T], None]:
-    """
-    Decorator for checking if object is of expected type or None.
+        def wrapper(obj: Any) -> None:
+            if obj is not None:
+                checker(obj)
 
-    :param checker: function for checking type
-    :type checker: Callable[[T], None]
-    :return: wrapped function which check object type if it is not None
-    :rtype: Callable[[T], None]
-    """
-
-    def wrapper(obj: Any) -> None:
-        if obj is not None:
-            checker(obj)
-
-    return wrapper
+        return wrapper
