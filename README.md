@@ -1,5 +1,5 @@
 <div style="float: right; width: 200px; height: 200px;">
-  <img src="images/logo.png" width="200" alt="tmp-logo">
+  <img src="images/tmp_logo.png" width="200" alt="tmp-logo">
 </div>
 
 # DocuMentor
@@ -29,30 +29,14 @@ TBD
 
 ## Installation
 
-For installation from the source code, you need to have the poetry package manager installed ([poetry](https://github.com/python-poetry/install.python-poetry.org)).
-```shell
-poetry install
-```
-If you want to run the jupyter notebooks, you need to install jupyter and jupytext:
-```shell
-poetry install -E jupyter
-
-# for convert .md to .ipynb
-jupytext --to notebook notebook_name.md 
-```
+TBD
 
 ## Examples
 
-
-All examples made in jupyter notebooks, so you should have jupyter installed to run them.
-Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the 
-jupytext library (see installation section for details).
-
-- usage of specialized terms search - [link](examples/semantic_example.md)
-- usage of excel to csv parser  - [link](examples/table_parsing.md)
-- usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
-
-
+- usage of specialized terms search - [TBD](note.md)
+- usage of table border detection for excel - [TBD](README.md)
+- usage of sheet fragment classification  - [TBD](README.md)
+- 
 ## Project structure
 
 - [documentor](documentor/README.md) - main library folder
@@ -91,6 +75,6 @@ By ITMO University, Saint Petersburg, Russia
 
 ## Contacts
 
-Questions and suggestions can be asked to Mikhail Kovalchuk by the following contacts:
+Any questions and suggestions can be sent to the following contacts:
 - [Telegram](https://t.me/hungry_muskrat)
 - [Email](mailto:mkovalchuk@itmo.ru) 

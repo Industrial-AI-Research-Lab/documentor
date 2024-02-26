@@ -11,11 +11,19 @@ class SimpleDocument(Document):
     :param _data: The data from document
     :type _data: pd.DataFrame
     """
-    _fragments: list[SimpleFragment]
 
-    def __init__(self, data: any):
-        self._data = data
-        self._fragments = None
+    def __init__(self, data: pd.DataFrame, name_mapper: dict[str, str] | None = None):
+        """
+        Initializes an instance of the class by pandas DataFrame. The DataFrame should contain column.
+
+        :param data: A pandas DataFrame containing the data.
+        :type data: pd.DataFrame
+        :param name_mapper: A dictionary mapping column names in 'data' to new names. Default is None.
+        :type name_mapper: dict[str, str]
+        :return: None
+        :raises TypeError: if the object is not pandas DataFrame or name_mapper is not dict[str, str] or None
+        """
+
 
     def build_fragments(self) -> list[Fragment]:
         """
@@ -23,17 +31,7 @@ class SimpleDocument(Document):
         :return: list of fragments
         :rtype: list[Fragment]
         """
-        if self._fragments is None:
-            self._fragments = [SimpleFragment(d[0]) for d in self._data.values]
-        return self._fragments
-    
-    def find_terms(self) -> set[str]:
-        """
-        Find specialized terms in fragments
-        :return: set of finding terms
-        :rtype: set[str]
-        """
-        return set([word for fragment in self._fragments for word in fragment.find_terms()])
+        return [SimpleFragment(d) for d in self._data.values]
 
     def to_df(self) -> pd.DataFrame:
         """
