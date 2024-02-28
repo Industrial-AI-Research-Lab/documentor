@@ -17,7 +17,7 @@ class WikiWord2VecModel(BaseSemanticModel):
         :param path: path to weights file
         :type path: str
         """
-        self.model = Wikipedia2Vec.load(path)
+        self._model = Wikipedia2Vec.load(path)
 
     def encode(self, X: str, *args, **kwargs) -> np.ndarray | None:
         """
@@ -28,6 +28,6 @@ class WikiWord2VecModel(BaseSemanticModel):
         :rtype: np.ndarray or None
         """
         try:
-            return self.model.get_word_vector(X)
+            return self._model.get_word_vector(X)
         except KeyError:
             return None

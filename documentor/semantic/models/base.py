@@ -10,13 +10,13 @@ class BaseSemanticModel(ABC):
     :param model: Some text processing model
     :type model: any
     """
-    model: any
+    _model: any
 
     def __init__(self, model=None):
-        self.model = model
+        self._model = model
 
     @abstractmethod
-    def load_weights(self, *args, **kwargs):
+    def load_weights(self):
         """
         Method for load weights into model
         :param args: some args, must be a path or file or any entity
@@ -25,7 +25,7 @@ class BaseSemanticModel(ABC):
         ...
 
     @abstractmethod
-    def encode(self, X, *args, **kwargs) -> np.ndarray:
+    def encode(self, X) -> np.ndarray:
         """
         base method for encoding
         :param X: Data for processing
