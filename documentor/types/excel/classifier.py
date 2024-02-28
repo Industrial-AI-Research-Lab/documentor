@@ -69,7 +69,6 @@ class SheetClassifier(FragmentClassifier):
                 x['full_algo_labels'] = algo_y_num_map
                 x['algo_labels'] = algo_y_to_pred
                 x['user_labels'] = algo_y_pred_map
-                x['numeric_labels'] = algo_y_num
                 al = grid['algo'].__name__
                 cluster_model = grid['algo'](**algo_params)
                 dict_map = algo_dict_map
@@ -78,20 +77,21 @@ class SheetClassifier(FragmentClassifier):
         x['old_indexes'] = old_indexes
         return x, al, cluster_model, dict_map
 
-    def print_result(self, document: SheetDocument, al: str) -> None:
+    @staticmethod
+    def print_result(document: SheetDocument, algo: str) -> None:
         """
         Displays the markup results.
 
         :param document: SheetDocument with label information
         :type document: SheetDocument
-        :param al: the name of the dataset type for the user
-        :type al: str
+        :param algo: the name of the dataset type for the user
+        :type algo: str
         """
         df = document.to_df()
-        x = df.drop(columns=['y', 'full_algo_labels', 'algo_labels', 'user_labels', 'numeric_labels'])
-        print(f'\ntype: {type}, algorithm: {al}')
+        x = df.drop(columns=['y', 'full_algo_labels', 'algo_labels', 'user_labels'])
+        print(f'\ntype: {type}, algorithm: {algo}')
         plots(x, df['y'], df['full_algo_labels'])
-        print_metrics(df['algo_labels'], df['user_labels'], df['numeric_labels'], x)
+        print_metrics(df['algo_labels'], df['user_labels'])
 
     def document_cluster(self, document: SheetDocument) -> SheetDocument:
         """
@@ -125,7 +125,7 @@ class SheetClassifier(FragmentClassifier):
         ret_df = ret_df.sort_values('old_indexes')
 
         document.update_data(ret_df)
-        return document.to_df()
+        return document
 
     def simple_classify(self, fragment: SheetFragment) -> SheetLabeledFragment:
         """

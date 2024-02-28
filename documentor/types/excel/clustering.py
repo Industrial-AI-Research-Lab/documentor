@@ -27,7 +27,7 @@ grid_dbscan = {'algo': DBSCAN, 'params': {'eps': np.arange(1, 5, 0.5), 'min_samp
                                           'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
 
 
-def print_metrics(y_to_pred: pd.DataFrame, y_pred: list[str], y_num: list[str], x: pd.DataFrame):
+def print_metrics(y_to_pred: pd.DataFrame, y_pred: list[str]):
     """
     Outputs metrics of clustering results.
 
@@ -35,18 +35,13 @@ def print_metrics(y_to_pred: pd.DataFrame, y_pred: list[str], y_num: list[str], 
     :type y_to_pred: DataFrame
     :param y_pred: y-column marked up by the user
     :type y_pred: list[str]
-    :param y_num: numerically marked up y-column
-    :type y_num: list[str]
     :param x: metadata of sheet cells
     :type x: DataFrame
     """
     print('Метрики для размеченных данных')
-    print('Homogenity', metrics.homogeneity_score(y_to_pred, y_pred))
+    print('Homogeneity', metrics.homogeneity_score(y_to_pred, y_pred))
     print('Completeness', metrics.completeness_score(y_to_pred, y_pred))
     print('V-measure', metrics.v_measure_score(y_to_pred, y_pred))
-    print()
-    print('Метрика для оценки связности данных')
-    print('Коэффициент силуэта', metrics.silhouette_score(x, y_num))
 
 
 def plots(x: pd.DataFrame, y: pd.DataFrame, y_num: list):
