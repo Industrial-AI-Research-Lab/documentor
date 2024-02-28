@@ -1,20 +1,27 @@
 from typing import Any
-from abc import ABC, abstractmethod
 
-from documentor.structuries.type_check import check_str
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from types import UnionType
+from typing import Any
+
+from overrides import overrides
+
+from documentor.structuries.custom_types import LabelType, VectorType
+from documentor.structuries.type_check import TypeChecker as tc
 
 
 class FragmentInterface(ABC):
-    @property
-    @abstractmethod
-    def value(self) -> str:
-        """
-        Get value of the fragment.
+    """
+    Interface for fragments of any type.
 
-        :return: value of the fragment
-        :rtype: str
-        """
-        pass
+    Each fragment represents a structural unit of a document.
+    Examples of fragments:
+    - a table cell
+    - a log entry
+    - a sentence or paragraph of a document with a string value and parameters.
+    """
+    value: str
 
     @abstractmethod
     def __str__(self) -> str:
@@ -27,7 +34,7 @@ class FragmentInterface(ABC):
         pass
 
     @abstractmethod
-    def params(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Get parameters of the fragment.
 
@@ -36,52 +43,62 @@ class FragmentInterface(ABC):
         """
         pass
 
+    @classmethod
+    @abstractmethod
+    def param_types_dict(cls) -> dict[str, type | UnionType]:
+        """
+        Get types of parameters of the fragment.
 
-class Fragment(FragmentInterface, ABC):
+        :return: types of parameters of the fragment
+        :rtype: dict[str, type | UnionType]
+        """
+        pass
+
+
+@dataclass
+class Fragment(FragmentInterface):
     """
-    Abstract class for fragments of any type. Fragments are structural units of a document.
+    Class for simple realization of FragmentInterface for text fragments, which have only value.
 
-    Each fragment represents a structural unit of a document,
-    for example, a table cell, a log entry, a paragraph of a document with a string value and parameters.
+    :param value: value of the fragment
+    :type value: str
+    :param ground_truth: ground truth label of the fragment, if it is labeled
+    :type ground_truth: Optional[LabelType]
+    :param label: label of the fragment from classification
+    :type label: Optional[LabelType]
+    :param vector: vector representation of the fragment
+    :type vector: Optional[VectorType]
+    :param tokens: list of tokens of the fragment
+    :type tokens: Optional[list[str]]
+    :param token_vectors: list of vectors of tokens of the fragment
+    :type token_vectors: Optional[list[VectorType]]
     """
-    _value: str
+    value: str
+    ground_truth: LabelType | None = None
+    label: LabelType | None = None
+    vector: VectorType | None = None
+    tokens: list[str] | None = None
+    token_vectors: list[VectorType] | None = None
 
-    def __init__(self, value: str) -> None:
-        """
-        Simple realization of fragment with string value.
+    def __post_init__(self) -> None:
+        # TODO: add type checking for complex types
+        tc.check_str(self.value)
+        # tc.check_simple_type(self.ground_truth, str | int | list | None)
+        # tc.check_simple_type(self.label, str | int | list | None)
+        # tc.check_simple_type(self.vector, list | None)
+        # tc.check_simple_type(self.tokens, list | None)
+        # tc.check_simple_type(self.token_vectors, list | None)
+        pass
 
-        :param value: value of fragment
-        :type value: str
-        :return: None
-        :raises TypeError: if the object is not str
-        """
-        check_str(value)
-        self._value = value
-
-    @property
-    def value(self) -> str:
-        """
-        Get value of the fragment.
-
-        :return: value of the fragment
-        :rtype: str
-        """
-        return self._value
-
+    @overrides
     def __str__(self) -> str:
-        """
-        String representation of fragment's value.
-
-        :return: value of fragment
-        :rtype: str
-        """
         return self.value
 
-    def params(self) -> dict[str, Any]:
-        """
-        Returns an empty dictionary.
+    @overrides
+    def to_dict(self) -> dict[str, Any]:
+        return {field: getattr(self, field) for field in self.__annotations__.keys()}
 
-        :return: empty dictionary
-        :rtype: dict
-        """
-        return {"value": self.value}
+    @classmethod
+    @overrides
+    def param_types_dict(cls) -> dict[str, type | UnionType]:
+        return {param: param_type for param, param_type in cls.__annotations__.items()}

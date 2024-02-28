@@ -8,3 +8,5 @@ __pychache__/
 
 # all jupyter notebook
 *.ipynb
+
+poetry.lock
