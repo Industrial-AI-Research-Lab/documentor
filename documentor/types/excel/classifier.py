@@ -63,31 +63,36 @@ class SheetClassifier(FragmentClassifier):
             full_algo_labels = []
             for i in range(len(algo_y_num)):
                 if i in y_to_pred.index:
-                    full_algo_labels.append(y_to_pred[i])
+                    full_algo_labels.append(y_to_pred['ground_truth'][0])
                 else:
                     full_algo_labels.append(None)
 
             algo_y_num_map, algo_dict_map = map_vectors(algo_y_num, y['ground_truth'].tolist())
             algo_y_pred_map = [algo_y_num_map[i] for i in y_to_pred.index]
             user_labels = []
+            algo_labels = []
+            k = 0
             for i in range(len(algo_y_num)):
                 if i in y_to_pred.index:
-                    user_labels.append(algo_y_pred_map[i])
+                    user_labels.append(algo_y_pred_map[k])
+                    algo_labels.append(algo_y_to_pred[k])
+                    k += 1
                 else:
                     user_labels.append(None)
+                    algo_labels.append(None)
 
             if metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) >= v_measure:
+                x_ = x.copy()
                 v_measure = metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map)
-                x['full_algo_labels'] = full_algo_labels
-                x['algo_labels'] = algo_y_to_pred
-                x['user_labels'] = user_labels
+                x_['full_algo_labels'] = full_algo_labels
+                x_['algo_labels'] = algo_labels
+                x_['user_labels'] = user_labels
                 al = grid['algo'].__name__
                 cluster_model = grid['algo'](**algo_params)
                 dict_map = algo_dict_map
-
-        x['y'] = y
-        x['old_indexes'] = old_indexes
-        return x, al, cluster_model, dict_map
+                x_['y'] = y
+                x_['old_indexes'] = old_indexes
+        return x_, al, cluster_model, dict_map
 
     @staticmethod
     def print_result(df: pd.DataFrame, algo: str) -> None:
