@@ -2,7 +2,8 @@ import pytest
 
 from documentor.structuries.custom_types import LabelType, VectorType
 from documentor.structuries.fragment import Fragment
-from tests.structuries.conftest import FRAGMENT_POST_INIT_PARAMETRIZER, FRAGMENT_STR_PARAMETRIZER
+from tests.structuries.parameters import FRAGMENT_POST_INIT_PARAMETRIZER, FRAGMENT_STR_PARAMETRIZER, \
+    FRAGMENT_VALUES_PARAMETRIZER
 
 
 @pytest.mark.parametrize(
@@ -11,6 +12,7 @@ from tests.structuries.conftest import FRAGMENT_POST_INIT_PARAMETRIZER, FRAGMENT
 )
 def test_fragment_post_init(kwargs, expected_attrs):
     fragment = Fragment(**kwargs)
+
     for attr, expected_value in expected_attrs.items():
         assert getattr(fragment, attr) == expected_value
 
@@ -22,33 +24,19 @@ def test_fragment_str(fragment_item, expected_output):
 
 def create_fragment_and_compare_with_dict(test_values: dict):
     fragment = Fragment(**test_values)
+
     result = fragment.to_dict()
     assert isinstance(result, dict)
     assert result == test_values
 
 
-def test_to_dict():
-    test_values = {
-        'value': 'test value',
-        'ground_truth': None,
-        'label': None,
-        'vector': None,
-        'tokens': ['test', 'value'],
-        'token_vectors': None,
-    }
-    create_fragment_and_compare_with_dict(test_values)
+@pytest.mark.parametrize('test_values', FRAGMENT_VALUES_PARAMETRIZER)
+def test_to_dict(test_values):
+    fragment = Fragment(**test_values)
 
-
-def test_to_dict_with_none_values():
-    test_values = {
-        'value': 'test value',
-        'ground_truth': None,
-        'label': None,
-        'vector': None,
-        'tokens': None,
-        'token_vectors': None,
-    }
-    create_fragment_and_compare_with_dict(test_values)
+    result = fragment.to_dict()
+    assert isinstance(result, dict)
+    assert result == test_values
 
 
 def test_param_types_dict():
