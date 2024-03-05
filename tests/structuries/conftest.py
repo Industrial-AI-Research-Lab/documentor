@@ -1,81 +1,23 @@
-from documentor.structuries.fragment import Fragment
+import pandas as pd
+import pytest
 
-FRAGMENT_POST_INIT_PARAMETRIZER = [
-    # Test when all params are None
-    (
-        {"value": "test"},
-        {
-            "value": "test",
-            "ground_truth": None,
-            "label": None, "vector": None,
-            "tokens": None,
-            "token_vectors": None
-        },
-    ),
-    # Test when ground_truth is provided
-    (
-        {"value": "test", "ground_truth": 'label1'},
-        {
-            "value": "test",
-            "ground_truth": 'label1',
-            "label": None,
-            "vector": None,
-            "tokens": None,
-            "token_vectors": None
-        },
-    ),
-    # Test when label is provided
-    (
-        {"value": "test", "label": 'label1'},
-        {
-            "value": "test",
-            "ground_truth": None,
-            "label": 'label1',
-            "vector": None,
-            "tokens": None,
-            "token_vectors": None
-        },
-    ),
-    # Test when vector is provided
-    (
-        {"value": "test", "vector": [1.0, 2.0]},
-        {
-            "value": "test",
-            "ground_truth": None,
-            "label": None,
-            "vector": [1.0, 2.0],
-            "tokens": None,
-            "token_vectors": None
-        },
-    ),
-    # Test when tokens are provided
-    (
-        {"value": "test", "tokens": ['token1', 'token2']},
-        {
-            "value": "test",
-            "ground_truth": None,
-            "label": None,
-            "vector": None,
-            "tokens": ['token1', 'token2'],
-            "token_vectors": None
-        },
-    ),
-    # Test when token_vectors are provided
-    (
-        {"value": "test", "token_vectors": [[1.0, 2.0], [3.0, 4.0]]},
-        {
-            "value": "test",
-            "ground_truth": None,
-            "label": None,
-            "vector": None,
-            "tokens": None,
-            "token_vectors": [[1.0, 2.0], [3.0, 4.0]]
-        },
-    ),
-]
 
-FRAGMENT_STR_PARAMETRIZER = [
-    (Fragment(value="Hello World"), "Hello World"),
-    (Fragment(value="12345"), "12345"),
-    (Fragment(value=""), "")
-]
+@pytest.fixture
+def simple_document() -> pd.DataFrame:
+    return pd.DataFrame({
+        'value': ['value1', 'value2'],
+        'ground_truth': ['truth1', 'truth2'],
+        'label': ['label1', 'label2'],
+        'vector': [[1.1, 1.2], [2.1, 2.2]],
+        'tokens': [['t1.1', 't1.2'], ['t2.1', 't2.2']],
+        'token_vectors': [[[0.111, 0.112], [0.121, 0.122]], [[0.211, 0.212], [0.221, 0.222]]]
+    })
+
+
+@pytest.fixture
+def new_simple_params() -> tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
+    label = pd.Series(['new_label1', 'new_label2'])
+    vector = pd.Series([[3.1, 3.2], [4.1, 4.2]], )
+    tokens = pd.Series([['new_t1.1', 'new_t1.2'], ['new_t2.1', 'new_t2.2']])
+    token_vectors = pd.Series([[[0.311, 0.312], [0.321, 0.322]], [[0.411, 0.412], [0.421, 0.422]]])
+    return label, vector, tokens, token_vectors
