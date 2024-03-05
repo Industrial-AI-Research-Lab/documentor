@@ -4,8 +4,8 @@ from sklearn import metrics
 from sklearn.cluster import DBSCAN
 
 from documentor.structuries.classifier import FragmentClassifier
+from documentor.structuries.custom_types import LabelType
 from documentor.types.excel.document import SheetDocument
-from documentor.types.excel.label_data import SheetLabeledFragment
 from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide,
                                                grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing)
 from documentor.types.excel.fragment import SheetFragment
@@ -59,16 +59,28 @@ class SheetClassifier(FragmentClassifier):
             algo_clustering.fit(x)
 
             algo_y_num = algo_clustering.labels_
-            algo_y_to_pred = y_to_pred['cluster_name'].tolist()
+            algo_y_to_pred = y_to_pred['ground_truth'].tolist()
+            full_algo_labels = []
+            for i in range(len(algo_y_num)):
+                if i in y_to_pred.index:
+                    full_algo_labels.append(y_to_pred[i])
+                else:
+                    full_algo_labels.append(None)
 
-            algo_y_num_map, algo_dict_map = map_vectors(algo_y_num, y['cluster_name'].tolist())
+            algo_y_num_map, algo_dict_map = map_vectors(algo_y_num, y['ground_truth'].tolist())
             algo_y_pred_map = [algo_y_num_map[i] for i in y_to_pred.index]
+            user_labels = []
+            for i in range(len(algo_y_num)):
+                if i in y_to_pred.index:
+                    user_labels.append(algo_y_pred_map[i])
+                else:
+                    user_labels.append(None)
 
             if metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) >= v_measure:
                 v_measure = metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map)
-                x['full_algo_labels'] = algo_y_num_map
+                x['full_algo_labels'] = full_algo_labels
                 x['algo_labels'] = algo_y_to_pred
-                x['user_labels'] = algo_y_pred_map
+                x['user_labels'] = user_labels
                 al = grid['algo'].__name__
                 cluster_model = grid['algo'](**algo_params)
                 dict_map = algo_dict_map
@@ -78,7 +90,7 @@ class SheetClassifier(FragmentClassifier):
         return x, al, cluster_model, dict_map
 
     @staticmethod
-    def print_result(document: SheetDocument, algo: str) -> None:
+    def print_result(df: pd.DataFrame, algo: str) -> None:
         """
         Displays the markup results.
 
@@ -87,13 +99,13 @@ class SheetClassifier(FragmentClassifier):
         :param algo: the name of the dataset type for the user
         :type algo: str
         """
-        df = document.to_df()
+        # df = document.to_df()
         x = df.drop(columns=['y', 'full_algo_labels', 'algo_labels', 'user_labels'])
         print(f'\ntype: {type}, algorithm: {algo}')
         plots(x, df['y'], df['full_algo_labels'])
         print_metrics(df['algo_labels'], df['user_labels'])
 
-    def document_cluster(self, document: SheetDocument) -> SheetDocument:
+    def document_cluster(self, df: pd.DataFrame) -> SheetDocument:
         """
         Divides the dataset into parts by type.
         Determines the appropriate clustering algorithm for each part.
@@ -102,11 +114,11 @@ class SheetClassifier(FragmentClassifier):
         :param document: sheet document information
         :type document: SheetDocument with label information
         """
-        df = document.to_df()
+        # df = document.to_df()
         col_names = [str(i) for i in df.columns]
         df.columns = col_names
         df_copy = row_typing(df)
-        df_copy = df_copy.drop(columns=['Content', 'Start_content', 'Row', 'Relative_Id'])
+        df_copy = df_copy.drop(columns=['content', 'start_content', 'row', 'relative_id'])
 
         str_res_df, str_al, str_model, str_dict = self.cluster(df_copy, ['str', 'datetime.datetime', 'datetime.time'])
         self._str_cluster_model = str_model
@@ -124,10 +136,21 @@ class SheetClassifier(FragmentClassifier):
         ret_df = pd.concat([ret_df, none_res_df], ignore_index=True)
         ret_df = ret_df.sort_values('old_indexes')
 
-        document.update_data(ret_df)
-        return document
+        # document.update_data(ret_df)
+        return ret_df
 
-    def simple_classify(self, fragment: SheetFragment) -> SheetLabeledFragment:
+    def classify_fragments(self, doc: SheetDocument) -> pd.Series:
+        """
+        Classify fragments of the document.
+
+        :param doc: the SheetDocument
+        :type doc: SheetDocument
+        :return: series with types of fragments
+        :rtype: pd.Series[LabelType]
+        """
+        pass
+
+    def simple_classify(self, fragment: SheetFragment) -> SheetFragment:
         """
         Classify fragment to one of the simple types.
 
@@ -136,14 +159,15 @@ class SheetClassifier(FragmentClassifier):
         :return: fragment of document with mark
         :rtype: SheetLabeledFragment
         """
-        if fragment['Type'] in ['str', 'datetime.datetime', 'datetime.time']:
+        if fragment.type in ['str', 'datetime.datetime', 'datetime.time']:
             fragment_type = self._str_cluster_model.fit(fragment.value)
             fragment_name = self._str_dict_map[fragment_type]
-        elif fragment['Type'] in ['int', 'float']:
+        elif fragment.type in ['int', 'float']:
             fragment_type = self._number_cluster_model.fit(fragment.value)
             fragment_name = self._number_dict_map[fragment_type]
         else:
             fragment_type = self._none_cluster_model.fit(fragment.value)
             fragment_name = self._none_dict_map[fragment_type]
-        classified_fragment = SheetLabeledFragment(fragment_name)
-        return classified_fragment
+        fragment.label = fragment_type
+        fragment.label_merged = fragment_name
+        return fragment

@@ -14,7 +14,7 @@ class FragmentClassifier(ABC):
     """
 
     @abstractmethod
-    def classify_fragments(self, doc: Document) -> pd.Series[LabelType]:
+    def classify_fragments(self, doc: Document) -> pd.Series:
         """
         Classify fragments of the document.
 

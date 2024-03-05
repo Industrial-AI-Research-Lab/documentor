@@ -1,4 +1,4 @@
-,Content,Start_content,Relative_Id,Type,Row,Column,Length,Vertically_merged,Horizontally_merged,Font_selection,Top_border,Bottom_border,Left_border,Right_border,Color,Font_color,Is_Formula,cluster_name
+,content,start_content,relative_id,type,row,column,length,vertically_merged,horizontally_merged,font_selection,top_border,bottom_border,left_border,right_border,color,font_color,is_formula,ground_truth
 0,,,1,NoneType,5,1,0,False,False,False,False,False,False,False,['00000000'],0,False,normal_empty
 1,,,2,NoneType,5,2,0,False,False,False,False,False,False,False,['00000000'],0,False,normal_empty
 2,First Quarter 2001,First Quarter 2001,3,str,5,3,18,False,False,True,True,True,True,False,['00000000'],21,False,Period

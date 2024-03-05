@@ -7,9 +7,6 @@ from overrides import overrides
 from documentor.structuries.columns import ColumnType
 from documentor.structuries.fragment import Fragment
 
-from documentor.structuries.type_check import check_data_frame, check_dict_str_str
-from documentor.text.fragment import TextFragment
-
 from documentor.structuries.structure import StructureNode, DocumentStructure
 from documentor.structuries.type_check import TypeChecker as tc
 

@@ -1,36 +1,94 @@
-import pandas as pd
+import datetime
+from dataclasses import dataclass
+from types import UnionType
+from typing import Any
+from overrides import overrides
 
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.custom_types import LabelType
+from documentor.structuries.fragment import FragmentInterface
 
 
-class SheetFragment(Fragment):
+@dataclass
+class SheetFragment(FragmentInterface):
     """
     Class for fragments of sheet format document.
     Each fragment represents a cell of a sheet.
+
+    :param value: contents of the cell
+    :type value: int | float | str | datetime.datetime | datetime.date | None
+    :param start_content: the original contents of the cell
+    :type start_content: int | float | str | datetime.datetime | datetime.date | None
+    :param relative_id: cell number (ignoring merged cells)
+    :type relative_id: int
+    :param type: cell content type
+    :type type: int | str
+    :param row: cell line number
+    :type row: int
+    :param column: cell column number
+    :type column: int
+    :param length: the length of the cell contents
+    :type length: int
+    :param vertically_merged: is the cell merged vertically
+    :type vertically_merged: bool
+    :param horizontally_merged: is the cell merged horizontally
+    :type horizontally_merged: bool
+    :param font_selection: is there a highlighted font in the cell
+    :type font_selection: bool
+    :param top_border: does the cell have a top border
+    :type top_border: bool
+    :param bottom_border: does the cell have a bottom border
+    :type bottom_border: bool
+    :param left_border: does the cell have a left border
+    :type left_border: bool
+    :param right_border: does the cell have a right border
+    :type right_border: bool
+    :param color: is the cell highlighted in color
+    :type color: str | int
+    :param font_color: is the font in the cell highlighted in color
+    :type font_color: str | int
+    :param is_formula: does the cell contain the formula
+    :type is_formula: bool
+    :param ground_truth: user-defined markup
+    :type ground_truth: LabelType | None
+    :param label: algorithmic markup in numbers
+    :type label: LabelType | None
+    :param label_merged: the results of algorithmic markup given to the classes of user markup
+    :type label_merged: LabelType | None
     """
+    value: int | float | str | datetime.datetime | datetime.date | None
+    start_content: int | float | str | datetime.datetime | datetime.date | None
+    relative_id: int
+    type: int | str
+    row: int
+    column: int
+    length: int
+    vertically_merged: bool
+    horizontally_merged: bool
+    font_selection: bool
+    top_border: bool
+    bottom_border: bool
+    left_border: bool
+    right_border: bool
+    color: str | int
+    font_color: str | int
+    is_formula: bool
+    ground_truth: LabelType | None = None
+    label: LabelType | None = None
+    label_merged: LabelType | None = None
 
-    _needed_columns = ['Content', 'Start_content', 'Relative_Id', 'Type', 'Row', 'Column',
-                       'Length', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Top_border',
-                       'Bottom_border', 'Left_border', 'Right_border', 'Color', 'Font_color', 'Is_Formula']
-
-    _value = pd.DataFrame()
-
-    def __init__(self, data: list):
-        """
-        Creating a fragment describing a sheet cell.
-        :param data: metadata of the cell
-        :type data: list
-        """
-        self._value = pd.DataFrame(data=[data], columns=self._needed_columns)
-
-    def __str__(self) -> str:
+    def __str__(self) -> int | float | str | datetime.datetime | datetime.date | None:
         """
         String representation of fragment's value.
         :return: value of fragment
         :rtype: str
         """
-        return self.frag['Start_content'][0]
+        return self.value
 
-    @property
-    def value(self) -> pd.DataFrame:
-        return self._value
+    @overrides
+    def to_dict(self) -> dict[str, Any]:
+        return {field: getattr(self, field) for field in self.__annotations__.keys()}
+
+    @classmethod
+    @overrides
+    def param_types_dict(cls) -> dict[str, type | UnionType]:
+        return {param: param_type for param, param_type in cls.__annotations__.items()}

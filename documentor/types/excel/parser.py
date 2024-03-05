@@ -18,9 +18,9 @@ class SheetParser(DocumentParser):
     Class for primary sheet document processing.
     """
 
-    COLUMNS = ['Content', 'Start_content', 'Relative_Id', 'Type', 'Row', 'Column',
-               'Length', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Top_border',
-               'Bottom_border', 'Left_border', 'Right_border', 'Color', 'Font_color', 'Is_Formula']
+    COLUMNS = ['content', 'start_content', 'relative_id', 'type', 'row', 'column',
+               'length', 'vertically_merged', 'horizontally_merged', 'font_selection', 'top_border',
+               'bottom_border', 'left_border', 'right_border', 'color', 'font_color', 'is_formula']
 
     def from_file(self, path: str, sheet_name: str, first_cell: str | None = None, last_cell: str | None = None) -> SheetDocument:
         """
@@ -78,7 +78,7 @@ class SheetParser(DocumentParser):
                      len(str(cel.value)) if value else 0, is_vertical, is_horizontal, cel.font.bold,
                      True if cel.border.top.style else False, True if cel.border.bottom.style else False,
                      True if cel.border.left.style else False, True if cel.border.right.style else False,
-                     [cel.fill.start_color.index], cel.font.color.value if cel.font.color else 0,
+                     cel.fill.start_color.index, cel.font.color.value if cel.font.color else 0,
                      True if cel.value != sheet_formulas[cel.coordinate].value else False]
                     fragment = pd.DataFrame(data=[cell_data], columns=self.COLUMNS)
                     new_df = pd.concat([new_df, fragment], ignore_index=True)

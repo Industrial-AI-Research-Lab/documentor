@@ -139,7 +139,7 @@ def cluster_grid_search(algo: AlgorithmType, grid: dict, y_to_pred: pd.DataFrame
         cluster.fit(x)
         y_num = cluster.labels_
         y_pred = [y_num[i] for i in y_to_pred.index]
-        y_to_t_pred = y_to_pred['cluster_name'].tolist()
+        y_to_t_pred = y_to_pred['ground_truth'].tolist()
         metric = metrics.v_measure_score(y_to_t_pred, y_pred)
 
         if metric > best_metric:
@@ -160,12 +160,12 @@ def selecting(type: list[str], df: pd.DataFrame) -> [pd.DataFrame, list[int]]:
     :return: df of define type ,cell indexes in the original dataset,
     :rtype: DataFrame, list[int]
     """
-    df = df.loc[df['Type'].isin(type)]
+    df = df.loc[df['type'].isin(type)]
     old_indexes = df.index
     df.index = pd.RangeIndex(0, len(df.index))
-    df["Color"] = pd.factorize(df["Color"])[0]
-    df["Type"] = pd.factorize(df["Type"])[0]
-    df["Font_color"] = pd.factorize(df["Font_color"])[0]
+    df["color"] = pd.factorize(df["color"])[0]
+    df["type"] = pd.factorize(df["type"])[0]
+    df["font_color"] = pd.factorize(df["font_color"])[0]
     return df, old_indexes
 
 
@@ -182,10 +182,10 @@ def devide(df: pd.DataFrame, type: list[str]) -> [list[int], pd.DataFrame, pd.Da
     :rtype: [list[int], pd.DataFrame, pd.DataFrame, pd.DataFrame]
     """
     type_df, old_indexes = selecting(type, df)
-    type_y = type_df[["cluster_name"]]
-    type_y['cluster_name'].str.strip()
-    type_y_to_pred = type_y.loc[(pd.notna(type_y['cluster_name']))]
-    type_X = type_df.drop(['cluster_name'], axis=1)
+    type_y = type_df[["ground_truth"]]
+    type_y['ground_truth'].str.strip()
+    type_y_to_pred = type_y.loc[(pd.notna(type_y['ground_truth']))]
+    type_X = type_df.drop(['ground_truth'], axis=1)
     type_X = type_X.fillna(0)
 
     return old_indexes, type_X, type_y, type_y_to_pred
@@ -200,17 +200,17 @@ def row_typing(df: pd.DataFrame) -> pd.DataFrame:
     :return: dataset describing the metadata of all cells in the worksheet with row tupes
     :rtype: DataFrame
     """
-    ndf = df[['Row', 'Column', 'Color', 'Vertically_merged', 'Horizontally_merged', 'Font_selection', 'Is_Formula', 'Type', 'Font_color']]
-    ndf["Color"] = pd.factorize(ndf["Color"])[0]
-    ndf["Type"] = pd.factorize(ndf["Type"])[0]
-    ndf["Font_color"] = pd.factorize(ndf["Font_color"])[0]
-    ndf['Row'] -= ndf['Row'].iloc[0]
-    ndf['Column'] -= ndf['Column'].iloc[0]
+    ndf = df[['row', 'column', 'color', 'vertically_merged', 'horizontally_merged', 'font_selection', 'is_formula', 'type', 'font_color']]
+    ndf["color"] = pd.factorize(ndf["color"])[0]
+    ndf["type"] = pd.factorize(ndf["type"])[0]
+    ndf["font_color"] = pd.factorize(ndf["font_color"])[0]
+    ndf['row'] -= ndf['row'].iloc[0]
+    ndf['column'] -= ndf['column'].iloc[0]
     ndf.reset_index(drop=True, inplace=True)
 
-    arr = np.empty((ndf.tail(1)['Row'].iloc[0] + 1, ndf.tail(1)['Column'].iloc[0] + 1), dtype="object")
+    arr = np.empty((ndf.tail(1)['row'].iloc[0] + 1, ndf.tail(1)['column'].iloc[0] + 1), dtype="object")
     for i, row in ndf.iterrows():
-        arr[row['Row'], row['Column']] = row.values.tolist()
+        arr[row['row'], row['column']] = row.values.tolist()
     mass = [list(chain.from_iterable([arr[i][j] for j in range(len(arr[i]))])) for i in range(len(arr))]
     rest_df = pd.DataFrame(data=mass)
     rest_df = rest_df.fillna(0)
@@ -230,13 +230,13 @@ def row_typing(df: pd.DataFrame) -> pd.DataFrame:
     part_list = rest_df['labels']
 
     to_merge_df = pd.DataFrame()
-    to_merge_df['Row'] = rest_df.index + ndf['Row'].iloc[0]
+    to_merge_df['row'] = rest_df.index + ndf['row'].iloc[0]
     to_merge_df['labels'] = part_list
-    to_merge_df = to_merge_df.set_index('Row')
+    to_merge_df = to_merge_df.set_index('row')
 
     str_type_list = []
     names = list(df.columns)
-    r_i = names.index('Row') + 1
+    r_i = names.index('row') + 1
     for row in df.itertuples():
         a = to_merge_df['labels'][row[r_i]] if row[r_i] in list(to_merge_df.index) else None
         str_type_list.append(a)
