@@ -24,7 +24,7 @@ warnings.filterwarnings('ignore')
 
 ```python
 a = SheetParser()
-d = a.from_file(path='start_tables/Global Hot List.xlsx', sheet_name='Hotlist - Identified ', first_cell='A5', last_cell='U75')
+d = a.parse_file(path='start_tables/Global Hot List.xlsx', sheet_name='Hotlist - Identified ', first_cell='A5', last_cell='U75')
 d.doc_df
 ```
 
