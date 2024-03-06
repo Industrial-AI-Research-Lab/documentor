@@ -16,7 +16,7 @@ class BaseSemanticModel(ABC):
         self._model = model
 
     @abstractmethod
-    def load_weights(self):
+    def load_weights(self, *args, **kwargs):
         """
         Method for load weights into model
         :param args: some args, must be a path or file or any entity

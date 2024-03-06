@@ -7,7 +7,7 @@ from semantic.models.base import BaseSemanticModel
 from natasha import (Segmenter, MorphVocab, Doc, NewsEmbedding, NewsMorphTagger)
 
 
-class NatashaMorphologyModel(BaseSemanticModel):
+class NatashaSemanticModel(BaseSemanticModel):
     """Class for lemmatize and stemming using natasha"""
 
     def __init__(self):
@@ -25,7 +25,7 @@ class NatashaMorphologyModel(BaseSemanticModel):
     def load_weights(self, path):
         ...
 
-    def encode(self, X: str, *args, **kwargs) -> tuple:
+    def encode(self, X: str, *args, **kwargs) -> list[str]:
         """
         Method for lemmatize word in statmment X
         :param X: statement for lemmatize
@@ -41,5 +41,5 @@ class NatashaMorphologyModel(BaseSemanticModel):
         for token in doc.tokens:
             token.lemmatize(self.morph_vocab)
 
-        return tuple(word.lemma for word in doc.tokens if self.word_pattern.match(word.lemma))
+        return [word.lemma for word in doc.tokens if self.word_pattern.match(word.lemma)]
 

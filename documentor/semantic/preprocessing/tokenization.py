@@ -1,14 +1,19 @@
-from documentor.semantic.models.wiki2vec import WikiWord2VecModel, BaseSemanticModel
-from documentor.structuries.fragment import Fragment
+import re
+
 from documentor.structuries.document import Document
+from documentor.semantic.models.morphology import BaseSemanticModel
 
 
-def tokenize(document: Document, model: BaseSemanticModel):
+def lemmatize(document: Document, model: BaseSemanticModel, *args, **kwargs):
     """
-    Get embeddings from document via model
-    :param document: Document for tokenization
-    :param model: Embedding model
-    :return: None
+    Method who receive a document object and model based on BaseSemanticModel
+    and appends lemmas to the Document object
+    :param document: a Document object which contains data for lemmatize
+    :type document: Document
+    :model BaseSemanticModel: model for lemmatize
+    :type model: BaseSemanticModel
+    :return None:
     """
-    for fragment in document.build_fragments():
-        fragment.tokens = [model.encode(word) for word in fragment.lemmas]
+
+    lemmas = [model.encode(cell) for cell in document.value]
+    document.tokens = lemmas
