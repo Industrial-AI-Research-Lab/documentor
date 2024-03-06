@@ -63,7 +63,7 @@ class SheetDocument(Document):
         :return: pandas DataFrame with data about fragments
         :rtype: pd.DataFrame
         """
-        return self._data
+        return self._data.copy()
 
     @staticmethod
     def row_from_fragment(frag: SheetFragment) -> pd.DataFrame:
@@ -72,6 +72,20 @@ class SheetDocument(Document):
     def add_fragment(self, frag: SheetFragment) -> None:
         pd.concat([self._data, pd.DataFrame(frag.to_dict())], ignore_index=True)
 
-    def update_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        self._data = df
-        return self._data
+    def set_row_type(self, row_type: pd.Series) -> None:
+        """
+
+        """
+        self._data['row_type'] = row_type
+
+    def set_ground_truth(self, ground_truth: pd.Series) -> None:
+        """
+
+        """
+        self._data['ground_truth'] = ground_truth
+
+    def set_label(self, label: pd.Series) -> None:
+        """
+
+        """
+        self._data['label'] = label

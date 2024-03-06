@@ -48,12 +48,12 @@ class SheetFragment(FragmentInterface):
     :type font_color: str | int
     :param is_formula: does the cell contain the formula
     :type is_formula: bool
+    :param row_type: type of row on sheet
+    :type row_type: int | None
     :param ground_truth: user-defined markup
     :type ground_truth: LabelType | None
-    :param label: algorithmic markup in numbers
+    :param label: algorithmic markup
     :type label: LabelType | None
-    :param label_merged: the results of algorithmic markup given to the classes of user markup
-    :type label_merged: LabelType | None
     """
     value: int | float | str | datetime.datetime | datetime.date | None
     start_content: int | float | str | datetime.datetime | datetime.date | None
@@ -72,9 +72,9 @@ class SheetFragment(FragmentInterface):
     color: str | int
     font_color: str | int
     is_formula: bool
+    row_type: int | None
     ground_truth: LabelType | None = None
     label: LabelType | None = None
-    label_merged: LabelType | None = None
 
     def __str__(self) -> int | float | str | datetime.datetime | datetime.date | None:
         """
