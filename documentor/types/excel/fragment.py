@@ -72,7 +72,7 @@ class SheetFragment(FragmentInterface):
     color: str | int
     font_color: str | int
     is_formula: bool
-    row_type: int | None
+    row_type: int | None = None
     ground_truth: LabelType | None = None
     label: LabelType | None = None
 

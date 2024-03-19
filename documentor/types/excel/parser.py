@@ -109,7 +109,7 @@ class SheetParser(DocumentParser):
         except FileNotFoundError as fnfe:
             raise FileNotFoundError(ParserException.FileException.format())
         except ValueError as ve:
-            raise
+            raise ValueError(ParserException.CellContentException.format())
         except Exception as e:
             raise Exception(f'{e}')
 
