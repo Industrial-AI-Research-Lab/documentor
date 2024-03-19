@@ -53,11 +53,11 @@ def test_param_types_dict():
     assert param_types.get('font_selection') == bool
     assert param_types.get('top_border') == bool
     assert param_types.get('bottom_border') == bool
-    assert param_types.get('left_border') ==  bool
+    assert param_types.get('left_border') == bool
     assert param_types.get('right_border') == bool
     assert param_types.get('color') == str | int
     assert param_types.get('font_color') == str | int
     assert param_types.get('is_formula') == bool
     assert param_types.get('row_type') == int | None
-    assert param_types.get('ground_truth') ==  LabelType | None
+    assert param_types.get('ground_truth') == LabelType | None
     assert param_types.get('label') == LabelType | None

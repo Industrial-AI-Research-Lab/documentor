@@ -26,17 +26,23 @@ class SheetClassifier(FragmentClassifier):
     _none_dict_map: dict[int: str]
     _none_cluster_model = AlgorithmType
 
-    def __init__(self, algo: AlgorithmType = DBSCAN, params=None):
+    def __init__(self, algo: AlgorithmType | None = DBSCAN, params=None):
         """
         Creating a classifier of cells in a sheet document.
 
         :param algo: clusterization algorithm used
         :type algo: AlgorithmType | None
         """
+        if algo is None:
+            algo = DBSCAN
         if params is None:
             params = {'eps': 0.1, 'min_samples': 3}
-        self._cluster_model = algo(**params)
-        self._dict_map = {}
+        self._str_cluster_model = algo(**params)
+        self._str_dict_map = {}
+        self._number_cluster_model = algo(**params)
+        self._number_dict_map = {}
+        self._none_cluster_model = algo(**params)
+        self._none_dict_map = {}
 
     def cluster(self, df: pd.DataFrame, df_types: list[str]) -> pd.DataFrame:
         """

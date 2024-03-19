@@ -30,7 +30,7 @@ class SheetParser(DocumentParser):
     Class for primary sheet document processing.
     """
 
-    COLUMNS = ['content', 'start_content', 'relative_id', 'type', 'row', 'column',
+    COLUMNS = ['value', 'start_content', 'relative_id', 'type', 'row', 'column',
                'length', 'vertically_merged', 'horizontally_merged', 'font_selection', 'top_border',
                'bottom_border', 'left_border', 'right_border', 'color', 'font_color', 'is_formula']
 

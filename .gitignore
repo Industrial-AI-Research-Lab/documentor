@@ -10,3 +10,6 @@ __pychache__/
 *.ipynb
 
 poetry.lock
+*.pyc
+*.pyc
+*.pyc

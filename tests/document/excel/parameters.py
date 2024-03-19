@@ -1,4 +1,5 @@
 from documentor.types.excel.fragment import SheetFragment
+from sklearn.cluster import k_means, DBSCAN
 
 PARSER_WORK_PARAMETRIZER = [
     {'path': 'data/Global_Hot_List.xlsx',
@@ -372,6 +373,19 @@ FRAGMENT_POST_INIT_PARAMETRIZER = [
     ),
 ]
 
+DOCUMENT_PATH_PARAMETRIZER = [
+    ('data/Global Hot List.csv', ['value', 'start_content', 'relative_id', 'type', 'row', 'column',
+                                  'length', 'vertically_merged', 'horizontally_merged',
+                                  'font_selection', 'top_border',
+                                  'bottom_border', 'left_border', 'right_border', 'color',
+                                  'font_color', 'is_formula']),
+    ('data/hot_list_parsed.csv', ['value', 'start_content', 'relative_id', 'type', 'row', 'column',
+                                  'length', 'vertically_merged', 'horizontally_merged',
+                                  'font_selection', 'top_border',
+                                  'bottom_border', 'left_border', 'right_border', 'color',
+                                  'font_color', 'is_formula', 'ground_truth'])
+]
+
 FRAGMENT_STR_PARAMETRIZER = [
     (SheetFragment(value="Hello World",
                    start_content='Hello World',
@@ -430,4 +444,12 @@ FRAGMENT_STR_PARAMETRIZER = [
                    is_formula=False,
                    ),
      "")
+]
+
+
+CLASSIFIER_INIT_PARAMS = [
+    {'algo': None, 'params': None},
+    {'algo': DBSCAN, 'params': None},
+    {'algo': None, 'params': {'eps': 0.1, 'min_samples': 3}},
+    {'algo': DBSCAN, 'params': {'eps': 0.1, 'min_samples': 3}},
 ]
