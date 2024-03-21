@@ -89,7 +89,7 @@ class SheetClassifier(FragmentClassifier):
         """
         df = document.to_df()
         df = row_typing(df)
-        df = df.drop(columns=['content', 'start_content', 'row', 'relative_id'])
+        df = df.drop(columns=['value', 'start_content', 'row', 'relative_id'])
         for n, t in type_dict.items():
             old_indexes, x, y, y_to_pred = devide(df, t)
             label = x['label'].to_list()
@@ -99,7 +99,7 @@ class SheetClassifier(FragmentClassifier):
             plots(x, y, label)
             print_metrics(y_to_pred['ground_truth'].to_list(), label_to_pred)
 
-    def classify_fragments(self, doc: SheetDocument) -> pd.Series:
+    def classify_fragments(self, doc: SheetDocument) -> [pd.Series, SheetDocument]:
         """
         Classify fragments of the document.
 
@@ -110,7 +110,7 @@ class SheetClassifier(FragmentClassifier):
         """
         df = doc.to_df()
         df = row_typing(df)
-        df = df.drop(columns=['content', 'start_content', 'row', 'relative_id'])
+        df = df.drop(columns=['value', 'start_content', 'row', 'relative_id'])
         ret_df = pd.DataFrame()
         for t in type_dict.values():
             ret_df = pd.concat([ret_df, self.cluster(df, t)], ignore_index=True)
@@ -118,7 +118,7 @@ class SheetClassifier(FragmentClassifier):
         ret_df = ret_df.set_index('old_indexes')
         doc.set_label(ret_df['label'])
         doc.set_row_type(ret_df['row_type'])
-        return ret_df['label']
+        return ret_df['label'].sort_index(), doc
 
     def simple_classify(self, fragment: SheetFragment) -> SheetFragment:
         """
