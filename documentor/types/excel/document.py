@@ -67,25 +67,46 @@ class SheetDocument(Document):
 
     @staticmethod
     def row_from_fragment(frag: SheetFragment) -> pd.DataFrame:
+        """
+        Get a dataframe from a single fragment
+
+        :param frag: Representation of a table cell.
+        :type frag: SheetFragment
+        """
         return pd.DataFrame(frag.to_dict())
 
     def add_fragment(self, frag: SheetFragment) -> None:
+        """
+        Add a fragment to a dataframe
+
+        :param frag: Representation of a table cell.
+        :type frag: SheetFragment
+        """
         pd.concat([self._data, pd.DataFrame(frag.to_dict())], ignore_index=True)
 
     def set_row_type(self, row_type: pd.Series) -> None:
         """
+        Set row type values.
 
+        :param row_type: row type data
+        :type row_type: Series
         """
         self._data['row_type'] = row_type
 
     def set_ground_truth(self, ground_truth: pd.Series) -> None:
         """
+        Set ground_truth values.
 
+        :param ground_truth: user markup data
+        :type ground_truth: Series
         """
         self._data['ground_truth'] = ground_truth
 
     def set_label(self, label: pd.Series) -> None:
         """
+        Set label values.
 
+        :param label: algorithmic markup data
+        :type label: Series
         """
         self._data['label'] = label

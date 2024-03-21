@@ -5,7 +5,7 @@ from sklearn.cluster import DBSCAN
 
 from documentor.structuries.classifier import FragmentClassifier
 from documentor.types.excel.document import SheetDocument
-from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide,
+from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search_v_measure, devide,
                                                grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing)
 from documentor.types.excel.fragment import SheetFragment
 
@@ -61,7 +61,7 @@ class SheetClassifier(FragmentClassifier):
 
         v_measure = 0
         for grid in [grid_dbscan, grid_optics, grid_kmeans]:
-            algo_params = cluster_grid_search(grid['algo'], grid['params'], y_to_pred, x)
+            algo_params = cluster_grid_search_v_measure(grid['algo'], grid['params'], y_to_pred, x)
             algo_clustering = grid['algo'](**algo_params)
             algo_clustering.fit(x)
 

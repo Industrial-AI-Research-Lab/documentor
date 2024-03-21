@@ -20,7 +20,7 @@ class AlgorithmType(Enum):
     OPTICS = OPTICS()
 
 
-grid_optics = {'algo': OPTICS, 'params': {'min_samples': range(2, 20, 1),
+grid_optics = {'algo': OPTICS, 'params': {'min_samples': range(2, 15, 1),
                                           'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute']}}
 grid_kmeans = {'algo': KMeans, 'params': {'algorithm': ['lloyd', 'elkan', 'auto', 'full'], 'n_clusters': range(5, 40)}}
 grid_dbscan = {'algo': DBSCAN, 'params': {'eps': np.arange(1, 5, 0.5), 'min_samples': range(1, 10),
@@ -115,7 +115,7 @@ def map_vectors(cluster_vector: list[int], labeled_vector: list[str | float]) ->
     return res_list, res_dict
 
 
-def cluster_grid_search(algo: AlgorithmType, grid: dict, y_to_pred: pd.DataFrame, x: pd.DataFrame) -> dict:
+def cluster_grid_search_v_measure(algo: AlgorithmType, grid: dict, y_to_pred: pd.DataFrame, x: pd.DataFrame) -> dict:
     """
     Selection of parameters for the clustering algorithm.
 
@@ -141,6 +141,36 @@ def cluster_grid_search(algo: AlgorithmType, grid: dict, y_to_pred: pd.DataFrame
         y_pred = [y_num[i] for i in y_to_pred.index]
         y_to_t_pred = y_to_pred['ground_truth'].tolist()
         metric = metrics.v_measure_score(y_to_t_pred, y_pred)
+
+        if metric > best_metric:
+            best_params = params
+            best_metric = metric
+
+    return best_params
+
+
+def cluster_grid_search_silhouette_coefficient(algo: AlgorithmType, grid: dict, x: pd.DataFrame) -> dict:
+    """
+    Selection of parameters for the clustering algorithm.
+
+    :param algo: clusterization algorithm used
+    :type x: AlgorithmType
+    :param grid: a set of parameters for search
+    :type x: dict
+    :param x: metadata of sheet cells
+    :type x: DataFrame
+    :return: best parameters for the algorithm
+    :rtype: dict
+    """
+    best_params = None
+    best_metric = -1
+
+    cluster = algo()
+    for params in ParameterGrid(grid):
+        cluster.set_params(**params)
+        cluster.fit(x)
+        y_num = cluster.labels_
+        metric = metrics.silhouette_score(x, y_num)
 
         if metric > best_metric:
             best_params = params
@@ -197,7 +227,7 @@ def row_typing(df: pd.DataFrame) -> pd.DataFrame:
 
     :param df: dataset describing the metadata of all cells in the worksheet
     :type df: DataFrame
-    :return: dataset describing the metadata of all cells in the worksheet with row tupes
+    :return: dataset describing the metadata of all cells in the worksheet with row types
     :rtype: DataFrame
     """
     ndf = df[['row', 'column', 'color', 'vertically_merged', 'horizontally_merged', 'font_selection', 'is_formula', 'type', 'font_color']]
@@ -224,13 +254,23 @@ def row_typing(df: pd.DataFrame) -> pd.DataFrame:
 
     rest_df = rest_df.iloc[:, in_cols]
 
-    ald = DBSCAN().fit(rest_df)
-    rest_df['labels'] = ald.labels_
-    rest_df['labels'] = rest_df['labels'].apply(lambda x: x + 1)
-    part_list = rest_df['labels']
+    s_score = 0
+    for grid in [grid_dbscan, grid_optics, grid_kmeans]:
+        algo_params = cluster_grid_search_silhouette_coefficient(grid['algo'], grid['params'], rest_df)
+        algo_clustering = grid['algo'](**algo_params)
+        algo_clustering.fit(rest_df)
+
+        row_types = algo_clustering.labels_
+
+        if metrics.silhouette_score(rest_df, row_types) >= s_score:
+            rest_df_ = rest_df.copy()
+            s_score = metrics.silhouette_score(rest_df_, row_types)
+            rest_df_['labels'] = row_types
+            rest_df_['labels'] = rest_df_['labels'].apply(lambda x: x + 1)
+            part_list = rest_df_['labels']
 
     to_merge_df = pd.DataFrame()
-    to_merge_df['row'] = rest_df.index + ndf['row'].iloc[0]
+    to_merge_df['row'] = rest_df_.index + ndf['row'].iloc[0]
     to_merge_df['labels'] = part_list
     to_merge_df = to_merge_df.set_index('row')
 
