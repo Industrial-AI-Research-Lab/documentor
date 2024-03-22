@@ -42,24 +42,3 @@ class BaseSemanticModel(ABC):
         """
         ...
 
-    def encode_text(self, text: str, *args, **kwargs) -> np.ndarray | tuple[str] | None:
-        """
-        Method for encoding text that contain several words
-        :param text: a long string of words separated by spaces
-        :param text: str
-        :param args:
-        :param kwargs:
-        :return: matrix or tuple of processed words
-        """
-        ...
-
-    def encode_word(self, word: str, *args, **kwargs) -> np.ndarray | str | None:
-        """
-        Method for encoding a single word
-        :param word: a single word
-        :type word: str
-        :param args:
-        :param kwargs:
-        :return: matrix of processed word
-        """
-        ...

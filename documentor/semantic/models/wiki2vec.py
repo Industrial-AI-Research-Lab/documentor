@@ -19,9 +19,9 @@ class WikiWord2VecModel(BaseSemanticModel):
         """
         self._model = Wikipedia2Vec.load(path)
 
-    def encode_word(self, word: str, *args, **kwargs) -> np.ndarray | None:
+    def encode(self, word: str, *args, **kwargs) -> np.ndarray | None:
         """
-        encode word to vector
+        Encode word to vector
         :param word: word to encode
         :type word: str
         :return: vector if word has been found, else None

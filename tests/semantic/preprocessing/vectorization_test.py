@@ -25,8 +25,8 @@ def cosine_similarity(vec1, vec2):
 def test_vectorization(vectorization_model, vectorize_example):
     similar = vectorize_example.similar_words
     dissimilar = vectorize_example.dissimilar_words
-    similar_example = [vectorization_model.encode_word(word) for word in similar]
-    dissimilar_example = [vectorization_model.encode_word(word) for word in dissimilar]
+    similar_example = [vectorization_model.encode(word) for word in similar]
+    dissimilar_example = [vectorization_model.encode(word) for word in dissimilar]
 
     assert abs(vectorize_example.similar_distance - cosine_similarity(*similar_example)) <= 0.2
     assert abs(vectorize_example.dissimilar_distance - cosine_similarity(*dissimilar_example)) <= 0.2
