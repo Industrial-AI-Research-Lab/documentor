@@ -1,17 +1,11 @@
 import pandas as pd
 
 from documentor.structuries.document import Document
-from semantic.models.base import BaseSemanticModel
-from semantic.preprocessing.tokenization import lemmatize
+from documentor.semantic.models.base import BaseSemanticModel
+from documentor.semantic.preprocessing.tokenization import lemmatize
 
 
-def lemmatize_document(data: pd.DataFrame, model: BaseSemanticModel) -> Document:
-
-    return Document(data)
-
-def test_lemmatize(semantic_document, tokenization_model):
-    document = Document(semantic_document)
-
-    lemmatize(document, tokenization_model)
-
-    assert (document.tokens == [['утка', 'утка', 'утка'], ['красиво', 'красиво', 'красиво']]).all()
+def test_tokenize(semantic_document, tokenization_model, tokenization_example):
+    lemmatize(semantic_document, tokenization_model)
+    result_tokens = semantic_document.tokens.values.tolist()[0]
+    assert all([result == benchmark for result, benchmark in zip(result_tokens, tokenization_example)])
