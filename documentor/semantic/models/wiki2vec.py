@@ -19,15 +19,15 @@ class WikiWord2VecModel(BaseSemanticModel):
         """
         self._model = Wikipedia2Vec.load(path)
 
-    def encode(self, X: str, *args, **kwargs) -> np.ndarray | None:
+    def encode_word(self, word: str, *args, **kwargs) -> np.ndarray | None:
         """
         encode word to vector
-        :param X: word to encode
-        :type X: str
+        :param word: word to encode
+        :type word: str
         :return: vector if word has been found, else None
         :rtype: np.ndarray or None
         """
         try:
-            return self._model.get_word_vector(X)
+            return self._model.get_word_vector(word)
         except KeyError:
             return None
