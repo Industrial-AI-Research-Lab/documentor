@@ -10,3 +10,5 @@ __pychache__/
 *.ipynb
 
 poetry.lock
+/tests/semantic/preprocessing/data/ruwiki_20180420_300d.pkl
+/examples/data/work_names.csv
