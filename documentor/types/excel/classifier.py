@@ -1,9 +1,10 @@
 import pandas as pd
+import pickle
 
 from sklearn import metrics
 from sklearn.cluster import DBSCAN
 
-from documentor.structuries.classifier import FragmentClassifier
+from documentor.structuries.classifier import FragmentClassifier, ClassifierModel
 from documentor.types.excel.document import SheetDocument
 from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search_v_measure, devide,
                                                grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing)
@@ -14,19 +15,30 @@ SheetFragmentClassType = int | str
 type_dict = {'str': ['str', 'datetime.datetime', 'datetime.time'], 'number': ['int', 'float'], 'none': ['NoneType']}
 
 
+class SheetClassifierModel(ClassifierModel):
+    dict_map: dict[int: str]
+    model = AlgorithmType
+
+    def __init__(self, dict_map: dict[int: str], model: AlgorithmType):
+        self.dict_map = dict_map
+        self.model = model
+
+    def load(self, path: str):
+        self.model = pickle.load(path+'model')
+        self.dict_map = pickle.load(path+'dict')
+
+    def save(self, path: str):
+        pickle.dump(self.model, path+'model')
+        pickle.dump(self.dict_map, path+'dict')
+
 class SheetClassifier(FragmentClassifier):
     """
     Class for sheet format fragment classifier.
     """
 
-    _str_dict_map: dict[int: str]
-    _str_cluster_model = AlgorithmType
-    _number_dict_map: dict[int: str]
-    _number_cluster_model = AlgorithmType
-    _none_dict_map: dict[int: str]
-    _none_cluster_model = AlgorithmType
+    model_dict: [str, SheetClassifierModel]
 
-    def __init__(self, algo: AlgorithmType | None = DBSCAN, params=None):
+    def __init__(self, algo: AlgorithmType | None = DBSCAN, params=None, types: list | None = None):
         """
         Creating a classifier of cells in a sheet document.
 
@@ -37,20 +49,19 @@ class SheetClassifier(FragmentClassifier):
             algo = DBSCAN
         if params is None:
             params = {'eps': 0.1, 'min_samples': 3}
-        self._str_cluster_model = algo(**params)
-        self._str_dict_map = {}
-        self._number_cluster_model = algo(**params)
-        self._number_dict_map = {}
-        self._none_cluster_model = algo(**params)
-        self._none_dict_map = {}
+        if types:
+            for t in types:
+                self.model_dict[t] = SheetClassifierModel(dict_map={}, model=algo(**params))
 
-    def cluster(self, df: pd.DataFrame, df_types: list[str]) -> pd.DataFrame:
+    def cluster(self, df: pd.DataFrame, type_name: str, df_types: list[str]) -> pd.DataFrame:
         """
         Choosing the best clustering algorithm and obtaining a dictionary
         with a comparison of user and algorithmic markup.
 
         :param df: dataset describing the metadata of all cells in the worksheet
         :type df: DataFrame
+        :param type_name: type name
+        :type type_name: str
         :param df_types: list of data types included in the dataset
         :type df_types:list[str]
         :return: DataFrame with labeled infor,
@@ -77,6 +88,8 @@ class SheetClassifier(FragmentClassifier):
                 x_['ground_truth'] = y
                 x_['old_indexes'] = old_indexes
                 x_['label'] = algo_y_num_map
+
+                self.model_dict[type_name] = SheetClassifierModel(dict_map=algo_dict_map, model=algo_clustering)
         return x_
 
     @staticmethod
@@ -112,8 +125,8 @@ class SheetClassifier(FragmentClassifier):
         df = row_typing(df)
         df = df.drop(columns=['value', 'start_content', 'row', 'relative_id'])
         ret_df = pd.DataFrame()
-        for t in type_dict.values():
-            ret_df = pd.concat([ret_df, self.cluster(df, t)], ignore_index=True)
+        for t, lst in type_dict.items():
+            ret_df = pd.concat([ret_df, self.cluster(df, t, lst)], ignore_index=True)
 
         ret_df = ret_df.set_index('old_indexes')
         doc.set_label(ret_df['label'])
@@ -129,15 +142,12 @@ class SheetClassifier(FragmentClassifier):
         :return: fragment of document with mark
         :rtype: SheetLabeledFragment
         """
-        if fragment.type in ['str', 'datetime.datetime', 'datetime.time']:
-            fragment_type = self._str_cluster_model.fit(fragment.value)
-            fragment_name = self._str_dict_map[fragment_type]
-        elif fragment.type in ['int', 'float']:
-            fragment_type = self._number_cluster_model.fit(fragment.value)
-            fragment_name = self._number_dict_map[fragment_type]
-        else:
-            fragment_type = self._none_cluster_model.fit(fragment.value)
-            fragment_name = self._none_dict_map[fragment_type]
-        fragment.label = fragment_type
-        fragment.label_merged = fragment_name
+
+        for t, lst in type_dict.items():
+            if fragment.type in lst:
+                fragment_type = self.model_dict[t].model.fit(fragment.value)
+                fragment_name = self.model_dict[t].dict_map[fragment_type]
+
+                fragment.label = fragment_type
+                fragment.label_merged = fragment_name
         return fragment
