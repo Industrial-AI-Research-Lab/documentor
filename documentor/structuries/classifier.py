@@ -10,14 +10,12 @@ from documentor.structuries.document import Document
 # TODO rewrite this class
 
 class ClassifierModel(ABC):
-    @overrides
     @abstractmethod
-    def load(self):
+    def load_model(self):
         pass
 
-    @overrides
     @abstractmethod
-    def save(self):
+    def save_model(self):
         pass
 
 
