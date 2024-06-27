@@ -25,7 +25,7 @@ from documentor.sheets.parser import SheetParser
 
 ```python is_executing=true
 a = SheetParser()
-d = a.from_file(path='start_tables/D2.xlsx', sheet_name='Ресурсы', first_cell='A1', last_cell='CT62')
+d = a.parse_file(path='start_tables/D2.xlsx', sheet_name='Ресурсы', first_cell='A1', last_cell='CT62')
 d.doc_df
 ```
 

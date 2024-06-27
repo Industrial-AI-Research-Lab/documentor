@@ -1,127 +1,139 @@
 import pandas as pd
+import pickle
 
 from sklearn import metrics
 from sklearn.cluster import DBSCAN
 
-from documentor.structuries.classifier import FragmentClassifier
-from documentor.types.excel.label_data import SheetLabeledFragment
-from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search, devide, grid_optics,
-                                               grid_kmeans, grid_dbscan, AlgorithmType)
+from documentor.structuries.classifier import FragmentClassifier, ClassifierModel
+from documentor.types.excel.document import SheetDocument
+from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search_v_measure, devide,
+                                               grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing)
 from documentor.types.excel.fragment import SheetFragment
 
 SheetFragmentClassType = int | str
 
+type_dict = {'str': ['str', 'datetime.datetime', 'datetime.time'], 'number': ['int', 'float'], 'none': ['NoneType']}
 
 
+class SheetClassifierModel(ClassifierModel):
+    dict_map: dict[int: str]
+    model = AlgorithmType
 
+    def __init__(self, dict_map: dict[int: str], model: AlgorithmType):
+        self.dict_map = dict_map
+        self.model = model
 
-class SheetFragmentClassifier(FragmentClassifier):
+    def load(self, path: str):
+        self.model = pickle.load(path+'model')
+        self.dict_map = pickle.load(path+'dict')
+
+    def save(self, path: str):
+        pickle.dump(self.model, path+'model')
+        pickle.dump(self.dict_map, path+'dict')
+
+class SheetClassifier(FragmentClassifier):
     """
     Class for sheet format fragment classifier.
     """
 
-    _dict_map: dict[int: str]
-    _cluster_model = AlgorithmType
+    model_dict: [str, SheetClassifierModel]
 
-    def __init__(self, algo: AlgorithmType = DBSCAN, params: dict = {'eps':0.1, 'min_samples':3}):
+    def __init__(self, algo: AlgorithmType | None = DBSCAN, params=None, types: list | None = None):
         """
         Creating a classifier of cells in a sheet document.
 
         :param algo: clusterization algorithm used
         :type algo: AlgorithmType | None
         """
-        self._cluster_model = algo(**params)
-        self._dict_map = {}
+        if algo is None:
+            algo = DBSCAN
+        if params is None:
+            params = {'eps': 0.1, 'min_samples': 3}
+        if types:
+            for t in types:
+                self.model_dict[t] = SheetClassifierModel(dict_map={}, model=algo(**params))
 
-    def cluster(self, y_to_pred: pd.DataFrame, x: pd.DataFrame, y: pd.DataFrame) -> [list[str], list[str],
-                                                                                     list[str], list[int], str]:
+    def cluster(self, df: pd.DataFrame, type_name: str, df_types: list[str]) -> pd.DataFrame:
         """
         Choosing the best clustering algorithm and obtaining a dictionary
         with a comparison of user and algorithmic markup.
 
-        :param y_to_pred: user-defined markup (only marked)
-        :type y_to_pred: DataFrame
-        :param x: metadata of sheet cells
-        :type x: DataFrame
-        :param y: user-defined markup (all cells)
-        :type y: DataFrame
-        :return: fully marked up by the algorithm y-column, y-column marked up by the algorithm,
-        y-column marked up by the user, numerically marked up y-column,
+        :param df: dataset describing the metadata of all cells in the worksheet
+        :type df: DataFrame
+        :param type_name: type name
+        :type type_name: str
+        :param df_types: list of data types included in the dataset
+        :type df_types:list[str]
+        :return: DataFrame with labeled infor,
         the name of the selected algorithm
-        :rtype: [list[str], list[str], list[str], list[int], str]
+        :rtype: DataFrame
         """
+        old_indexes, x, y, y_to_pred = devide(df, df_types)
+
         v_measure = 0
-        silhouette_koef = 0
         for grid in [grid_dbscan, grid_optics, grid_kmeans]:
-            algo_params = cluster_grid_search(grid['algo'], grid['params'], y_to_pred, x)
+            algo_params = cluster_grid_search_v_measure(grid['algo'], grid['params'], y_to_pred, x)
             algo_clustering = grid['algo'](**algo_params)
             algo_clustering.fit(x)
 
             algo_y_num = algo_clustering.labels_
-            algo_y_to_pred = y_to_pred['cluster_name'].tolist()
+            algo_y_to_pred = y_to_pred['ground_truth'].tolist()
 
-            algo_y_num_map, algo_dict_map = map_vectors(algo_y_num, y['cluster_name'].tolist())
+            algo_y_num_map, algo_dict_map = map_vectors(algo_y_num, y['ground_truth'].tolist())
             algo_y_pred_map = [algo_y_num_map[i] for i in y_to_pred.index]
 
-            if metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) > v_measure:
+            if metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) >= v_measure:
+                x_ = x.copy()
                 v_measure = metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map)
-                silhouette_koef = metrics.silhouette_score(x, algo_y_num)
-                y_num_map = algo_y_num_map
-                al_y_to_pred = algo_y_to_pred
-                y_pred_map = algo_y_pred_map
-                y_num = algo_y_num
-                al = grid['algo'].__name__
-                self._cluster_model = grid['algo'](**algo_params)
-                self._dict_map = algo_dict_map
-            elif (metrics.v_measure_score(algo_y_to_pred, algo_y_pred_map) == v_measure and
-                  metrics.silhouette_score(x, algo_y_num) > silhouette_koef):
-                silhouette_koef = metrics.silhouette_score(x, algo_y_num)
-                y_num_map = algo_y_num_map
-                al_y_to_pred = algo_y_to_pred
-                y_pred_map = algo_y_pred_map
-                y_num = algo_y_num
-                al = grid['algo'].__name__
-                self._cluster_model = grid['algo'](**algo_params)
-                self._dict_map = algo_dict_map
+                x_['ground_truth'] = y
+                x_['old_indexes'] = old_indexes
+                x_['label'] = algo_y_num_map
 
-        return y_num_map, al_y_to_pred, y_pred_map, y_num, al
+                self.model_dict[type_name] = SheetClassifierModel(dict_map=algo_dict_map, model=algo_clustering)
+        return x_
 
-    def print_result(self, df: pd.DataFrame, df_types: list[str], type: str) -> None:
+    @staticmethod
+    def print_result(document: SheetDocument) -> None:
         """
         Displays the markup results.
 
-        :param df: dataset describing the metadata of all cells in the worksheet
-        :type df: DataFrame
-        :param df_types: list of data types included in the dataset
-        :type df_types:list[str]
-        :param type: the name of the dataset type for the user
-        :type type: str
+        :param document: SheetDocument with label information
+        :type document: SheetDocument
         """
-        old_indexes, X, y, y_to_pred = devide(df, df_types)
-        y_num_map, al_y_to_pred, y_pred_map, y_num, al = self.cluster(y_to_pred, X, y)
-        print(f'\ntype: {type}, algorithm: {al}')
-        plots(X, y, y_num_map)
-        print_metrics(al_y_to_pred, y_pred_map, y_num, X)
+        df = document.to_df()
+        df = row_typing(df)
+        df = df.drop(columns=['value', 'start_content', 'row', 'relative_id'])
+        for n, t in type_dict.items():
+            old_indexes, x, y, y_to_pred = devide(df, t)
+            label = x['label'].to_list()
+            label_to_pred = [label[i] for i in y_to_pred.index]
+            x = x.drop(columns=['label'])
+            print(f'Value type: {n}')
+            plots(x, y, label)
+            print_metrics(y_to_pred['ground_truth'].to_list(), label_to_pred)
 
-    def devide_and_cluster(self, df: pd.DataFrame) -> None:
+    def classify_fragments(self, doc: SheetDocument) -> [pd.Series, SheetDocument]:
         """
-        Divides the dataset into parts by type.
-        Determines the appropriate clustering algorithm for each part.
-        Marks up data that is not labeled in the custom markup.
-        Displays the markup results.
+        Classify fragments of the document.
 
-        :param df: dataset describing the metadata of all cells in the worksheet
-        :type df: DataFrame
+        :param doc: the SheetDocument
+        :type doc: SheetDocument
+        :return: series with types of fragments
+        :rtype: pd.Series[LabelType]
         """
-        col_names = [str(i) for i in df.columns]
-        df.columns = col_names
-        df = df.drop(columns=['Content', 'Start_content', 'Row', 'Relative_Id'])
+        df = doc.to_df()
+        df = row_typing(df)
+        df = df.drop(columns=['value', 'start_content', 'row', 'relative_id'])
+        ret_df = pd.DataFrame()
+        for t, lst in type_dict.items():
+            ret_df = pd.concat([ret_df, self.cluster(df, t, lst)], ignore_index=True)
 
-        self.print_result(df, ['str', 'datetime.datetime', 'datetime.time'], 'string')
-        self.print_result(df, ['int', 'float'], 'number')
-        self.print_result(df, ['NoneType'], 'none')
+        ret_df = ret_df.set_index('old_indexes')
+        doc.set_label(ret_df['label'])
+        doc.set_row_type(ret_df['row_type'])
+        return ret_df['label'].sort_index(), doc
 
-    def simple_classify(self, fragment: SheetFragment) -> SheetLabeledFragment:
+    def simple_classify(self, fragment: SheetFragment) -> SheetFragment:
         """
         Classify fragment to one of the simple types.
 
@@ -130,6 +142,12 @@ class SheetFragmentClassifier(FragmentClassifier):
         :return: fragment of document with mark
         :rtype: SheetLabeledFragment
         """
-        fragment_type = self.cluster_model.fit(fragment.fragment)
-        classified_fragment = SheetLabeledFragment(fragment_type)
-        return classified_fragment
+
+        for t, lst in type_dict.items():
+            if fragment.type in lst:
+                fragment_type = self.model_dict[t].model.fit(fragment.value)
+                fragment_name = self.model_dict[t].dict_map[fragment_type]
+
+                fragment.label = fragment_type
+                fragment.label_merged = fragment_name
+        return fragment
