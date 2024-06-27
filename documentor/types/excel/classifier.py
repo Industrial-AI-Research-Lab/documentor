@@ -1,13 +1,15 @@
 import pandas as pd
+import numpy as np
 import pickle
 
 from sklearn import metrics
 from sklearn.cluster import DBSCAN
-
+from sklearn.model_selection import KFold
 from documentor.structuries.classifier import FragmentClassifier, ClassifierModel
 from documentor.types.excel.document import SheetDocument
 from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search_v_measure, devide,
-                                               grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing)
+                                               grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing,
+                                               selecting, print_all_cluster_metrics)
 from documentor.types.excel.fragment import SheetFragment
 
 SheetFragmentClassType = int | str
@@ -23,13 +25,14 @@ class SheetClassifierModel(ClassifierModel):
         self.dict_map = dict_map
         self.model = model
 
-    def load(self, path: str):
-        self.model = pickle.load(path+'model')
-        self.dict_map = pickle.load(path+'dict')
+    def load_model(self, path):
+        self.model = pickle.load(path + 'model')
+        self.dict_map = pickle.load(path + 'dict')
 
-    def save(self, path: str):
-        pickle.dump(self.model, path+'model')
-        pickle.dump(self.dict_map, path+'dict')
+    def save_model(self, path):
+        pickle.dump(self.model, path + 'model')
+        pickle.dump(self.dict_map, path + 'dict')
+
 
 class SheetClassifier(FragmentClassifier):
     """
@@ -52,6 +55,8 @@ class SheetClassifier(FragmentClassifier):
         if types:
             for t in types:
                 self.model_dict[t] = SheetClassifierModel(dict_map={}, model=algo(**params))
+        else:
+            self.model_dict = {}
 
     def cluster(self, df: pd.DataFrame, type_name: str, df_types: list[str]) -> pd.DataFrame:
         """
@@ -72,6 +77,7 @@ class SheetClassifier(FragmentClassifier):
 
         v_measure = 0
         for grid in [grid_dbscan, grid_optics, grid_kmeans]:
+
             algo_params = cluster_grid_search_v_measure(grid['algo'], grid['params'], y_to_pred, x)
             algo_clustering = grid['algo'](**algo_params)
             algo_clustering.fit(x)
@@ -101,7 +107,7 @@ class SheetClassifier(FragmentClassifier):
         :type document: SheetDocument
         """
         df = document.to_df()
-        df = row_typing(df)
+        # df = row_typing(df)
         df = df.drop(columns=['value', 'start_content', 'row', 'relative_id'])
         for n, t in type_dict.items():
             old_indexes, x, y, y_to_pred = devide(df, t)
@@ -111,6 +117,14 @@ class SheetClassifier(FragmentClassifier):
             print(f'Value type: {n}')
             plots(x, y, label)
             print_metrics(y_to_pred['ground_truth'].to_list(), label_to_pred)
+            print()
+            # print_all_cluster_metrics(y_to_pred['ground_truth'].to_list(), label_to_pred)
+
+    def create_num_values(self, row):
+        if row['type'] in ['int', 'float']:
+            return row['value']
+        else:
+            return -10
 
     def classify_fragments(self, doc: SheetDocument) -> [pd.Series, SheetDocument]:
         """
@@ -122,15 +136,36 @@ class SheetClassifier(FragmentClassifier):
         :rtype: pd.Series[LabelType]
         """
         df = doc.to_df()
-        df = row_typing(df)
-        df = df.drop(columns=['value', 'start_content', 'row', 'relative_id'])
+        # df = row_typing(df)
+        # df['num_values'] = df.apply(lambda row: self.create_num_values(row), axis=1)
+        df = df.drop(columns=['value', 'start_content', 'row', 'relative_id', 'length'])
         ret_df = pd.DataFrame()
         for t, lst in type_dict.items():
             ret_df = pd.concat([ret_df, self.cluster(df, t, lst)], ignore_index=True)
 
         ret_df = ret_df.set_index('old_indexes')
         doc.set_label(ret_df['label'])
-        doc.set_row_type(ret_df['row_type'])
+        # doc.set_row_type(ret_df['row_type'])
+        return ret_df['label'].sort_index(), doc
+
+    def to_test(self, doc: SheetDocument) -> [pd.Series, SheetDocument]:
+        df = doc.to_df()
+        # df = row_typing(df)
+        # df['num_values'] = df.apply(lambda row: self.create_num_values(row), axis=1)
+        df = df.drop(columns=['value', 'start_content', 'row', 'relative_id', 'ground_truth', 'length'])
+        ret_df = pd.DataFrame()
+        for t, lst in type_dict.items():
+            type_df, old_indexes = selecting(lst, df)
+            model_dict = self.model_dict[t].dict_map
+            model = self.model_dict[t].model
+            model.fit_predict(type_df)
+            labels_int = model.labels_
+            labels = [model_dict[i] if i in model_dict.keys() else 'trash' for i in labels_int]
+            loc_df = pd.DataFrame(data={'label': labels, 'old_indexes': old_indexes})
+            ret_df = pd.concat([ret_df, loc_df], ignore_index=True)
+
+        ret_df = ret_df.set_index('old_indexes')
+        doc.set_label(ret_df['label'])
         return ret_df['label'].sort_index(), doc
 
     def simple_classify(self, fragment: SheetFragment) -> SheetFragment:
@@ -145,7 +180,7 @@ class SheetClassifier(FragmentClassifier):
 
         for t, lst in type_dict.items():
             if fragment.type in lst:
-                fragment_type = self.model_dict[t].model.fit(fragment.value)
+                fragment_type = self.model_dict[t].model.value.fit(fragment.value)
                 fragment_name = self.model_dict[t].dict_map[fragment_type]
 
                 fragment.label = fragment_type

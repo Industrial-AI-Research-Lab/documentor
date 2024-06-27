@@ -9,6 +9,7 @@ from sklearn import metrics
 from sklearn.manifold import TSNE
 from sklearn.model_selection import ParameterGrid
 from enum import Enum
+import statistics
 
 
 class AlgorithmType(Enum):
@@ -42,6 +43,32 @@ def print_metrics(y_to_pred: pd.DataFrame, y_pred: list[str]):
     print('Homogeneity', metrics.homogeneity_score(y_to_pred, y_pred))
     print('Completeness', metrics.completeness_score(y_to_pred, y_pred))
     print('V-measure', metrics.v_measure_score(y_to_pred, y_pred))
+
+
+def print_all_cluster_metrics(y_to_pred: list[str], y_pred: list[str]):
+    homogeneity = []
+    completeness = []
+    v_measure = []
+    cluster_names = set(y_pred) | set(y_to_pred)
+    for name in cluster_names:
+        index_dict = {i: n for i, n in enumerate(y_to_pred) if n == name} | {i: n for i, n in enumerate(y_pred) if n == name}
+        y_pred_name = [n for i, n in enumerate(y_to_pred) if i in index_dict.keys()]
+        y_to_pred_name = [n for i, n in enumerate(y_pred) if i in index_dict.keys()]
+        print(name)
+        print('Homogeneity', metrics.homogeneity_score(y_to_pred_name, y_pred_name))
+        homogeneity.append(metrics.homogeneity_score(y_to_pred_name, y_pred_name))
+        print('Completeness', metrics.completeness_score(y_to_pred_name, y_pred_name))
+        completeness.append(metrics.completeness_score(y_to_pred_name, y_pred_name))
+        print('V-measure', metrics.v_measure_score(y_to_pred_name, y_pred_name))
+        v_measure.append(metrics.v_measure_score(y_to_pred_name, y_pred_name))
+        print()
+    print(homogeneity)
+    print(statistics.mean(homogeneity))
+    print(completeness)
+    print(statistics.mean(completeness))
+    print(v_measure)
+    print(statistics.mean(v_measure))
+    print()
 
 
 def plots(x: pd.DataFrame, y: pd.DataFrame, y_num: list):
@@ -106,8 +133,8 @@ def map_vectors(cluster_vector: list[int], labeled_vector: list[str | float]) ->
             sub_dict = {sub: sublist.count(sub) for sub in set(sublist)}
             label_value = max(set(sublist), key=sublist.count)
             for k, v in sub_dict.items():
-                if sub_dict[k] == labeled_dict[k] and sub_dict[k] != label_value:
-                    res_dict[max(cluster_vector) + 1] = sub_dict[k]
+                if sub_dict[k] == labeled_dict[k] and (k != label_value or k != 'trash'):
+                    res_dict[max(cluster_vector) + 1] = k
             res_dict[cluster_value] = label_value
         else:
             res_dict[cluster_value] = 'trash'
@@ -170,11 +197,12 @@ def cluster_grid_search_silhouette_coefficient(algo: AlgorithmType, grid: dict, 
         cluster.set_params(**params)
         cluster.fit(x)
         y_num = cluster.labels_
-        metric = metrics.silhouette_score(x, y_num)
+        if len(set(y_num)) > 1:
+            metric = metrics.silhouette_score(x, y_num)
 
-        if metric > best_metric:
-            best_params = params
-            best_metric = metric
+            if metric > best_metric:
+                best_params = params
+                best_metric = metric
 
     return best_params
 
@@ -281,4 +309,5 @@ def row_typing(df: pd.DataFrame) -> pd.DataFrame:
         a = to_merge_df['labels'][row[r_i]] if row[r_i] in list(to_merge_df.index) else None
         str_type_list.append(a)
     df['row_type'] = str_type_list
+    df['row_type'] = df['row_type'].fillna(-1)
     return df
