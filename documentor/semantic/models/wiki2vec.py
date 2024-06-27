@@ -17,17 +17,17 @@ class WikiWord2VecModel(BaseSemanticModel):
         :param path: path to weights file
         :type path: str
         """
-        self.model = Wikipedia2Vec.load(path)
+        self._model = Wikipedia2Vec.load(path)
 
-    def encode(self, X: str, *args, **kwargs) -> np.ndarray:
+    def encode(self, word: str, *args, **kwargs) -> np.ndarray | None:
         """
-        encode word to vector
-        :param X: word to encode
-        :type X: str
-        :return: vector
-        :rtype: np.ndarray
+        Encode word to vector
+        :param word: word to encode
+        :type word: str
+        :return: vector if word has been found, else None
+        :rtype: np.ndarray or None
         """
         try:
-            return self.model.get_word_vector(X)
+            return self._model.get_word_vector(word)
         except KeyError:
             return None

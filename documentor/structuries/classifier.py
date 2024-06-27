@@ -1,33 +1,37 @@
 from abc import ABC, abstractmethod
 
-from documentor.structuries.fragment import Fragment
+import pandas as pd
 
-FragmentClassType = int
+from documentor.structuries.custom_types import LabelType
+from documentor.structuries.document import Document
 
+
+# TODO rewrite this class
 
 class FragmentClassifier(ABC):
     """
     Abstract class for fragment classifier.
     """
-    @abstractmethod
-    def simple_classify(self, fragment: Fragment) -> FragmentClassType:
-        """
-        Classify fragment to one of the simple types.
 
-        :param fragment: fragment of document
-        :type fragment: str
-        :return: type of fragment
-        :rtype: str
+    @abstractmethod
+    def classify_fragments(self, doc: Document) -> pd.Series[LabelType]:
+        """
+        Classify fragments of the document.
+
+        :param doc: the document
+        :type doc: Document
+        :return: series with types of fragments
+        :rtype: pd.Series[LabelType]
         """
         pass
 
-    def hierarchy_classify(self, fragment: str, ) -> FragmentClassType:
+    def hierarchy_classify(self, doc: Document) -> LabelType:
         """
-        Classify fragment to one of the types in the hierarchy.
+        Classify fragments of the document with using hierarchy.
 
-        :param fragment: fragment of document
-        :type fragment: str
-        :return: type of fragment
-        :rtype: str
+        :param doc: the document
+        :type doc: Document
+        :return: series with types of fragments
+        :rtype: pd.Series[LabelType]
         """
         pass

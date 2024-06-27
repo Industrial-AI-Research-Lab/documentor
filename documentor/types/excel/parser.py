@@ -1,7 +1,7 @@
 import openpyxl
 import pandas as pd
 
-from documentor.structuries.parser import SimpleParser
+from documentor.structuries.parser import DocumentParser
 
 from documentor.types.excel.document import SheetDocument
 
@@ -13,7 +13,7 @@ class ExtensionException(Exception):
     pass
 
 
-class SheetParser(SimpleParser):
+class SheetParser(DocumentParser):
     """
     Class for primary sheet document processing.
     """
