@@ -18,7 +18,7 @@ class NatashaEstimator(BaseEstimator):
         self.morph_tagger = NewsMorphTagger(self.emb)
         self.word_pattern = re.compile(r'^[a-zA-Zа-яА-ЯёЁ]+$')
 
-    def normalization(self, target: Document, *args, **kwargs) -> :
+    def normalization(self, target: Document, *args, **kwargs):
         self.doc = Doc(target)
 
         self.doc.segment(self.segmenter)
