@@ -1,116 +1,136 @@
-import numpy as np
 import torch
-import torch.nn as nn
 import torchvision
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torch.optim import Adam
+from torch.utils.data import Dataset, DataLoader, random_split
 from torchvision.models.detection import FasterRCNN
-from torchvision.models.detection.rpn import AnchorGenerator
-from torch.optim import SGD
-from torch.utils.data import DataLoader
-import pandas as pd
-import json
-
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+import ast
+import pickle
 
-from documentor.types.excel.parser import SheetParser
-from xls2xlsx import XLS2XLSX
 
-import os
-from pathlib import Path
+class CustomDataset(Dataset):
+    """
+    Custom dataset for processing annotations and extracting features and targets.
 
-train = []
-test = []
-annotation = pd.read_csv(r"C:\Users\Danny\Desktop\IAI\data\tables_annotation.csv")
-for index, row in tqdm(annotation.iterrows()):
+    Attributes:
+        annotations (list): List of annotations containing feature and target information.
+    """
 
-    try:
-        path = rf'C:\Users\Danny\Desktop\IAI\data\{row["path"]}\{row["Name"]}'
-        sheet_name = row['Sheet']
-        sheet_parser = SheetParser()
-        doc = sheet_parser.parse_file(path=path, sheet_name=sheet_name)
-        sheet_parser.to_csv(doc, rf'C:\Users\Danny\Desktop\IAI\data\parse_dataset\{row["Name"][:-4]}csv')
+    def __init__(self, annotations: list):
+        """
+        Initializes the CustomDataset with the provided annotations.
 
-        df = doc.to_df()
-        df["is_empty"] = np.where(df["type"] == "NoneType", 1, 0)
-        df["color"] = pd.factorize(df["color"])[0]
-        df["font_color"] = pd.factorize(df["font_color"])[0]
-        df.drop(columns=['value', 'start_content', 'relative_id', 'type'], inplace=True)
-        df_dict = df.to_dict('index')
+        Args:
+            annotations (list): List of annotations containing feature and target information.
+        """
+        self.annotations = annotations
 
-        features = [tuple(val.values()) for val in df_dict.values()]
-        target_tables = row['tables']
+    def __len__(self) -> int:
+        """
+        Returns the number of samples in the dataset.
 
-        if row['train/test'] == 'training_set':
-            train.append(dict(features=features, target=target_tables))
-        else:
-            test.append(dict(features=features, target=target_tables))
+        Returns:
+            int: Number of samples in the dataset.
+        """
+        return len(self.annotations)
 
-        sheet_parser.to_csv(doc, rf'C:\Users\Danny\Desktop\IAI\data\parse_dataset\{row["Name"][:-4]}csv')
-        with open(r'C:\Users\Danny\Desktop\IAI\data\train.json', 'w') as file:
-            json.dump(train, file)
-        with open(r'C:\Users\Danny\Desktop\IAI\data\test.json', 'w') as file:
-            json.dump(test, file)
-    except Exception:
-        continue
+    def __getitem__(self, idx: int):
+        """
+        Retrieves a sample from the dataset at the given index.
 
-#
-# # Загрузка предобученной модели на датасете COCO и настройка количества классов (фон + таблица)
-# def create_model(num_classes):
-#     # Загрузка предобученной модели ResNet50, которая будет использоваться как backbone
-#     backbone = torchvision.models.resnet50(pretrained=True)
-#     # Удаление слоя классификации на последнем слое
-#     backbone = nn.Sequential(*list(backbone.children())[:-2])
-#
-#     # RPN (Region Proposal Network) генерирует предложения регионов для детектирования
-#     anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),),
-#                                        aspect_ratios=((0.5, 1.0, 2.0),))
-#
-#     # Определение размера выходных данных для RoI Pooling
-#     roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=['0'],
-#                                                     output_size=7,
-#                                                     sampling_ratio=2)
-#
-#     # Собираем модель Faster R-CNN
-#     model = FasterRCNN(backbone,
-#                        num_classes=num_classes,
-#                        rpn_anchor_generator=anchor_generator,
-#                        box_roi_pool=roi_pooler)
-#
-#     return model
-#
-#
-# # Создание модели с двумя классами (0 - фон, 1 - таблица)
-# model = create_model(num_classes=2)
-#
-# # Предполагается, что train_data_loader уже определен
-# train_data_loader = DataLoader(...)  # Заполните своим DataLoader для обучающего набора
-#
-# device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-#
-# # Перемещаем модель на доступное устройство
-# model.to(device)
-#
-# # Оптимизатор
-# params = [p for p in model.parameters() if p.requires_grad]
-# optimizer = SGD(params, lr=0.005, momentum=0.9, weight_decay=0.0005)
-#
-# # Цикл обучения
-# num_epochs = 10
-#
-# for epoch in range(num_epochs):
-#     model.train()
-#     i = 0
-#     for images, targets in train_data_loader:
-#         images = list(image.to(device) for image in images)
-#         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
-#
-#         loss_dict = model(images, targets)
-#
-#         losses = sum(loss for loss in loss_dict.values())
-#
-#         optimizer.zero_grad()
-#         losses.backward()
-#         optimizer.step()
-#
-#         if i % 50 == 0:
-#             print(f'Epoch: {epoch}, Iteration: {i}, Loss: {losses.item()}')
-#         i += 1
+        Args:
+            idx (int): Index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the features tensor and the target dictionary.
+        """
+        # Extract features and convert to tensor
+        features = self._apply_pca_to_tensor(
+            self._split_and_restructure(torch.tensor(self.annotations[idx]['features'], dtype=torch.float32)))
+
+        # Convert target Excel-style cells to numerical indices
+        boxes = [self._convert_target_to_indices(cell) for cell in ast.literal_eval(self.annotations[idx]['target'])]
+        labels = torch.ones((len(boxes)), dtype=torch.int64)
+        target = {"boxes": torch.tensor(boxes), "labels": labels}
+
+        return features, target
+
+    def _split_and_restructure(self, data: torch.Tensor) -> torch.Tensor:
+        """
+        Converts a two-dimensional tensor with cell metadata (including row and column indices) into a
+        three-dimensional tensor. The first dimension corresponds to the metadata type, and the
+        second and third dimensions correspond to row and column positions.
+
+        Args:
+            data (torch.Tensor): A two-dimensional tensor where each row includes:
+                                 [row index, column index, meta1, meta2, ..., meta12]
+
+        Returns:
+            torch.Tensor: A three-dimensional tensor with shape [12, max_row, max_col], where each slice
+                          along the first dimension represents one metadata feature arranged according to the cell's row and column.
+        """
+        max_row = int(torch.max(data[:, 0]).item())
+        max_col = int(torch.max(data[:, 1]).item())
+        output_tensor = torch.zeros((12, max_row, max_col))
+
+        for entry in data:
+            row_idx = int(entry[0].item()) - 1
+            col_idx = int(entry[1].item()) - 1
+            for i in range(12):
+                output_tensor[i, row_idx, col_idx] = entry[i + 2]
+
+        return output_tensor
+
+    def _apply_pca_to_tensor(self, tensor: torch.Tensor) -> torch.Tensor:
+        """
+        Applies PCA to a tensor to reduce its channel dimension from 12 to 3.
+
+        Args:
+            tensor (torch.Tensor): Input tensor of shape [12, x, y] where
+                12 is the number of channels,
+                x is the number of rows,
+                y is the number of columns.
+
+        Returns:
+            torch.Tensor: Output tensor of shape [3, x, y] where
+                3 is the reduced number of channels.
+        """
+        if tensor.is_cuda:
+            tensor = tensor.cpu()
+
+        original_shape = tensor.shape
+        tensor_reshaped = tensor.view(original_shape[0], -1).transpose(0, 1)
+        pca = PCA(n_components=3)
+        transformed_data = pca.fit_transform(tensor_reshaped.numpy())
+        transformed_tensor = torch.tensor(transformed_data, dtype=tensor.dtype).transpose(0, 1)
+        final_tensor = transformed_tensor.view(3, original_shape[1], original_shape[2])
+
+        return final_tensor
+
+    def _convert_target_to_indices(self, cell_range: str) -> list:
+        """
+        Converts an Excel-style cell range (e.g., 'A1:C3') to numerical indices.
+
+        Args:
+            cell_range (str): The cell range in Excel format (e.g., 'A1:C3').
+
+        Returns:
+            list: A list of four integers representing the start and end rows and columns.
+        """
+
+        def _col_to_num(col_str):
+            num = 0
+            for c in col_str:
+                if c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                    num = num * 26 + (ord(c.upper()) - ord('A')) + 1
+            return num
+
+        start_cell, end_cell = cell_range.split(':')
+        start_col, start_row = _col_to_num(''.join(filter(str.isalpha, start_cell))), int(
+            ''.join(filter(str.isdigit, start_cell)))
+        end_col, end_row = _col_to_num(''.join(filter(str.isalpha, end_cell))), int(
+            ''.join(filter(str.isdigit, end_cell)))
+        return [start_row, start_col, end_row, end_col]
