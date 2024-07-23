@@ -16,7 +16,8 @@ jupyter:
 Import the necessary classes and libraries.
 
 ```python
-from documentor.types.excel.classifier import SheetFragmentClassifier
+from documentor.types.excel.classifier import SheetClassifier
+from documentor.types.excel.document import SheetDocument
 
 import pandas as pd
 import warnings
@@ -26,17 +27,18 @@ warnings.filterwarnings('ignore')
 Importing a class for the classifier of sheet format fragments.
 
 ```python
-classifier = SheetFragmentClassifier()
+classifier = SheetClassifier()
 ```
 
 Getting a parsed and marked-up file.
 
 ```python
-hot_list_df = pd.read_csv('data/processed_tables/hot_list_parsed.csv', index_col='Unnamed: 0')
+hot_list = SheetDocument(pd.read_csv('data/processed_tables/hot_list_parsed.csv', index_col='Unnamed: 0'))
 ```
 
 Clustering and data markup.
 
 ```python
-classifier.devide_and_cluster(hot_list_df)
+hot_list.set_label(classifier.classify_fragments(hot_list)[0])
+classifier.print_result(hot_list)
 ```
