@@ -134,3 +134,285 @@ class CustomDataset(Dataset):
         end_col, end_row = _col_to_num(''.join(filter(str.isalpha, end_cell))), int(
             ''.join(filter(str.isdigit, end_cell)))
         return [start_row, start_col, end_row, end_col]
+
+
+def custom_collate(data):
+    """
+    Custom collate function for DataLoader to handle batches of variable sizes.
+
+    Args:
+        data (list): List of tuples where each tuple contains features and target.
+
+    Returns:
+        list: The same list passed in.
+    """
+    return data
+
+
+# TODO add files
+# Load the data from pickle files
+with open('data/train.pkl', 'rb') as f:
+    train = pickle.load(f)
+
+with open('data/test.pkl', 'rb') as f:
+    test = pickle.load(f)
+
+# Initialize CustomDataset instances
+train_dataset = CustomDataset(annotations=train)
+test_dataset = CustomDataset(annotations=test)
+
+
+def load_dataset(dataset: Dataset, batch_size: int, shuffle: bool) -> DataLoader:
+    """
+    Load dataset into a DataLoader.
+
+    Args:
+        dataset (Dataset): The dataset to load.
+        batch_size (int): The number of samples per batch.
+        shuffle (bool): Whether to shuffle the data at every epoch.
+
+    Returns:
+        DataLoader: DataLoader for the given dataset.
+    """
+    data_loader = DataLoader(dataset,
+                             batch_size=batch_size,
+                             shuffle=shuffle,
+                             collate_fn=custom_collate,
+                             pin_memory=True if torch.cuda.is_available() else False)
+    return data_loader
+
+
+# Calculate the train/validation split sizes
+train_size = int(0.8 * len(train_dataset))
+val_size = len(train_dataset) - train_size
+
+# Split the dataset into training and validation sets
+train_dataset, val_dataset = random_split(train_dataset, [train_size, val_size],
+                                          generator=torch.Generator().manual_seed(42))
+
+# Load the datasets into DataLoaders
+train_loader = load_dataset(train_dataset, batch_size=1, shuffle=True)
+val_loader = load_dataset(val_dataset, batch_size=1, shuffle=False)
+test_loader = load_dataset(test_dataset, batch_size=1, shuffle=False)
+
+
+class TableDetectionModel:
+    """
+    A class for table detection model that includes methods for training, validation, and testing.
+
+    Attributes:
+        model (torch.nn.Module): The table detection model.
+        device (torch.device): The device for computation (CPU or GPU).
+        iou_threshold (float): The threshold for Intersection over Union (IoU) to calculate accuracy.
+        optimizer (torch.optim.Optimizer): The optimizer for training the model.
+        losses_per_epoch (list): List to store the loss value for each epoch.
+        accuracy_per_epoch (list): List to store the accuracy value for each epoch.
+        validation_losses_per_epoch (list): List to store the validation loss value for each epoch.
+        validation_accuracy_per_epoch (list): List to store the validation accuracy value for each epoch.
+    """
+
+    def __init__(self, model: torch.nn.Module, device: torch.device, iou_threshold: float = 0.1,
+                 learning_rate: float = 0.0005, weight_decay: float = 5e-4):
+        """
+        Initializes the TableDetectionModel.
+
+        Args:
+            model (torch.nn.Module): The table detection model.
+            device (torch.device): The device for computation (CPU or GPU).
+            iou_threshold (float): The threshold for Intersection over Union (IoU) to calculate accuracy.
+            learning_rate (float): The learning rate for the optimizer.
+            weight_decay (float): The weight decay for the optimizer.
+        """
+        self.model = model
+        self.device = device
+        self.iou_threshold = iou_threshold
+        self.optimizer = Adam([p for p in model.parameters() if p.requires_grad], lr=learning_rate,
+                              weight_decay=weight_decay)
+        self.losses_per_epoch = []
+        self.accuracy_per_epoch = []
+        self.validation_losses_per_epoch = []
+        self.validation_accuracy_per_epoch = []
+
+    @staticmethod
+    def calculate_iou(box1: torch.Tensor, box2: torch.Tensor) -> float:
+        """
+        Calculate the Intersection over Union (IoU) of two bounding boxes.
+
+        Args:
+            box1 (torch.Tensor): The first bounding box.
+            box2 (torch.Tensor): The second bounding box.
+
+        Returns:
+            float: The IoU value.
+        """
+        x1 = torch.max(box1[0], box2[0])
+        y1 = torch.max(box1[1], box2[1])
+        x2 = torch.min(box1[2], box2[2])
+        y2 = torch.min(box1[3], box2[3])
+
+        intersection = (x2 - x1).clamp(0) * (y2 - y1).clamp(0)
+        area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+        area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+        union = area1 + area2 - intersection
+
+        return intersection / union
+
+    def calculate_accuracy(self, data_loader: DataLoader) -> float:
+        """
+        Calculate the accuracy of the model on the given data loader.
+
+        Args:
+            data_loader (DataLoader): The data loader with the data to evaluate.
+
+        Returns:
+            float: The accuracy of the model.
+        """
+        self.model.eval()
+        total_correct = 0
+        total_samples = 0
+
+        with torch.no_grad():
+            for data in tqdm(data_loader):
+                try:
+                    documents = []
+                    targets = []
+                    for feature, target in data:
+                        documents.append(feature.to(self.device))
+                        targ = {}
+                        targ['boxes'] = target["boxes"].to(self.device)
+                        targ['labels'] = target["labels"].to(self.device)
+                        targets.append(targ)
+
+                    outputs = self.model(documents)
+                    for output, target in zip(outputs, targets):
+                        pred_boxes = output['boxes']
+                        pred_labels = output['labels']
+                        true_boxes = target['boxes']
+                        true_labels = target['labels']
+
+                        for i in range(len(true_boxes)):
+                            iou_scores = [self.calculate_iou(true_boxes[i], pred_box) for pred_box in pred_boxes]
+                            if iou_scores:
+                                max_iou, max_idx = torch.max(torch.tensor(iou_scores), 0)
+                            else:
+                                max_iou, max_idx = 0, 0
+                            if max_iou >= self.iou_threshold and pred_labels[max_idx] == true_labels[i]:
+                                total_correct += 1
+
+                        total_samples += len(true_boxes)
+
+                except Exception as e:
+                    print(f'Error: {e}')
+                    continue
+
+        accuracy = total_correct / total_samples
+        return accuracy
+
+    def save_model(self, epoch: int, path: str = "model_checkpoint.pth"):
+        """
+        Saves the model state to a file after each epoch.
+
+        Args:
+            epoch (int): The current epoch.
+            path (str): The path to save the model file.
+        """
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'losses_per_epoch': self.losses_per_epoch,
+            'accuracy_per_epoch': self.accuracy_per_epoch,
+            'validation_losses_per_epoch': self.validation_losses_per_epoch,
+            'validation_accuracy_per_epoch': self.validation_accuracy_per_epoch,
+        }, path)
+        print(f"Model checkpoint saved at epoch {epoch}")
+
+    def train(self, train_data_loader: DataLoader, validation_data_loader: DataLoader, num_epochs: int = 5):
+        """
+        Train the model and calculate accuracy on the validation set.
+
+        Args:
+            train_data_loader (DataLoader): The data loader with training data.
+            validation_data_loader (DataLoader): The data loader with validation data.
+            num_epochs (int): The number of epochs to train.
+        """
+        for epoch in tqdm(range(num_epochs)):
+            i = 0
+            total_loss = 0
+            self.model.train()
+            for data in tqdm(train_data_loader):
+                try:
+                    documents = []
+                    targets = []
+                    for feature, target in data:
+                        documents.append(feature.to(self.device))
+                        targ = {}
+                        targ['boxes'] = target["boxes"].to(self.device)
+                        targ['labels'] = target["labels"].to(self.device)
+                        targets.append(targ)
+
+                    loss_dict = self.model(documents, targets)
+                    losses = sum(loss for loss in loss_dict.values())
+
+                    self.optimizer.zero_grad()
+                    losses.backward()
+                    self.optimizer.step()
+
+                    total_loss += losses.item()
+
+                except Exception as e:
+                    print(f'Error: {e}')
+                    continue
+
+            avg_loss = total_loss / (i + 1)
+            self.losses_per_epoch.append(avg_loss)
+            print(f'Epoch {epoch}, Average Loss: {avg_loss}')
+
+            # Evaluate accuracy on the validation data
+            accuracy = self.calculate_accuracy(validation_data_loader)
+            self.accuracy_per_epoch.append(accuracy)
+            print(f'Epoch {epoch}, Accuracy: {accuracy}')
+
+            self.save_model(epoch, path="data/model_checkpoint.pth")
+
+    def test(self, test_data_loader: DataLoader) -> float:
+        """
+        Test the model on the test set.
+
+        Args:
+            test_data_loader (DataLoader): The data loader with test data.
+
+        Returns:
+            float: The accuracy on the test set.
+        """
+        self.model.eval()
+        accuracy = self.calculate_accuracy(test_data_loader)
+        return accuracy
+
+    def plot_metrics(self):
+        """
+        Plot the loss and accuracy metrics over epochs.
+        """
+        plt.figure(figsize=(12, 5))
+
+        # Loss plot
+        plt.subplot(1, 2, 1)
+        plt.plot(range(len(self.losses_per_epoch)), self.losses_per_epoch, label='Training Loss')
+        plt.plot(range(len(self.validation_losses_per_epoch)), self.validation_losses_per_epoch,
+                 label='Validation Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.title('Loss per Epoch')
+        plt.legend()
+
+        # Accuracy plot
+        plt.subplot(1, 2, 2)
+        plt.plot(range(len(self.accuracy_per_epoch)), self.accuracy_per_epoch, label='Training Accuracy')
+        plt.plot(range(len(self.validation_accuracy_per_epoch)), self.validation_accuracy_per_epoch,
+                 label='Validation Accuracy')
+        plt.xlabel('Epochs')
+        plt.ylabel('Accuracy')
+        plt.title('Accuracy per Epoch')
+        plt.legend()
+
+        plt.show()
