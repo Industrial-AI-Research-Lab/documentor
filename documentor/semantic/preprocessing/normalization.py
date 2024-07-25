@@ -1,19 +1,14 @@
-from enum import Enum
 from documentor.structuries.document import Document
 from .base import BaseSemanticModel
 
 
-class NormalizationModelsEnum(Enum):
-    natasha = None
-    nltk = None
+class NLTKNormalization(BaseSemanticModel):
 
-
-class NormalizationModel(BaseSemanticModel):
     """
-    Normalization text from document via open source libs
+    Normalization text from document via nltk
     """
 
-    def __init__(self, model: NormalizationModelsEnum):
+    def __init__(self):
 
         ...
 

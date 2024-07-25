@@ -1,11 +1,12 @@
-from enum import Enum
+from .base import BaseSemanticModel
 from documentor.structuries.document import Document
 
 
-class SpellingModelsEnum(Enum):
-    natasha = None
-    nltk = None
+class NatashaSpellChecker(BaseSemanticModel):
 
+    def __init__(self):
 
-class SpellingModel:
-    ...
+        ...
+
+    def __call__(self, document: Document, *args, **kwargs):
+        ...

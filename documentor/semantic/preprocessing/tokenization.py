@@ -1,11 +1,12 @@
-from enum import Enum
 from documentor.structuries.document import Document
+from .base import BaseSemanticModel
 
 
-class TokenizationModelsEnum(Enum):
-    natasha = None
-    nltk = None
+class Wiki2VecTokenization(BaseSemanticModel):
 
+    def __init__(self):
 
-class TokenizationModel:
-    ...
+        ...
+
+    def __call__(self, document: Document, *args, **kwargs):
+        ...
