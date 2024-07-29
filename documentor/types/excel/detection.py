@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import ast
 import pickle
+from documentor.types.excel.parser import SheetParser
 
 
 class CustomDataset(Dataset):
@@ -136,19 +137,6 @@ class CustomDataset(Dataset):
         return [start_row, start_col, end_row, end_col]
 
 
-def custom_collate(data):
-    """
-    Custom collate function for DataLoader to handle batches of variable sizes.
-
-    Args:
-        data (list): List of tuples where each tuple contains features and target.
-
-    Returns:
-        list: The same list passed in.
-    """
-    return data
-
-
 # TODO add files
 # Load the data from pickle files
 with open('data/train.pkl', 'rb') as f:
@@ -177,7 +165,6 @@ def load_dataset(dataset: Dataset, batch_size: int, shuffle: bool) -> DataLoader
     data_loader = DataLoader(dataset,
                              batch_size=batch_size,
                              shuffle=shuffle,
-                             collate_fn=custom_collate,
                              pin_memory=True if torch.cuda.is_available() else False)
     return data_loader
 
@@ -307,6 +294,88 @@ class TableDetectionModel:
 
         accuracy = total_correct / total_samples
         return accuracy
+
+    @staticmethod
+    def detection_by_heuristic(sheet):
+        def is_row_empty(row):
+            for cell in row:
+                value = cell.value
+                left = cell.border.left.style if cell.border.left.style else None
+                right = cell.border.right.style if cell.border.right.style else None
+
+                if any(item is not None for item in [value, left, right]):
+                    return False
+            return True
+
+        def is_column_empty(table, column_index):
+            for row in table:
+                value = row[column_index].value
+                top = row[column_index].border.top.style if row[column_index].border.top.style else None
+                bottom = row[column_index].border.bottom.style if row[column_index].border.bottom.style else None
+
+                if any(item is not None for item in [value, top, bottom]):
+                    return False
+            return True
+
+        def split_table_by_empty_columns(table):
+            subtables = []
+            current_subtable = []
+            columns_count = len(table[0])
+
+            for end_col in range(columns_count):
+                if is_column_empty(table, end_col):
+                    if current_subtable:
+                        subtables.append(current_subtable)
+                        current_subtable = []
+                else:
+                    for row_index, row in enumerate(table):
+                        if len(current_subtable) <= row_index:
+                            current_subtable.append([])
+                        current_subtable[row_index].append(row[end_col])
+
+            if current_subtable:
+                subtables.append(current_subtable)
+
+            return subtables
+
+        def get_table_bounds(table):
+            start_row = table[0][0].row
+            start_col = table[0][0].column
+            end_row = table[-1][0].row
+            end_col = table[0][-1].column
+            return (start_row, start_col, end_row, end_col)
+
+        def is_valid_table(table):
+            if len(table) == 0 or len(table[0]) == 0:
+                return False
+            if len(table) == 1 or len(table[0]) == 1:
+                return False
+            for row in table:
+                for cell in row:
+                    if cell.border.left.style or cell.border.right.style or cell.border.top.style or cell.border.bottom.style:
+                        return True
+            return False
+
+        tables = []
+        current_table = []
+        for row in sheet.iter_rows():
+            if is_row_empty(row):
+                if current_table:
+                    subtables = split_table_by_empty_columns(current_table)
+                    valid_subtables = [table for table in subtables if is_valid_table(table)]
+                    tables.extend(valid_subtables)
+                    current_table = []
+            else:
+                current_table.append(row)
+
+        if current_table:
+            subtables = split_table_by_empty_columns(current_table)
+            valid_subtables = [table for table in subtables if is_valid_table(table)]
+            tables.extend(valid_subtables)
+
+        table_bounds = [get_table_bounds(table) for table in tables]
+
+        return table_bounds
 
     def save_model(self, epoch: int, path: str = "model_checkpoint.pth"):
         """
