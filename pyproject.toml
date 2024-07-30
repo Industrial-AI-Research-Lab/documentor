@@ -17,6 +17,7 @@ plotly = "^5.17.0"
 dataclasses = "^0.6"
 natasha = "^1.6.0"
 wikipedia2vec = "^2.0.0"
+jupyter = "^1.0.0"
 
 [tool.poetry.extras]
 jupyter = ["jupytext", "jupyter"]

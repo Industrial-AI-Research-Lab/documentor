@@ -10,3 +10,7 @@ class BaseLLMWrapper(ABC):
     @abstractmethod
     def prompt(self, prompt, **kwargs):
         ...
+
+    @abstractmethod
+    def estimate(self, document, **kwargs):
+        ...
