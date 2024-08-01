@@ -7,3 +7,4 @@ class BaseTermsFinder:
 
     def estimate(self):
         ...
+
