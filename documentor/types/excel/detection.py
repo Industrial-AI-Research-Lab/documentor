@@ -1,14 +1,15 @@
-import torch
-import torchvision
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torch.optim import Adam
-from torch.utils.data import Dataset, DataLoader, random_split
-from torchvision.models.detection import FasterRCNN
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
 import ast
-import pickle
+
+import matplotlib.pyplot as plt
+import numpy as np
+import openpyxl
+import pandas as pd
+import torch
+from sklearn.decomposition import PCA
+from torch.optim import Adam
+from torch.utils.data import Dataset, DataLoader
+from tqdm import tqdm
+
 from documentor.types.excel.parser import SheetParser
 
 
@@ -137,50 +138,50 @@ class CustomDataset(Dataset):
         return [start_row, start_col, end_row, end_col]
 
 
-# TODO add files
-# Load the data from pickle files
-with open('data/train.pkl', 'rb') as f:
-    train = pickle.load(f)
-
-with open('data/test.pkl', 'rb') as f:
-    test = pickle.load(f)
-
-# Initialize CustomDataset instances
-train_dataset = CustomDataset(annotations=train)
-test_dataset = CustomDataset(annotations=test)
-
-
-def load_dataset(dataset: Dataset, batch_size: int, shuffle: bool) -> DataLoader:
-    """
-    Load dataset into a DataLoader.
-
-    Args:
-        dataset (Dataset): The dataset to load.
-        batch_size (int): The number of samples per batch.
-        shuffle (bool): Whether to shuffle the data at every epoch.
-
-    Returns:
-        DataLoader: DataLoader for the given dataset.
-    """
-    data_loader = DataLoader(dataset,
-                             batch_size=batch_size,
-                             shuffle=shuffle,
-                             pin_memory=True if torch.cuda.is_available() else False)
-    return data_loader
-
-
-# Calculate the train/validation split sizes
-train_size = int(0.8 * len(train_dataset))
-val_size = len(train_dataset) - train_size
-
-# Split the dataset into training and validation sets
-train_dataset, val_dataset = random_split(train_dataset, [train_size, val_size],
-                                          generator=torch.Generator().manual_seed(42))
-
-# Load the datasets into DataLoaders
-train_loader = load_dataset(train_dataset, batch_size=1, shuffle=True)
-val_loader = load_dataset(val_dataset, batch_size=1, shuffle=False)
-test_loader = load_dataset(test_dataset, batch_size=1, shuffle=False)
+# # TODO add files
+# # Load the data from pickle files
+# with open('data/train.pkl', 'rb') as f:
+#     train = pickle.load(f)
+#
+# with open('data/test.pkl', 'rb') as f:
+#     test = pickle.load(f)
+#
+# # Initialize CustomDataset instances
+# train_dataset = CustomDataset(annotations=train)
+# test_dataset = CustomDataset(annotations=test)
+#
+#
+# def load_dataset(dataset: Dataset, batch_size: int, shuffle: bool) -> DataLoader:
+#     """
+#     Load dataset into a DataLoader.
+#
+#     Args:
+#         dataset (Dataset): The dataset to load.
+#         batch_size (int): The number of samples per batch.
+#         shuffle (bool): Whether to shuffle the data at every epoch.
+#
+#     Returns:
+#         DataLoader: DataLoader for the given dataset.
+#     """
+#     data_loader = DataLoader(dataset,
+#                              batch_size=batch_size,
+#                              shuffle=shuffle,
+#                              pin_memory=True if torch.cuda.is_available() else False)
+#     return data_loader
+#
+#
+# # Calculate the train/validation split sizes
+# train_size = int(0.8 * len(train_dataset))
+# val_size = len(train_dataset) - train_size
+#
+# # Split the dataset into training and validation sets
+# train_dataset, val_dataset = random_split(train_dataset, [train_size, val_size],
+#                                           generator=torch.Generator().manual_seed(42))
+#
+# # Load the datasets into DataLoaders
+# train_loader = load_dataset(train_dataset, batch_size=1, shuffle=True)
+# val_loader = load_dataset(val_dataset, batch_size=1, shuffle=False)
+# test_loader = load_dataset(test_dataset, batch_size=1, shuffle=False)
 
 
 class TableDetectionModel:
@@ -296,7 +297,18 @@ class TableDetectionModel:
         return accuracy
 
     @staticmethod
-    def detection_by_heuristic(sheet):
+    def detection_by_heuristic(sheet, data):
+        """
+       Detects tables in the given sheet using heuristic methods.
+
+       Args:
+           sheet (openpyxl.worksheet.worksheet.Worksheet): The sheet to detect tables in.
+           data (Any): Additional data for detection.
+
+       Returns:
+           list: A list of table boundaries (start_row, start_col, end_row, end_col).
+       """
+
         def is_row_empty(row):
             for cell in row:
                 value = cell.value
@@ -339,6 +351,7 @@ class TableDetectionModel:
             return subtables
 
         def get_table_bounds(table):
+            model = data
             start_row = table[0][0].row
             start_col = table[0][0].column
             end_row = table[-1][0].row
@@ -377,6 +390,43 @@ class TableDetectionModel:
 
         return table_bounds
 
+    def predict(self, path: str, sheet_name: str) -> list:
+        """
+        Predict table boundaries in a specified Excel sheet.
+
+        This method combines machine learning-based predictions using the trained model
+        with heuristic-based detection to determine the boundaries of tables within the given Excel sheet.
+
+        Args:
+            path (str): The file path of the Excel workbook.
+            sheet_name (str): The name of the sheet within the workbook where table detection is to be performed.
+
+        Returns:
+            list: A list of tuples, where each tuple represents the boundaries of a detected table.
+                  Each tuple contains four integers: (start_row, start_col, end_row, end_col),
+                  indicating the starting row and column, as well as the ending row and column of the table.
+        """
+
+        sheet_parser = SheetParser()
+        doc = sheet_parser.parse_file(path=path, sheet_name=sheet_name)
+
+        df = doc.to_df()
+        df["is_empty"] = np.where(df["type"] == "NoneType", 1, 0)
+        df["color"] = pd.factorize(df["color"])[0]
+        df["font_color"] = pd.factorize(df["font_color"])[0]
+        df.drop(columns=['value', 'start_content', 'relative_id', 'type'], inplace=True)
+        df_dict = df.to_dict('index')
+
+        features = [tuple(val.values()) for val in df_dict.values()]
+
+        self.model.eval()
+        outputs = self.model(features)
+
+        wb = openpyxl.load_workbook(path)
+        sheet = wb[sheet_name]
+        new_output = self.detection_by_heuristic(sheet, outputs)
+        return new_output
+
     def save_model(self, epoch: int, path: str = "model_checkpoint.pth"):
         """
         Saves the model state to a file after each epoch.
@@ -395,6 +445,22 @@ class TableDetectionModel:
             'validation_accuracy_per_epoch': self.validation_accuracy_per_epoch,
         }, path)
         print(f"Model checkpoint saved at epoch {epoch}")
+
+    def load_model(self, path: str):
+        """
+        Loads the model state from a file.
+
+        Args:
+            path (str): The path to load the model file from.
+        """
+        checkpoint = torch.load(path)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        self.losses_per_epoch = checkpoint['losses_per_epoch']
+        self.accuracy_per_epoch = checkpoint['accuracy_per_epoch']
+        self.validation_losses_per_epoch = checkpoint['validation_losses_per_epoch']
+        self.validation_accuracy_per_epoch = checkpoint['validation_accuracy_per_epoch']
+        print(f"Model loaded from {path}")
 
     def train(self, train_data_loader: DataLoader, validation_data_loader: DataLoader, num_epochs: int = 5):
         """
