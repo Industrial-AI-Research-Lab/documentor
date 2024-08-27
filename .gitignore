@@ -12,8 +12,7 @@ __pychache__/
 # all jupyter notebook
 *.ipynb
 
-poetry.lock
 /tests/semantic/preprocessing/data/ruwiki_20180420_300d.pkl
 /examples/data/work_names.csv
-
 *.pyc
+/__pycache__/
