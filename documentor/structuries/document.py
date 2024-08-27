@@ -6,6 +6,7 @@ from overrides import overrides
 
 from documentor.structuries.columns import ColumnType
 from documentor.structuries.fragment import Fragment
+
 from documentor.structuries.structure import StructureNode, DocumentStructure
 from documentor.structuries.type_check import TypeChecker as tc
 

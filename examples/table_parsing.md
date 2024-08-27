@@ -28,7 +28,7 @@ parser = SheetParser()
 Parser processing of the file.
 
 ```python
-doc = parser.from_file(path='data/start_tables/Global Hot List.xlsx', sheet_name='Hotlist - Identified ', first_cell='A5', last_cell='U75')
+doc = parser.parse_file(path='data/start_tables/Global Hot List.xlsx', sheet_name='Hotlist - Identified ', first_cell='A5', last_cell='U75')
 ```
 
 Output of the resulting dataset.
