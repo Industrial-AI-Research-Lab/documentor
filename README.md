@@ -50,6 +50,7 @@ jupytext library (see installation section for details).
 
 - usage of specialized terms search - [link](examples/semantic_example.md)
 - usage of excel to csv parser  - [link](examples/table_parsing.md)
+- usage of table detection  - [link](examples/table_detection.md)
 - usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
 
 
