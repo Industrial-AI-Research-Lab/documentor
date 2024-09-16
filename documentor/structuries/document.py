@@ -224,3 +224,6 @@ class Document(DocumentInterface):
         """
         # tc.check_series(value, self._columns['token_vectors'])
         self._data['token_vectors'] = value
+
+    def copy(self):
+        ...
