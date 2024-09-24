@@ -25,7 +25,9 @@ The library performs the following tasks:
 
 ## Core features
 
-TBD
+1. Pipelines for preprocessing texts and algorithm processing specialized terms
+2. The algorithm for highlighting the borders of tables in excel files
+3. The algorithm for classifying sheet fragments in excel files
 
 ## Installation
 
@@ -63,13 +65,6 @@ jupytext library (see installation section for details).
 - [experiments](experiments/README.md) - folder for storing experiments with the library
 - [docs](docs/README.md) - folder for storing documentation for the library
 
-## Documentation
-
-TBD
-
-## Getting started
-
-TBD
 
 ## Development tasks
 

@@ -98,7 +98,7 @@ class Document(DocumentInterface):
         Iterate over all fragments of the Document with their row numbers.
 
         :return: the document fragments with their row numbers
-        :rtype: Iterator[tuple[int, TextFragment]]
+        :rtype: Iterator[tuple[int, pd.Series]]
         """
         for i, row in self._data.iterrows():
             yield i, row

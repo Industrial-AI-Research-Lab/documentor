@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Optional
 
 import pandas as pd
 
@@ -11,9 +12,9 @@ class StructureNode(ABC):
     """
     Class for nodes with elements of hierarchical structure of document.
     """
-    _children: list['StructureNode'] | None = None
-    _parents: list['StructureNode'] | None = None
-    _value: pd.Series | None = None
+    _children: Optional[list['StructureNode']] = None
+    _parents: Optional[list['StructureNode']] = None
+    _value: Optional[pd.Series] = None
 
     @property
     @abstractmethod
@@ -25,7 +26,7 @@ class StructureNode(ABC):
         :rtype: list[TextFragment]
         """
     @property
-    def children(self) -> list['StructureNode'] | None:
+    def children(self) -> Optional[list['StructureNode']]:
         """
         Get children nodes of the node, if the node has children.
         Otherwise, return None.

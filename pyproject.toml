@@ -29,6 +29,9 @@ jupyter = ["jupytext", "jupyter"]
 jupytext = "^1.16.1"
 jupyter = "^1.0.0"
 pytest = "^8.0.1"
+sphinx-rtd-theme = "^2.0.0"
+sphinx = ">=5,<8"
+sphinx-markdown-builder = "^0.6.7"
 
 [build-system]
 requires = ["poetry-core"]
