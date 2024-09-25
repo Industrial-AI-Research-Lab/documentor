@@ -19,6 +19,8 @@ from documentor.types.excel_detection import TableDetectionModel
 ```
 
 Initialize the class for table detection.
+- To run the model, download the file with the [model weights](https://niuitmo-my.sharepoint.com/:u:/g/personal/mr_basilaev_niuitmo_ru/EcVrp0_Lcx1AgGBmg5BKmoMBn1dlA-MQx40NhDzzvGGbUg?e=uuecqN)
+
 ```python
 table_detection_model.load_model("model_checkpoint.pth")
 ```
