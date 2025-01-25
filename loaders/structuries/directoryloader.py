@@ -1,7 +1,8 @@
 from typing import Union, Iterator
-from loaders.baseloader import BaseLoader
+from pathlib import Path
+from loaders.structuries.base import BaseLoader
 from overrides import overrides
-
+from langchain_core.documents import Document
 
 class DirectoryLoader(BaseLoader):
     """
@@ -22,6 +23,9 @@ class DirectoryLoader(BaseLoader):
     @property
     @overrides
     def logs(self) -> dict[str, list[str]]:
+        """
+        Logs of the DirectoryLoader
+        """
         return dict()
 
 

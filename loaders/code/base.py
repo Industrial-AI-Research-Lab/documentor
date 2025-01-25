@@ -1,10 +1,11 @@
 from typing import Union, Iterator
 from pathlib import Path
 from abc import ABC, abstractmethod
-from documentor.structuries.document import Document
+from langchain_core.documents import Document
+from langchain_core.document_loaders import BaseLoader as LangChainBaseLoader
 
 
-class BaseLoader(ABC):
+class BaseLoader(LangChainBaseLoader, ABC):
     """
     Base parent class for all loaders   
     """
