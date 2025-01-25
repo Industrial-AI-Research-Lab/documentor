@@ -21,6 +21,9 @@ nltk = "^3.8.1"
 torch = "^2.4.0"
 torchvision = "^0.19.0"
 matplotlib = "^3.9.1"
+langchain-core = "^0.3.31"
+langchain = "^0.3.15"
+overrides = "^7.7.0"
 
 [tool.poetry.extras]
 jupyter = ["jupytext", "jupyter"]
