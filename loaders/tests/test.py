@@ -2,7 +2,7 @@
 # Тесты написаны с использованием Pytest.
 # Если в вашем проекте не используется Pytest, адаптируйте код под используемый фреймворк.
 
-from loaders.code.recursiveloader import RecursiveLoader
+from loaders.code.recursiveloader_gpt_v1 import RecursiveLoader
 
 def test_recursive_loader_simple_file(tmp_path):
     """

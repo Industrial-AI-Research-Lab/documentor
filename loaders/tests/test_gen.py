@@ -27,7 +27,7 @@ def test_recursive_loader_mixed_content(tmp_path):
         zf.writestr("inside_zip_2.md", "Данные из MD-файла в архиве")
 
     # Импортируем RecursiveLoader (допускается локальный импорт для теста)
-    from loaders.code.recursiveloader import RecursiveLoader
+    from loaders.code.recursiveloader_gpt_v1 import RecursiveLoader
 
     # Инициализируем RecursiveLoader для всех интересующих расширений, включая zip, и рекурсивный обход
     loader = RecursiveLoader(

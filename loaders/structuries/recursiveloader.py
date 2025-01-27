@@ -2,9 +2,10 @@ from typing import Union, Iterator
 from pathlib import Path
 from overrides import overrides
 from langchain_core.documents import Document
-from loaders.structuries.directoryloader import DirectoryLoader
+from loaders.structuries.base import BaseLoader
 
-class RecursiveLoader(DirectoryLoader):
+
+class RecursiveLoader(BaseLoader):
     """
     Loader for recursive directory
     """
