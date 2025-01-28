@@ -17,7 +17,6 @@ class RecursiveLoader(BaseLoader):
                  extension: List[str] = None, 
                  recursive: bool = True, 
                  zip_loader: bool = False, 
-                 encoding: str = 'utf-8',
                  log_level: int = logging.INFO,
                  **kwargs):
         """
@@ -28,7 +27,6 @@ class RecursiveLoader(BaseLoader):
             extension (List[str], optional): List of file extensions to load. Defaults to all files.
             recursive (bool): Whether to traverse directories recursively. Defaults to True.
             zip_loader (bool): Whether to process ZIP files. Defaults to False.
-            encoding (str): Encoding to use for reading files. Defaults to 'utf-8'.
             log_level (int): Logging level. Defaults to logging.INFO.
         """
         self.file_path = Path(file_path)
@@ -41,7 +39,6 @@ class RecursiveLoader(BaseLoader):
 
         self.recursive = recursive
         self.zip_loader = zip_loader
-        self.encoding = encoding
 
         # Set up logging
         self.logger = logging.getLogger(__name__)
@@ -104,7 +101,7 @@ class RecursiveLoader(BaseLoader):
         self.logger.info(f"Чтение файла: {path}")
         self._logs["info"].append(f"Чтение файла: {path}")
         try:
-            with open(path, 'r', encoding=self.encoding) as f:
+            with open(path, 'r') as f:
                 for line_number, line in enumerate(f):
                     yield self._create_document(
                         content=line.strip(),
@@ -114,8 +111,8 @@ class RecursiveLoader(BaseLoader):
                         file_type=path.suffix
                     )
         except UnicodeDecodeError:
-            self.logger.warning(f"Невозможно декодировать файл {path} с кодировкой {self.encoding}")
-            self._logs["warning"].append(f"Невозможно декодировать файл {path} с кодировкой {self.encoding}")
+            self.logger.warning(f"Невозможно декодировать файл {path}")
+            self._logs["warning"].append(f"Невозможно декодировать файл {path}")
         except Exception as e:
             self.logger.error(f"Ошибка при чтении файла {path}: {str(e)}")
             self._logs["error"].append(f"Ошибка при чтении файла {path}: {str(e)}")
@@ -139,7 +136,7 @@ class RecursiveLoader(BaseLoader):
                         with zip_ref.open(name) as f:
                             for line_number, line in enumerate(f):
                                 try:
-                                    content = line.decode(self.encoding)
+                                    content = line.decode()
                                     yield self._create_document(
                                         content=content.strip(),
                                         line_number=line_number,
