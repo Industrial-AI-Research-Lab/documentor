@@ -76,15 +76,15 @@ class RecursiveLoader(BaseLoader):
             }
         )
 
-    def _should_process(self, path: Path) -> bool:
+    def _is_valid_extension(self, path: Path) -> bool:
         """
-        Check if the file should be processed based on its extension.
+        Check if the file has a valid extension.
 
         Args:
             path (Path): Path to the file.
 
         Returns:
-            bool: True if the file should be processed, False otherwise.
+            bool: True if the file has a valid extension, False otherwise.
         """
         return self.extension == ['*'] or path.suffix.lower().lstrip('.') in [ext.lower() for ext in self.extension]
 
@@ -101,7 +101,7 @@ class RecursiveLoader(BaseLoader):
         self.logger.info(f"Чтение файла: {path}")
         self._logs["info"].append(f"Чтение файла: {path}")
         try:
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 for line_number, line in enumerate(f):
                     yield self._create_document(
                         content=line.strip(),
@@ -132,21 +132,21 @@ class RecursiveLoader(BaseLoader):
         try:
             with zipfile.ZipFile(path, 'r') as zip_ref:
                 for name in zip_ref.namelist():
+                    # We assume all files inside the ZIP are valid for processing
                     try:
                         with zip_ref.open(name) as f:
-                            for line_number, line in enumerate(f):
-                                try:
-                                    content = line.decode()
-                                    yield self._create_document(
-                                        content=content.strip(),
-                                        line_number=line_number,
-                                        file_name=name,
-                                        source=f"{path}!{name}",
-                                        file_type="zip-content"
-                                    )
-                                except UnicodeDecodeError:
-                                    self.logger.warning(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
-                                    self._logs["warning"].append(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
+                            content = f.read().decode('utf-8')
+                            for line_number, line in enumerate(content.splitlines()):
+                                yield self._create_document(
+                                    content=line.strip(),
+                                    line_number=line_number,
+                                    file_name=name,
+                                    source=f"{path}!{name}",
+                                    file_type="zip-content"
+                                )
+                    except UnicodeDecodeError:
+                        self.logger.warning(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
+                        self._logs["warning"].append(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
                     except Exception as e:
                         self.logger.error(f"Ошибка при чтении файла {name} в ZIP архиве {path}: {str(e)}")
                         self._logs["error"].append(f"Ошибка при чтении файла {name} в ZIP архиве {path}: {str(e)}")
@@ -165,7 +165,7 @@ class RecursiveLoader(BaseLoader):
         pattern = '**/*' if self.recursive else '*'
 
         for path in self.file_path.glob(pattern):
-            if path.is_file() and self._should_process(path):
+            if path.is_file() and (self._is_valid_extension(path) or (self.zip_loader and path.suffix.lower() == '.zip')):
                 documents = (
                     self._process_zip(path) if self.zip_loader and path.suffix.lower() == '.zip' else self._process_file(path)
                 )
