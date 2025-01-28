@@ -1,4 +1,4 @@
-from typing import Union, Iterator, List
+from typing import Iterator
 from overrides import overrides
 from langchain_core.documents import Document
 from loaders.base import BaseLoader
@@ -13,8 +13,8 @@ class RecursiveLoader(BaseLoader):
     """
 
     def __init__(self, 
-                 file_path: Union[str, Path], 
-                 extension: List[str] = None, 
+                 file_path: str|Path, 
+                 extension: list[str] = None, 
                  recursive: bool = True, 
                  zip_loader: bool = False, 
                  log_level: int = logging.INFO,
@@ -24,7 +24,7 @@ class RecursiveLoader(BaseLoader):
 
         Args:
             file_path (Union[str, Path]): Path to the directory or file.
-            extension (List[str], optional): List of file extensions to load. Defaults to all files.
+            extension (list[str], optional): List of file extensions to load. Defaults to all files.
             recursive (bool): Whether to traverse directories recursively. Defaults to True.
             zip_loader (bool): Whether to process ZIP files. Defaults to False.
             log_level (int): Logging level. Defaults to logging.INFO.
@@ -98,8 +98,8 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logger.info(f"Чтение файла: {path}")
-        self._logs["info"].append(f"Чтение файла: {path}")
+        self.logger.info(f"Reading file: {path}")
+        self._logs["info"].append(f"Reading file: {path}")
         try:
             with open(path, 'r', encoding='utf-8') as f:
                 for line_number, line in enumerate(f):
@@ -111,11 +111,11 @@ class RecursiveLoader(BaseLoader):
                         file_type=path.suffix
                     )
         except UnicodeDecodeError:
-            self.logger.warning(f"Невозможно декодировать файл {path}")
-            self._logs["warning"].append(f"Невозможно декодировать файл {path}")
+            self.logger.warning(f"Cannot decode file {path}")
+            self._logs["warning"].append(f"Cannot decode file {path}")
         except Exception as e:
-            self.logger.error(f"Ошибка при чтении файла {path}: {str(e)}")
-            self._logs["error"].append(f"Ошибка при чтении файла {path}: {str(e)}")
+            self.logger.error(f"Error reading file {path}: {str(e)}")
+            self._logs["error"].append(f"Error reading file {path}: {str(e)}")
 
     def _process_zip(self, path: Path) -> Iterator[Document]:
         """
@@ -127,8 +127,8 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logger.info(f"Обработка ZIP архива: {path}")
-        self._logs["info"].append(f"Обработка ZIP архива: {path}")
+        self.logger.info(f"Processing ZIP archive: {path}")
+        self._logs["info"].append(f"Processing ZIP archive: {path}")
         try:
             with zipfile.ZipFile(path, 'r') as zip_ref:
                 for name in zip_ref.namelist():
@@ -145,14 +145,11 @@ class RecursiveLoader(BaseLoader):
                                     file_type="zip-content"
                                 )
                     except UnicodeDecodeError:
-                        self.logger.warning(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
-                        self._logs["warning"].append(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
+                        self.logger.warning(f"Cannot decode file {name} in ZIP archive {path}")
                     except Exception as e:
-                        self.logger.error(f"Ошибка при чтении файла {name} в ZIP архиве {path}: {str(e)}")
-                        self._logs["error"].append(f"Ошибка при чтении файла {name} в ZIP архиве {path}: {str(e)}")
+                        self.logger.error(f"Error reading file {name} in ZIP archive {path}: {str(e)}")
         except Exception as e:
-            self.logger.error(f"Ошибка при обработке ZIP файла {path}: {str(e)}")
-            self._logs["error"].append(f"Ошибка при обработке ZIP файла {path}: {str(e)}")
+            self.logger.error(f"Error processing ZIP file {path}: {str(e)}")
 
     @overrides
     def lazy_load(self) -> Iterator[Document]:
