@@ -18,6 +18,7 @@ class RecursiveLoader(BaseLoader):
                  recursive: bool = True, 
                  zip_loader: bool = False, 
                  encoding: str = 'utf-8',
+                 log_level: int = logging.INFO,
                  **kwargs):
         """
         Initialize the RecursiveLoader.
@@ -28,16 +29,31 @@ class RecursiveLoader(BaseLoader):
             recursive (bool): Whether to traverse directories recursively. Defaults to True.
             zip_loader (bool): Whether to process ZIP files. Defaults to False.
             encoding (str): Encoding to use for reading files. Defaults to 'utf-8'.
+            log_level (int): Logging level. Defaults to logging.INFO.
         """
         self.file_path = Path(file_path)
+        if not self.file_path.exists():
+            raise ValueError(f"Path {self.file_path} does not exist.")
+
         self.extension = extension if extension else ['*']
+        if not isinstance(self.extension, list) or not all(isinstance(ext, str) for ext in self.extension):
+            raise ValueError("Extension must be a list of strings.")
+
         self.recursive = recursive
         self.zip_loader = zip_loader
         self.encoding = encoding
 
         # Set up logging
         self.logger = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
+        self.logger.setLevel(log_level)
+        logging.basicConfig(level=log_level)
+
+        # Initialize logs
+        self._logs = {
+            "info": [],
+            "warning": [],
+            "error": []
+        }
 
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
@@ -63,6 +79,18 @@ class RecursiveLoader(BaseLoader):
             }
         )
 
+    def _should_process(self, path: Path) -> bool:
+        """
+        Check if the file should be processed based on its extension.
+
+        Args:
+            path (Path): Path to the file.
+
+        Returns:
+            bool: True if the file should be processed, False otherwise.
+        """
+        return self.extension == ['*'] or path.suffix.lower().lstrip('.') in [ext.lower() for ext in self.extension]
+
     def _process_file(self, path: Path) -> Iterator[Document]:
         """
         Process a single file and yield Document objects line by line.
@@ -73,7 +101,8 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logger.info(f"Reading file: {path}")
+        self.logger.info(f"Чтение файла: {path}")
+        self._logs["info"].append(f"Чтение файла: {path}")
         try:
             with open(path, 'r', encoding=self.encoding) as f:
                 for line_number, line in enumerate(f):
@@ -85,9 +114,11 @@ class RecursiveLoader(BaseLoader):
                         file_type=path.suffix
                     )
         except UnicodeDecodeError:
-            self.logger.warning(f"Cannot decode file {path} with encoding {self.encoding}")
+            self.logger.warning(f"Невозможно декодировать файл {path} с кодировкой {self.encoding}")
+            self._logs["warning"].append(f"Невозможно декодировать файл {path} с кодировкой {self.encoding}")
         except Exception as e:
-            self.logger.error(f"Error reading file {path}: {str(e)}")
+            self.logger.error(f"Ошибка при чтении файла {path}: {str(e)}")
+            self._logs["error"].append(f"Ошибка при чтении файла {path}: {str(e)}")
 
     def _process_zip(self, path: Path) -> Iterator[Document]:
         """
@@ -99,48 +130,60 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logger.info(f"Processing ZIP archive: {path}")
+        self.logger.info(f"Обработка ZIP архива: {path}")
+        self._logs["info"].append(f"Обработка ZIP архива: {path}")
         try:
             with zipfile.ZipFile(path, 'r') as zip_ref:
                 for name in zip_ref.namelist():
-                    with zip_ref.open(name) as f:
-                        for line_number, line in enumerate(f.readlines()):
-                            try:
-                                content = line.decode(self.encoding)
-                                yield self._create_document(
-                                    content=content.strip(),
-                                    line_number=line_number,
-                                    file_name=name,
-                                    source=f"{path}!{name}",
-                                    file_type="zip-content"
-                                )
-                            except UnicodeDecodeError:
-                                self.logger.warning(f"Cannot decode file {name} in ZIP archive {path}")
+                    try:
+                        with zip_ref.open(name) as f:
+                            for line_number, line in enumerate(f):
+                                try:
+                                    content = line.decode(self.encoding)
+                                    yield self._create_document(
+                                        content=content.strip(),
+                                        line_number=line_number,
+                                        file_name=name,
+                                        source=f"{path}!{name}",
+                                        file_type="zip-content"
+                                    )
+                                except UnicodeDecodeError:
+                                    self.logger.warning(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
+                                    self._logs["warning"].append(f"Невозможно декодировать файл {name} в ZIP архиве {path}")
+                    except Exception as e:
+                        self.logger.error(f"Ошибка при чтении файла {name} в ZIP архиве {path}: {str(e)}")
+                        self._logs["error"].append(f"Ошибка при чтении файла {name} в ZIP архиве {path}: {str(e)}")
         except Exception as e:
-            self.logger.error(f"Error processing ZIP file {path}: {str(e)}")
+            self.logger.error(f"Ошибка при обработке ZIP файла {path}: {str(e)}")
+            self._logs["error"].append(f"Ошибка при обработке ZIP файла {path}: {str(e)}")
 
     @overrides
     def lazy_load(self) -> Iterator[Document]:
         """
-        Lazy loading of documents line by line, optionally in batches.
-
-        Args:
-            batch_size (int): Number of documents to yield in each batch.
+        Lazy loading of documents line by line.
 
         Yields:
-            Iterator[List[Document]]: Batches of Document objects.
+            Iterator[Document]: Document objects.
         """
         pattern = '**/*' if self.recursive else '*'
 
         for path in self.file_path.glob(pattern):
-            if path.is_file():
-                # Check file extension
-                if self.extension == ['*'] or path.suffix.lower().lstrip('.') in [ext.lower() for ext in self.extension]:
-                    if self.zip_loader and path.suffix.lower() == '.zip':
-                        documents = self._process_zip(path)
-                    else:
-                        documents = self._process_file(path)
+            if path.is_file() and self._should_process(path):
+                documents = (
+                    self._process_zip(path) if self.zip_loader and path.suffix.lower() == '.zip' else self._process_file(path)
+                )
 
-                    for doc in documents:
-                        yield doc
+                for doc in documents:
+                    yield doc
+
+    @property
+    @overrides
+    def logs(self) -> dict[str, list[str]]:
+        """
+        Returns the logs collected during processing.
+
+        Returns:
+            dict[str, list[str]]: A dictionary containing lists of log messages for 'info', 'warning', and 'error'.
+        """
+        return self._logs
 
