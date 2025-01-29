@@ -5,7 +5,7 @@ from loaders.base import BaseLoader
 from pathlib import Path
 import zipfile
 import logging
-
+from loaders.parsers.parser import Parser
 
 class RecursiveLoader(BaseLoader):
     """
@@ -39,11 +39,6 @@ class RecursiveLoader(BaseLoader):
 
         self.recursive = recursive
         self.zip_loader = zip_loader
-
-        # Set up logging
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(log_level)
-        logging.basicConfig(level=log_level)
 
         # Initialize logs
         self._logs = {
@@ -98,24 +93,16 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logger.info(f"Reading file: {path}")
-        self._logs["info"].append(f"Reading file: {path}")
+        self.logs["info"].append(f"Reading file: {path}")
+        parser = Parser(file_path=path)
         try:
-            with open(path, 'r', encoding='utf-8') as f:
-                for line_number, line in enumerate(f):
-                    yield self._create_document(
-                        content=line.strip(),
-                        line_number=line_number,
-                        file_name=path.name,
-                        source=str(path),
-                        file_type=path.suffix
-                    )
-        except UnicodeDecodeError:
-            self.logger.warning(f"Cannot decode file {path}")
-            self._logs["warning"].append(f"Cannot decode file {path}")
-        except Exception as e:
-            self.logger.error(f"Error reading file {path}: {str(e)}")
-            self._logs["error"].append(f"Error reading file {path}: {str(e)}")
+            documents = parser.parse(file_path=path)
+            for document in documents:
+                yield document
+        except ValueError as e:
+            self.logs["warning"].append(str(e))
+        except RuntimeError as e:
+            self.logs["error"].append(str(e))
 
     def _process_zip(self, path: Path) -> Iterator[Document]:
         """
@@ -127,8 +114,7 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logger.info(f"Processing ZIP archive: {path}")
-        self._logs["info"].append(f"Processing ZIP archive: {path}")
+        self.logs["info"].append(f"Processing ZIP archive: {path}")
         try:
             with zipfile.ZipFile(path, 'r') as zip_ref:
                 for name in zip_ref.namelist():
@@ -145,11 +131,11 @@ class RecursiveLoader(BaseLoader):
                                     file_type="zip-content"
                                 )
                     except UnicodeDecodeError:
-                        self.logger.warning(f"Cannot decode file {name} in ZIP archive {path}")
+                        self.logs["warning"].append(f"Cannot decode file {name} in ZIP archive {path}")
                     except Exception as e:
-                        self.logger.error(f"Error reading file {name} in ZIP archive {path}: {str(e)}")
+                        self.logs["error"].append(f"Error reading file {name} in ZIP archive {path}: {str(e)}")
         except Exception as e:
-            self.logger.error(f"Error processing ZIP file {path}: {str(e)}")
+            self.logs["error"].append(f"Error processing ZIP file {path}: {str(e)}")
 
     @overrides
     def lazy_load(self) -> Iterator[Document]:
