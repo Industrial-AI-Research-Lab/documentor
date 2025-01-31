@@ -1,24 +1,27 @@
 from typing import Iterator
 from overrides import overrides
 from langchain_core.documents import Document
-from loaders.base import BaseLoader
+from documentor.loaders.base import BaseLoader
 from pathlib import Path
 import zipfile
 import logging
-from loaders.parsers.parser import Parser
+from documentor.loaders.parsers.parser import Parser
+
 
 class RecursiveLoader(BaseLoader):
     """
     Loader for recursive directory traversal and optional ZIP file processing.
     """
 
-    def __init__(self, 
-                 file_path: str|Path, 
-                 extension: list[str] = None, 
-                 recursive: bool = True, 
-                 zip_loader: bool = False, 
-                 log_level: int = logging.INFO,
-                 **kwargs):
+    def __init__(
+            self,
+            file_path: str | Path,
+            extension: list[str] = None,
+            recursive: bool = True,
+            zip_loader: bool = False,
+            log_level: int = logging.INFO,
+            **kwargs
+    ):
         """
         Initialize the RecursiveLoader.
 
@@ -47,7 +50,8 @@ class RecursiveLoader(BaseLoader):
             "error": []
         }
 
-    def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
+    @staticmethod
+    def _create_document(content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
         Helper method to create a Document object.
 
@@ -148,9 +152,11 @@ class RecursiveLoader(BaseLoader):
         pattern = '**/*' if self.recursive else '*'
 
         for path in self.file_path.glob(pattern):
-            if path.is_file() and (self._is_valid_extension(path) or (self.zip_loader and path.suffix.lower() == '.zip')):
+            if path.is_file() and (
+                    self._is_valid_extension(path) or (self.zip_loader and path.suffix.lower() == '.zip')):
                 documents = (
-                    self._process_zip(path) if self.zip_loader and path.suffix.lower() == '.zip' else self._process_file(path)
+                    self._process_zip(
+                        path) if self.zip_loader and path.suffix.lower() == '.zip' else self._process_file(path)
                 )
 
                 for doc in documents:
@@ -166,4 +172,3 @@ class RecursiveLoader(BaseLoader):
             dict[str, list[str]]: A dictionary containing lists of log messages for 'info', 'warning', and 'error'.
         """
         return self._logs
-

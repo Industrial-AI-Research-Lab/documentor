@@ -1,32 +1,37 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+
+from langchain_core.document_loaders import BaseBlobParser as LangChainBaseBlobParser
 from langchain_core.documents import Document
-from pathlib import Path
 from typing import Iterator
 
-class BaseParser(ABC):
+from langchain_core.documents.base import Blob
+
+from loaders.parsers.extension import BaseFileExtension
+
+
+class BaseBlobParser(LangChainBaseBlobParser):
     """
     BaseParser - Abstract base class for all parsers.
     """
-    @abstractmethod
-    def __init__(self, 
-                 file_path: str|Path, 
-                 **kwargs):
-        """
-        Initializes the base functionality of all parsers.
 
-        Args:
-            file_path (str | Path): Required parameter specifying the file system path where data
-                will be loaded from or used to determine the appropriate parser type.
+    @classmethod
+    @abstractmethod
+    def get_extension(cls) -> BaseFileExtension:
+        """
+        Returns the file extension associated with the parser.
+
+        Returns:
+            BaseFileExtension: The file extension associated with the parser.
         """
         pass
-       
+
     @abstractmethod
-    def parse(self, file_path: str|Path, **kwargs) -> Iterator[Document]:
+    def lazy_parse(self, blob: Blob, **kwargs) -> Iterator[Document]:
         """
-        Parses the file at the given path and returns a Document object.
+        Parses the raw data from a Blob object into one or more Document objects.
 
         Args:
-            file_path (str | Path): The path to the file to be parsed.
+            blob (Blob): A Blob object containing the raw data to be parsed.
             **kwargs: Additional keyword arguments for specific parser implementations.
 
         Returns:

@@ -1,4 +1,4 @@
-from typing import Union, Iterator
+from typing import Iterator
 from pathlib import Path
 from abc import ABC, abstractmethod
 from langchain_core.documents import Document
@@ -7,14 +7,21 @@ from langchain_core.document_loaders import BaseLoader as LangChainBaseLoader
 
 class BaseLoader(LangChainBaseLoader, ABC):
     """
-    Base parent class for all loaders   
+    BaseLoader - Abstract base class for all loaders.
+
+    Attributes:
+        file_path (str | Path): A path to the file or directory from which data will be loaded.
     """
+    file_path: str | Path
+
     @abstractmethod
-    def __init__(self, file_path: Union[str, Path], **kwargs):
+    def __init__(self, file_path: str | Path, **kwargs):
         """
-        Base initialization of all loaders
-        :param file_path: a required parameter with the path in the file system from where you want to load
-                          or by which the required type of loader can be determined
+        Initializes the base functionality of all loaders.
+
+        Args:
+            file_path (str | Path): Required parameter specifying the file system path where data
+                will be loaded from or used to determine the appropriate loader type.
         """
         pass
 

@@ -1,4 +1,4 @@
-from loaders.recursive_loader import RecursiveLoader
+from documentor.loaders.recursive_loader import RecursiveLoader
 
 def test_recursive_loader_simple_file(tmp_path):
     """
@@ -204,7 +204,7 @@ def test_recursive_loader_mixed_content(tmp_path):
         zf.writestr("inside_zip_2.md", "Data from the MD file in the archive")
 
     # Import RecursiveLoader (local import for the test is allowed)
-    from loaders.recursive_loader import RecursiveLoader
+    from documentor.loaders.recursive_loader import RecursiveLoader
 
     # Initialize RecursiveLoader for all interested extensions, including zip, and recursive traversal
     loader = RecursiveLoader(
