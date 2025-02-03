@@ -1,4 +1,4 @@
-from documentor.loaders.parsers.base import BaseParser
+from documentor.loaders.parsers.base import BaseBlobParser, BaseParserType
 from langchain_core.documents import Document
 from pathlib import Path
 
@@ -6,11 +6,28 @@ from langchain_core.documents.base import Blob
 from overrides import overrides
 from typing import Iterator
 
+from loaders.parsers.extensions import DocExtension
 
-class TextBlobParser(BaseBlobParser):
+
+class UnifiedTextType(BaseParserType):
+    """
+    UnifiedTextType - Class for text file extensions.
+    """
+
+    @classmethod
+    def get_extensions(cls) -> set[DocExtension]:
+        return {DocExtension.txt}
+
+    @overrides(BaseParserType)
+    def is_in(self, extension: str | DocExtension) -> bool:
+        return True
+
+
+class UnifiedTextBlobParser(BaseBlobParser):
     """
     Parser for text blobs.
     """
+    _extension = UnifiedTextType()
 
     def __init__(self, encoding: str = 'utf-8', batch_lines: int = 0):
         """
@@ -26,6 +43,11 @@ class TextBlobParser(BaseBlobParser):
             raise ValueError("batch_lines must be a non-negative integer.")
         self.batch_lines = batch_lines
 
+    @classmethod
+    @overrides(BaseBlobParser)
+    def get_type(cls):
+        return cls._extension
+
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """
         Lazy parsing of text blobs.
@@ -36,6 +58,7 @@ class TextBlobParser(BaseBlobParser):
         Yields:
             Document: A Document object containing the parsed data.
         """
+        # TODO rewrite this method to use batch_lines and blob object
         path = Path(file_path)
         try:
             with open(path, 'r', encoding=self,) as f:

@@ -1,11 +1,15 @@
+import os
 from typing import Iterator
+
+from langchain_core.documents.base import Blob
 from overrides import overrides
 from langchain_core.documents import Document
 from documentor.loaders.base import BaseLoader
 from pathlib import Path
 import zipfile
 import logging
-from documentor.loaders.parsers.parser import Parser
+
+from loaders.parsers.text_parser import UnifiedTextBlobParser
 
 
 class RecursiveLoader(BaseLoader):
@@ -19,7 +23,7 @@ class RecursiveLoader(BaseLoader):
             extension: list[str] = None,
             recursive: bool = True,
             zip_loader: bool = False,
-            log_level: int = logging.INFO,
+            log_level: int = logging.INFO, # TODO remove unused parameter
             **kwargs
     ):
         """
@@ -98,9 +102,12 @@ class RecursiveLoader(BaseLoader):
             Iterator[Document]: Document objects.
         """
         self.logs["info"].append(f"Reading file: {path}")
-        parser = Parser(file_path=path)
+        # TODO вынести объявление все парсеров используемых в лоадере в init. То есть мы объявляем лоадер и настраиваем
+        #  его при создании вместе с расшиерниями и парсерами
+        parser = UnifiedTextBlobParser()
         try:
-            documents = parser.parse(file_path=path)
+            blob = Blob.from_path(path)
+            documents = parser.parse(blob)
             for document in documents:
                 yield document
         except ValueError as e:
