@@ -1,13 +1,12 @@
 from documentor.loaders.parsers.base import BaseBlobParser, BaseParserType
 from langchain_core.documents import Document
-from pathlib import Path
 
 from langchain_core.documents.base import Blob
 from overrides import overrides
 from typing import Iterator
 
 from loaders.parsers.extensions import DocExtension
-
+from documentor.loaders.logger import Logger
 
 class UnifiedTextType(BaseParserType):
     """
@@ -27,7 +26,7 @@ class UnifiedTextBlobParser(BaseBlobParser):
     """
     Parser for text blobs.
     """
-    _extension = UnifiedTextType()
+    _extension = UnifiedTextType() #extension of parser
 
     def __init__(self, encoding: str = 'utf-8', batch_lines: int = 0):
         """
@@ -42,11 +41,12 @@ class UnifiedTextBlobParser(BaseBlobParser):
         if not isinstance(batch_lines, int) or batch_lines < 0:
             raise ValueError("batch_lines must be a non-negative integer.")
         self.batch_lines = batch_lines
+        self._logs = Logger()
 
     @classmethod
     @overrides(BaseBlobParser)
     def get_type(cls):
-        return cls._extension
+        return cls._extension #extension of parser
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """
@@ -58,32 +58,49 @@ class UnifiedTextBlobParser(BaseBlobParser):
         Yields:
             Document: A Document object containing the parsed data.
         """
-        # TODO rewrite this method to use batch_lines and blob object
-        path = Path(file_path)
-        try:
-            with open(path, 'r', encoding=self,) as f:
-                for line_number, line in enumerate(f):
+        text = blob.as_string(encoding=self.encoding)
+        lines = text.splitlines()
+
+        # if batch_lines == 0, then whole text is one Document
+        if self.batch_lines == 0:
+            yield Document(
+                page_content=text.strip(),
+                metadata={
+                    "file_name": blob.source_path.name if blob.source_path else None,
+                    "source": str(blob.source_path) if blob.source_path else None,
+                    "file_type": blob.source_path.suffix if blob.source_path else None
+                }
+            )
+        else:
+            buffer = []
+            for line_number, line in enumerate(lines):
+                buffer.append(line)
+                # when buffer has enough lines, form Document
+                if len(buffer) == self.batch_lines:
+
                     yield Document(
-                        page_content=line.strip(),
+                        page_content="\n".join(buffer).strip(),
                         metadata={
-                            "line_number": line_number,
-                            "file_name": path.name,
-                            "source": str(path),
-                            "file_type": path.suffix
+                            "start_line": line_number - self.batch_lines + 1,
+                            "end_line": line_number,
+                            "file_name": blob.source_path.name if blob.source_path else None,
+                            "source": str(blob.source_path) if blob.source_path else None,
+                            "file_type": blob.source_path.suffix if blob.source_path else None
                         }
                     )
-        except UnicodeDecodeError:
-            raise ValueError(f"Cannot decode file {path}")
-        except Exception as e:
-            raise RuntimeError(f"Error reading file {path}: {str(e)}")
+                    buffer = []
 
-    @property
-    @overrides
-    def logs(self) -> dict[str, list[str]]:
-        """
-        Returns the logs collected during processing.
+            # if there are unprocessed lines after the cycle
+            if buffer:
+                start_line = len(lines) - len(buffer)
 
-        Returns:
-            dict[str, list[str]]: A dictionary containing lists of log messages for 'info', 'warning', and 'error'.
-        """
-        return {}
+                yield Document(
+                    page_content="\n".join(buffer).strip(),
+                    metadata={
+                        "start_line": start_line,
+                        "end_line": len(lines) - 1,
+                        "file_name": blob.source_path.name if blob.source_path else None,
+                        "source": str(blob.source_path) if blob.source_path else None,
+                        "file_type": blob.source_path.suffix if blob.source_path else None
+                    }
+                )

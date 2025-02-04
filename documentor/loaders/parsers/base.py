@@ -63,13 +63,3 @@ class BaseBlobParser(LangChainBaseBlobParser):
             Document: A Document object containing the parsed data.
         """
         pass
-
-    @abstractmethod
-    def logs(self) -> dict[str, list[str]]:
-        """
-        Returns the logs collected during processing.
-
-        Returns:
-            dict[str, list[str]]: A dictionary containing lists of log messages for 'info', 'warning', and 'error'.
-        """
-        pass

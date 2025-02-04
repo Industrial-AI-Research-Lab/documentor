@@ -7,8 +7,7 @@ from langchain_core.documents import Document
 from documentor.loaders.base import BaseLoader
 from pathlib import Path
 import zipfile
-import logging
-
+from documentor.loaders.logger import Logger
 from loaders.parsers.text_parser import UnifiedTextBlobParser
 
 
@@ -20,10 +19,9 @@ class RecursiveLoader(BaseLoader):
     def __init__(
             self,
             file_path: str | Path,
-            extension: list[str] = None,
+            extension: list[str] = None, #extension of files to load
             recursive: bool = True,
             zip_loader: bool = False,
-            log_level: int = logging.INFO, # TODO remove unused parameter
             **kwargs
     ):
         """
@@ -48,11 +46,8 @@ class RecursiveLoader(BaseLoader):
         self.zip_loader = zip_loader
 
         # Initialize logs
-        self._logs = {
-            "info": [],
-            "warning": [],
-            "error": []
-        }
+        self._logs = Logger()
+
 
     @staticmethod
     def _create_document(content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
@@ -101,19 +96,22 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logs["info"].append(f"Reading file: {path}")
+        self._logs.add_info(f"Reading file: {path}")
         # TODO вынести объявление все парсеров используемых в лоадере в init. То есть мы объявляем лоадер и настраиваем
         #  его при создании вместе с расшиерниями и парсерами
         parser = UnifiedTextBlobParser()
         try:
+
+
             blob = Blob.from_path(path)
             documents = parser.parse(blob)
             for document in documents:
                 yield document
         except ValueError as e:
-            self.logs["warning"].append(str(e))
+            self._logs.add_warning(str(e))
         except RuntimeError as e:
-            self.logs["error"].append(str(e))
+            self._logs.add_error(str(e))
+
 
     def _process_zip(self, path: Path) -> Iterator[Document]:
         """
@@ -125,9 +123,10 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        self.logs["info"].append(f"Processing ZIP archive: {path}")
+        self._logs.add_info(f"Processing ZIP archive: {path}")
         try:
             with zipfile.ZipFile(path, 'r') as zip_ref:
+
                 for name in zip_ref.namelist():
                     # We assume all files inside the ZIP are valid for processing
                     try:
@@ -142,11 +141,13 @@ class RecursiveLoader(BaseLoader):
                                     file_type="zip-content"
                                 )
                     except UnicodeDecodeError:
-                        self.logs["warning"].append(f"Cannot decode file {name} in ZIP archive {path}")
+                        self._logs.add_warning(f"Cannot decode file {name} in ZIP archive {path}")
                     except Exception as e:
-                        self.logs["error"].append(f"Error reading file {name} in ZIP archive {path}: {str(e)}")
+                        self._logs.add_error(f"Error reading file {name} in ZIP archive {path}: {str(e)}")
+
         except Exception as e:
-            self.logs["error"].append(f"Error processing ZIP file {path}: {str(e)}")
+            self._logs.add_error(f"Error processing ZIP file {path}: {str(e)}")
+
 
     @overrides
     def lazy_load(self) -> Iterator[Document]:
@@ -168,14 +169,3 @@ class RecursiveLoader(BaseLoader):
 
                 for doc in documents:
                     yield doc
-
-    @property
-    @overrides
-    def logs(self) -> dict[str, list[str]]:
-        """
-        Returns the logs collected during processing.
-
-        Returns:
-            dict[str, list[str]]: A dictionary containing lists of log messages for 'info', 'warning', and 'error'.
-        """
-        return self._logs

@@ -32,10 +32,3 @@ class BaseLoader(LangChainBaseLoader, ABC):
         """
         pass
 
-    @property
-    @abstractmethod
-    def logs(self) -> dict[str, list[str]]:
-        """
-        Attribute with logs saved during the loading process
-        """
-        pass

@@ -3,7 +3,7 @@ from enum import Enum
 
 class DocExtension(Enum):
     """
-    DocExtension - Enum class for file extensions.
+    DocExtension - Enum class for parser file extensions.
     """
     docx = 'docx'
     doc = 'doc'
