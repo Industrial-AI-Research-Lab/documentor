@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Union, TypeAlias
 
 
-class DocExtension(Enum, str):
+class DocExtension(str, Enum):
     """
     DocExtension - Enum class for parser file extensions.
     """

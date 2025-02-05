@@ -42,6 +42,8 @@ class RecursiveLoader(BaseLoader):
 
         self.recursive = recursive
         self.zip_loader = zip_loader
+        self.parser = TextBlobParser()
+
 
     @staticmethod
     def _create_document(content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
@@ -92,16 +94,13 @@ class RecursiveLoader(BaseLoader):
             Iterator[Document]: Document objects.
         """
         self._logs.add_info(f"Reading file: {path}")
-        # TODO вынести объявление все парсеров используемых в лоадере в init. То есть мы объявляем лоадер и настраиваем
-        #  его при создании вместе с расшиерниями и парсерами
-        parser = TextBlobParser()
         try:
-
             blob = Blob.from_path(path)
-            documents = parser.parse(blob)
+            documents = self.parser.parse(blob)
             for document in documents:
                 yield document
         except ValueError as e:
+
             self._logs.add_warning(str(e))
         except RuntimeError as e:
             self._logs.add_error(str(e))
