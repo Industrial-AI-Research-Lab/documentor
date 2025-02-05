@@ -1,7 +1,8 @@
 from enum import Enum
+from typing import Union, TypeAlias
 
 
-class DocExtension(Enum):
+class DocExtension(Enum, str):
     """
     DocExtension - Enum class for parser file extensions.
     """
@@ -16,3 +17,7 @@ class DocExtension(Enum):
     zip = 'zip'
     seven_z = '7z'
     txt = 'txt'
+
+
+# TypeAlias for DocExtension or str - associated with extensions of files
+Extension: TypeAlias = Union[DocExtension, str]

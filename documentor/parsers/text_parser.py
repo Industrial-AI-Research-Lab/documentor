@@ -1,52 +1,38 @@
-from documentor.loaders.parsers.base import BaseBlobParser, BaseParserType
-from langchain_core.documents import Document
-
-from langchain_core.documents.base import Blob
-from overrides import overrides
 from typing import Iterator
 
-from loaders.parsers.extensions import DocExtension
+from langchain_core.documents import Document
+from langchain_core.documents.base import Blob
+
 from documentor.loaders.logger import Logger
-
-class UnifiedTextType(BaseParserType):
-    """
-    UnifiedTextType - Class for text file extensions.
-    """
-
-    @classmethod
-    def get_extensions(cls) -> set[DocExtension]:
-        return {DocExtension.txt}
-
-    @overrides(BaseParserType)
-    def is_in(self, extension: str | DocExtension) -> bool:
-        return True
+from documentor.parsers.base import BaseBlobParser
+from documentor.parsers.extensions import DocExtension
 
 
-class UnifiedTextBlobParser(BaseBlobParser):
+class TextBlobParser(BaseBlobParser):
     """
     Parser for text blobs.
-    """
-    _extension = UnifiedTextType() #extension of parser
 
-    def __init__(self, encoding: str = 'utf-8', batch_lines: int = 0):
+    Attributes:
+        batch_lines (int): The number of lines which is one Document.
+            0 value means that whole text blob is one Document.
+        _extension (set[DocExtension]): The set of file extensions associated with the parser. Not to be modified.
+    """
+    batch_lines = 0
+    _extension = {DocExtension.txt}
+
+    def __init__(self, batch_lines: int = 0):
         """
         Initialize the TextBlobParser.
 
         Args:
-            encoding (str): The encoding to use when reading the text blob. Defaults to 'utf-8'.
             batch_lines (int): The number of lines which is one Document.
-                0 value means that whole text blob is one Document. Value should be greater than 0. Defaults to 0.
+                0 value means that whole text blob is one Document. Value should be greater than or equal to 0.
+            Defaults to 0.
         """
-        self.encoding = encoding
         if not isinstance(batch_lines, int) or batch_lines < 0:
             raise ValueError("batch_lines must be a non-negative integer.")
         self.batch_lines = batch_lines
         self._logs = Logger()
-
-    @classmethod
-    @overrides(BaseBlobParser)
-    def get_type(cls):
-        return cls._extension #extension of parser
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """
@@ -58,11 +44,12 @@ class UnifiedTextBlobParser(BaseBlobParser):
         Yields:
             Document: A Document object containing the parsed data.
         """
-        text = blob.as_string(encoding=self.encoding)
+        text = blob.as_string()
         lines = text.splitlines()
 
         # if batch_lines == 0, then whole text is one Document
         if self.batch_lines == 0:
+            # TODO remove code duplication in init Document (three times very similar init)
             yield Document(
                 page_content=text.strip(),
                 metadata={
@@ -77,7 +64,6 @@ class UnifiedTextBlobParser(BaseBlobParser):
                 buffer.append(line)
                 # when buffer has enough lines, form Document
                 if len(buffer) == self.batch_lines:
-
                     yield Document(
                         page_content="\n".join(buffer).strip(),
                         metadata={

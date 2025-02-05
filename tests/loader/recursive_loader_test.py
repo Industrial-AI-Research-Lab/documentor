@@ -10,7 +10,7 @@ def test_recursive_loader_simple_file(tmp_path):
 
     # Initialize RecursiveLoader
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["txt"],
         recursive=True,
         zip_loader=False
@@ -41,7 +41,7 @@ def test_recursive_loader_zip(tmp_path):
 
     # Initialize RecursiveLoader with zip_loader support
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["zip"],
         recursive=True,
         zip_loader=True
@@ -69,7 +69,7 @@ def test_recursive_loader_unsupported_extension(tmp_path):
 
     # Load only txt files
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["txt"],
         recursive=False,
         zip_loader=False
@@ -88,7 +88,7 @@ def test_recursive_loader_empty_directory(tmp_path):
     """
     # Do not create any files in tmp_path, leaving the directory empty
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["txt", "md", "zip"],
         recursive=True,
         zip_loader=True
@@ -110,7 +110,7 @@ def test_recursive_loader_multiple_files(tmp_path):
 
     # Specify that we are interested in files with txt and md extensions
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["txt", "md"],
         recursive=False,
         zip_loader=False
@@ -134,7 +134,7 @@ def test_recursive_loader_subdirectories(tmp_path):
 
     # Run the loader with recursive traversal
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["txt"],
         recursive=True,
         zip_loader=False
@@ -160,7 +160,7 @@ def test_recursive_loader_several_zips(tmp_path):
         zf.writestr("inside2.txt", "Content of the second archive")
 
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["zip"],
         recursive=True,
         zip_loader=True
@@ -208,7 +208,7 @@ def test_recursive_loader_mixed_content(tmp_path):
 
     # Initialize RecursiveLoader for all interested extensions, including zip, and recursive traversal
     loader = RecursiveLoader(
-        file_path=str(tmp_path),
+        path=str(tmp_path),
         extension=["txt", "md", "zip"],
         recursive=True,
         zip_loader=True

@@ -1,25 +1,30 @@
-import os
-from typing import Iterator
+import zipfile
+from pathlib import Path
+from typing import Iterator, Optional
 
+from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 from overrides import overrides
-from langchain_core.documents import Document
+
 from documentor.loaders.base import BaseLoader
-from pathlib import Path
-import zipfile
-from documentor.loaders.logger import Logger
-from loaders.parsers.text_parser import UnifiedTextBlobParser
+from documentor.parsers.text_parser import TextBlobParser
+from parsers.extension_mapping import ExtensionMapping
 
 
 class RecursiveLoader(BaseLoader):
     """
     Loader for recursive directory traversal and optional ZIP file processing.
+
+    Attributes:
+        path (str | Path): Path to the directory or file.
+        recursive (bool): Whether to traverse directories recursively.
+        zip_loader (bool): Whether to process ZIP files.
     """
 
     def __init__(
             self,
-            file_path: str | Path,
-            extension: list[str] = None, #extension of files to load
+            path: str | Path,
+            extension_mapping: Optional[ExtensionMapping] = None,
             recursive: bool = True,
             zip_loader: bool = False,
             **kwargs
@@ -28,26 +33,15 @@ class RecursiveLoader(BaseLoader):
         Initialize the RecursiveLoader.
 
         Args:
-            file_path (Union[str, Path]): Path to the directory or file.
-            extension (list[str], optional): List of file extensions to load. Defaults to all files.
+            path (Union[str, Path]): Path to the directory or file.
+            extension_mapping (Optional[ExtensionMapping]): Mapping of file extensions to parsers. Defaults to None.
             recursive (bool): Whether to traverse directories recursively. Defaults to True.
             zip_loader (bool): Whether to process ZIP files. Defaults to False.
-            log_level (int): Logging level. Defaults to logging.INFO.
         """
-        self.file_path = Path(file_path)
-        if not self.file_path.exists():
-            raise ValueError(f"Path {self.file_path} does not exist.")
-
-        self.extension = extension if extension else ['*']
-        if not isinstance(self.extension, list) or not all(isinstance(ext, str) for ext in self.extension):
-            raise ValueError("Extension must be a list of strings.")
+        super().__init__(path, extension_mapping, **kwargs)
 
         self.recursive = recursive
         self.zip_loader = zip_loader
-
-        # Initialize logs
-        self._logs = Logger()
-
 
     @staticmethod
     def _create_document(content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
@@ -84,7 +78,8 @@ class RecursiveLoader(BaseLoader):
         Returns:
             bool: True if the file has a valid extension, False otherwise.
         """
-        return self.extension == ['*'] or path.suffix.lower().lstrip('.') in [ext.lower() for ext in self.extension]
+        file_extension = path.suffix.lower().lstrip('.')
+        return self._extension_mapping.is_valid_extension(file_extension)
 
     def _process_file(self, path: Path) -> Iterator[Document]:
         """
@@ -99,9 +94,8 @@ class RecursiveLoader(BaseLoader):
         self._logs.add_info(f"Reading file: {path}")
         # TODO вынести объявление все парсеров используемых в лоадере в init. То есть мы объявляем лоадер и настраиваем
         #  его при создании вместе с расшиерниями и парсерами
-        parser = UnifiedTextBlobParser()
+        parser = TextBlobParser()
         try:
-
 
             blob = Blob.from_path(path)
             documents = parser.parse(blob)
@@ -111,7 +105,6 @@ class RecursiveLoader(BaseLoader):
             self._logs.add_warning(str(e))
         except RuntimeError as e:
             self._logs.add_error(str(e))
-
 
     def _process_zip(self, path: Path) -> Iterator[Document]:
         """
@@ -148,7 +141,6 @@ class RecursiveLoader(BaseLoader):
         except Exception as e:
             self._logs.add_error(f"Error processing ZIP file {path}: {str(e)}")
 
-
     @overrides
     def lazy_load(self) -> Iterator[Document]:
         """
@@ -159,7 +151,7 @@ class RecursiveLoader(BaseLoader):
         """
         pattern = '**/*' if self.recursive else '*'
 
-        for path in self.file_path.glob(pattern):
+        for path in self.path.glob(pattern):
             if path.is_file() and (
                     self._is_valid_extension(path) or (self.zip_loader and path.suffix.lower() == '.zip')):
                 documents = (
