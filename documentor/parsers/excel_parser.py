@@ -81,6 +81,7 @@ class ExcelBlobParser(BaseBlobParser):
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """
         Creates a list of Document objects from an Excel file, one per sheet.
+        Also extracts images if present.
 
         Args:
             blob (Blob): Blob object containing Excel file data
@@ -93,17 +94,17 @@ class ExcelBlobParser(BaseBlobParser):
             excel_data = BytesIO(blob.data)
             wb = openpyxl.load_workbook(excel_data, data_only=True)
             
+            
             for sheet_name in wb.sheetnames:
                 sheet = wb[sheet_name]
                 rows = []
                 
                 for row in sheet.iter_rows(values_only=True):
-                    # Проверяем, содержит ли строка хотя бы одно непустое значение
                     if any(cell is not None and str(cell).strip() != '' for cell in row):
                         row_content = [str(cell) if cell is not None else '' for cell in row]
                         rows.append(row_content)
                 
-                if rows:  # Создаем документ только если есть данные
+                if rows:
                     df = pd.DataFrame(rows)
                     csv_content = df.to_csv(sep=';', index=False, header=False)
                     lines = csv_content.splitlines()
@@ -120,6 +121,19 @@ class ExcelBlobParser(BaseBlobParser):
                         if buffer:
                             start_line = len(lines) - len(buffer)
                             yield self._build_document("\n".join(buffer), start_line, blob)
+
+            # extract images
+            for sheet in wb.worksheets:
+                if hasattr(sheet, '_images'):
+                    for image in sheet._images:
+                        if hasattr(image, 'ref'):
+                            img_bytes = image.ref
+                            if isinstance(img_bytes, BytesIO):
+                                img_bytes = img_bytes.getvalue()
+                            img_name = f"{blob.path.stem}_image_{sheet.title}_{sheet._images.index(image)}.png"
+                            with open(img_name, "wb") as f:
+                                f.write(img_bytes)
+                            self._logs.add_info(f"Image saved: {img_name}")
 
         except Exception as e:
             raise Exception(f"An error occurred while parsing Excel file: {str(e)}") from e
