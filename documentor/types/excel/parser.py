@@ -7,6 +7,8 @@ from documentor.structuries.type_check import StaticClassMeta
 
 from documentor.types.excel.document import SheetDocument
 
+from langchain_core.documents import Document
+
 
 class ExtensionException(Exception):
     """
