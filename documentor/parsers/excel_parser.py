@@ -6,7 +6,7 @@ from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
-from documentor.loaders.logger import Logger
+from documentor.loaders.logger import LoaderLogger
 
 
 
@@ -33,7 +33,8 @@ class ExcelBlobParser(BaseBlobParser):
         if not isinstance(batch_lines, int) or batch_lines < 0:
             raise ValueError("batch_lines must be a non-negative integer.")
         self.batch_lines = batch_lines
-        self._logs = Logger()
+        # TODO зачем тут объявление logs? Как это используется в дальнейшем?
+        self._logs = LoaderLogger()
     
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """

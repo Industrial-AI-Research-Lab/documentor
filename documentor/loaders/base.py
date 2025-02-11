@@ -5,7 +5,7 @@ from typing import Iterator, Optional
 from langchain_core.document_loaders import BaseLoader as LangChainBaseLoader
 from langchain_core.documents import Document
 
-from documentor.loaders.logger import Logger
+from documentor.loaders.logger import LoaderLogger
 from parsers.base import BaseBlobParser
 from parsers.extension_mapping import ExtensionMapping
 from parsers.extensions import Extension
@@ -19,8 +19,8 @@ class BaseLoader(LangChainBaseLoader, ABC):
         path (str | Path): A path to the file or directory from which data will be loaded.
     """
     path: str | Path
-    _logs: Logger
-    _extension_mapping: ExtensionMapping # Extension mapping for choosing the correct parser
+    _logs: LoaderLogger
+    _extension_mapping: ExtensionMapping  # Extension mapping for choosing the correct parser
 
     @abstractmethod
     def __init__(self, path: str | Path, extension_mapping: Optional[ExtensionMapping] = None, **kwargs):
@@ -40,7 +40,7 @@ class BaseLoader(LangChainBaseLoader, ABC):
 
         self._extension_mapping = extension_mapping
         self.path = path
-        self._logs = Logger()
+        self._logs = LoaderLogger()
 
     @abstractmethod
     def lazy_load(self) -> Iterator[Document]:

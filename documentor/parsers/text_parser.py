@@ -1,9 +1,10 @@
+from itertools import zip_longest
 from typing import Iterator
 
 from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 
-from documentor.loaders.logger import Logger
+from documentor.loaders.logger import LoaderLogger
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
 
@@ -32,7 +33,7 @@ class TextBlobParser(BaseBlobParser):
         if not isinstance(batch_lines, int) or batch_lines < 0:
             raise ValueError("batch_lines must be a non-negative integer.")
         self.batch_lines = batch_lines
-        self._logs = Logger()
+        self._logs = LoaderLogger()
 
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
@@ -82,25 +83,14 @@ class TextBlobParser(BaseBlobParser):
             text = blob.as_string()
             if self.batch_lines == 0:
                 yield self._build_document(text, 0, blob)
-            else:
-                # Разбиваем текст на строки с сохранением переносов
-                lines = text.splitlines(keepends=True)
-                buffer = []
-                line_count = 0
-                
-                for line_number, line in enumerate(lines):
-                    buffer.append(line)
-                    line_count += 1
-                    
-                    if line_count == self.batch_lines:
-                        yield self._build_document(''.join(buffer), line_number - line_count + 1, blob)
-                        buffer = []
-                        line_count = 0
-
-                if buffer:
-                    start_line = len(lines) - len(buffer)
-                    yield self._build_document(''.join(buffer), start_line, blob)
+                return
+                # Разбиваем текст на строки с сохранением переносов TODO: убрать комментарий
+            lines = text.splitlines(keepends=True)
+            # split lines into batches with batch_lines lines in each batch,
+            # last batch has same number of lines, but can contain empty lines (fill with '')
+            batches = list(zip_longest(*([iter(lines)] * self.batch_lines), fillvalue=''))
+            for batch in batches:
+                yield self._build_document('\n'.join(batch), lines.index(batch[0]), blob)
 
         except Exception as e:
             raise Exception(f"An error occurred: {e}") from e
-

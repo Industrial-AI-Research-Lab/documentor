@@ -12,8 +12,8 @@ def test_recursive_loader_simple_file(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["txt"],
-        recursive=True,
-        zip_loader=False
+        is_recursive=True,
+        use_unzip=False
     )
 
     # Load documents
@@ -43,8 +43,8 @@ def test_recursive_loader_zip(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["zip"],
-        recursive=True,
-        zip_loader=True
+        is_recursive=True,
+        use_unzip=True
     )
 
     # Load documents
@@ -71,8 +71,8 @@ def test_recursive_loader_unsupported_extension(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["txt"],
-        recursive=False,
-        zip_loader=False
+        is_recursive=False,
+        use_unzip=False
     )
 
     documents = list(loader.lazy_load())
@@ -90,8 +90,8 @@ def test_recursive_loader_empty_directory(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["txt", "md", "zip"],
-        recursive=True,
-        zip_loader=True
+        is_recursive=True,
+        use_unzip=True
     )
     documents = list(loader.lazy_load())
     assert len(documents) == 0, "Expected no documents when the directory is empty"
@@ -112,8 +112,8 @@ def test_recursive_loader_multiple_files(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["txt", "md"],
-        recursive=False,
-        zip_loader=False
+        is_recursive=False,
+        use_unzip=False
     )
     documents = list(loader.lazy_load())
 
@@ -136,8 +136,8 @@ def test_recursive_loader_subdirectories(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["txt"],
-        recursive=True,
-        zip_loader=False
+        is_recursive=True,
+        use_unzip=False
     )
     documents = list(loader.lazy_load())
     assert len(documents) == 1, "Expected to load one file from the nested directory"
@@ -162,8 +162,8 @@ def test_recursive_loader_several_zips(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["zip"],
-        recursive=True,
-        zip_loader=True
+        is_recursive=True,
+        use_unzip=True
     )
     documents = list(loader.lazy_load())
     # The first archive contains 2 lines, the second - 1 line => total 3 documents
@@ -210,8 +210,8 @@ def test_recursive_loader_mixed_content(tmp_path):
     loader = RecursiveLoader(
         path=str(tmp_path),
         extension=["txt", "md", "zip"],
-        recursive=True,
-        zip_loader=True
+        is_recursive=True,
+        use_unzip=True
     )
 
     # Load documents and verify results

@@ -17,7 +17,13 @@ class DocExtension(str, Enum):
     zip = 'zip'
     seven_z = '7z'
     txt = 'txt'
+    not_supported = 'not_supported'
+
+    def __init__(self, value: str):
+        self.value = value.lower()
 
 
 # TypeAlias for DocExtension or str - associated with extensions of files
 Extension: TypeAlias = Union[DocExtension, str]
+
+ZIP_EXTENSIONS = [DocExtension.zip, DocExtension.seven_z]

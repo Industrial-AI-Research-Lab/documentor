@@ -23,7 +23,7 @@ class BaseBlobParser(LangChainBaseBlobParser):
             set[Extension]: The file extension associated with the parser.
         """
         return cls._extensions
-    
+
     @abstractmethod
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
@@ -56,7 +56,6 @@ class BaseBlobParser(LangChainBaseBlobParser):
         """
         pass
 
-
     @abstractmethod
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """kwargs
@@ -68,4 +67,4 @@ class BaseBlobParser(LangChainBaseBlobParser):
         Returns:
             Document: A Document object containing the parsed data.
         """
-        pass
+        raise NotImplementedError("Subclasses must implement lazy_parse method")

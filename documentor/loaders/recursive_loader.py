@@ -9,6 +9,20 @@ from overrides import overrides
 from documentor.loaders.base import BaseLoader
 from documentor.parsers.text_parser import TextBlobParser
 from parsers.extension_mapping import ExtensionMapping
+from parsers.extensions import ZIP_EXTENSIONS
+
+
+def get_extension(path: Path) -> str:
+    """
+    Get the file extension.
+
+    Args:
+        path (Path): Path to the file.
+
+    Returns:
+        str: File extension.
+    """
+    return path.suffix.lower()[1:]
 
 
 class RecursiveLoader(BaseLoader):
@@ -17,16 +31,16 @@ class RecursiveLoader(BaseLoader):
 
     Attributes:
         path (str | Path): Path to the directory or file.
-        recursive (bool): Whether to traverse directories recursively.
-        zip_loader (bool): Whether to process ZIP files.
+        is_recursive (bool): Whether to traverse directories recursively.
+        use_unzip (bool): Whether to process ZIP files.
     """
 
     def __init__(
             self,
             path: str | Path,
             extension_mapping: Optional[ExtensionMapping] = None,
-            recursive: bool = True,
-            zip_loader: bool = False,
+            is_recursive: bool = True,
+            use_unzip: bool = False,
             **kwargs
     ):
         """
@@ -35,15 +49,15 @@ class RecursiveLoader(BaseLoader):
         Args:
             path (Union[str, Path]): Path to the directory or file.
             extension_mapping (Optional[ExtensionMapping]): Mapping of file extensions to parsers. Defaults to None.
-            recursive (bool): Whether to traverse directories recursively. Defaults to True.
-            zip_loader (bool): Whether to process ZIP files. Defaults to False.
+            is_recursive (bool): Whether to traverse directories recursively. Defaults to True.
+            use_unzip (bool): Whether to process ZIP files. Defaults to False.
         """
         super().__init__(path, extension_mapping, **kwargs)
 
-        self.recursive = recursive
-        self.zip_loader = zip_loader
+        self.is_recursive = is_recursive
+        self.use_unzip = use_unzip
+        # TODO rewrite to use parsers from extension mapping, in init no need to create parsers now
         self.parser = TextBlobParser()
-
 
     @staticmethod
     def _create_document(content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
@@ -148,15 +162,17 @@ class RecursiveLoader(BaseLoader):
         Yields:
             Iterator[Document]: Document objects.
         """
-        pattern = '**/*' if self.recursive else '*'
+        pattern = '**/*' if self.is_recursive else '*'
 
         for path in self.path.glob(pattern):
-            if path.is_file() and (
-                    self._is_valid_extension(path) or (self.zip_loader and path.suffix.lower() == '.zip')):
-                documents = (
-                    self._process_zip(
-                        path) if self.zip_loader and path.suffix.lower() == '.zip' else self._process_file(path)
-                )
+            if not path.is_dir():
+                continue
 
-                for doc in documents:
-                    yield doc
+            documents: Iterator[Document] = iter([])
+            if self._is_valid_extension(path):
+                documents = self._process_file(path)
+            elif self.use_unzip and get_extension(path) in ZIP_EXTENSIONS:
+                documents = self._process_zip(path)
+
+            for document in documents:
+                yield document
