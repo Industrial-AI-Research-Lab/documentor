@@ -1,13 +1,15 @@
+from io import BytesIO
+from itertools import chain, product
+from typing import Iterator
+
 import openpyxl
 import pandas as pd
-from typing import Iterator
-from io import BytesIO
 from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
+
+from documentor.loaders.logger import LoaderLogger
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
-from documentor.loaders.logger import LoaderLogger
-
 
 
 class ExcelBlobParser(BaseBlobParser):
@@ -20,8 +22,7 @@ class ExcelBlobParser(BaseBlobParser):
 
     _extension = {DocExtension.xlsx, DocExtension.xls}
 
-
-    def __init__(self, batch_lines: int = 0):
+    def __init__(self, parse_images: bool = False):
         """
         Initialize the TextBlobParser.
 
@@ -30,12 +31,10 @@ class ExcelBlobParser(BaseBlobParser):
                 0 value means that whole text blob is one Document. Value should be greater than or equal to 0.
             Defaults to 0.
         """
-        if not isinstance(batch_lines, int) or batch_lines < 0:
-            raise ValueError("batch_lines must be a non-negative integer.")
-        self.batch_lines = batch_lines
         # TODO зачем тут объявление logs? Как это используется в дальнейшем?
+        # TODO реализовать поддержку флагов ждя парсинга изображений
         self._logs = LoaderLogger()
-    
+
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
         Helper method to create a Document object.
@@ -60,6 +59,7 @@ class ExcelBlobParser(BaseBlobParser):
                 "extension": file_type,
             }
         )
+
     def _build_document(self, content: str, line_number: int, blob: Blob) -> Document:
         """
         Internal helper to remove repeated argument setup for _create_document.
@@ -72,12 +72,11 @@ class ExcelBlobParser(BaseBlobParser):
         Returns:
             Document: A Document object containing the parsed data.
         """
+        # TODO remove line_number from the method signature and from the call
         file_name = blob.path.name if blob.path else None
         source = str(blob.path) if blob.path else None
         file_type = blob.path.suffix if blob.path else None
         return self._create_document(content, line_number, file_name, source, file_type)
-
-
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """
@@ -94,47 +93,42 @@ class ExcelBlobParser(BaseBlobParser):
         try:
             excel_data = BytesIO(blob.data)
             wb = openpyxl.load_workbook(excel_data, data_only=True)
-            
-            
+
             for sheet_name in wb.sheetnames:
                 sheet = wb[sheet_name]
                 rows = []
-                
+
                 for row in sheet.iter_rows(values_only=True):
-                    if any(cell is not None and str(cell).strip() != '' for cell in row):
-                        row_content = [str(cell) if cell is not None else '' for cell in row]
+                    cells = [str(cell) if cell is not None else '' for cell in row]
+                    if any(str(cell).strip() != '' for cell in cells):
+                        row_content = cells
                         rows.append(row_content)
-                
+
                 if rows:
                     df = pd.DataFrame(rows)
                     csv_content = df.to_csv(sep=';', index=False, header=False)
-                    lines = csv_content.splitlines()
-
-                    if self.batch_lines == 0:
-                        yield self._build_document(csv_content, 0, blob)
-                    else:
-                        buffer = []
-                        for line_number, line in enumerate(lines):
-                            buffer.append(line)
-                            if len(buffer) == self.batch_lines:
-                                yield self._build_document("\n".join(buffer), line_number - self.batch_lines + 1, blob)
-                                buffer = []
-                        if buffer:
-                            start_line = len(lines) - len(buffer)
-                            yield self._build_document("\n".join(buffer), start_line, blob)
+                    # TODO add tag for sheet name to metadata
+                    yield self._build_document(csv_content, 0, blob)
 
             # extract images
-            for sheet in wb.worksheets:
-                if hasattr(sheet, '_images'):
-                    for image in sheet._images:
-                        if hasattr(image, 'ref'):
-                            img_bytes = image.ref
-                            if isinstance(img_bytes, BytesIO):
-                                img_bytes = img_bytes.getvalue()
-                            img_name = f"{blob.path.stem}_image_{sheet.title}_{sheet._images.index(image)}.png"
-                            with open(img_name, "wb") as f:
-                                f.write(img_bytes)
-                            self._logs.add_info(f"Image saved: {img_name}")
+            # TODO: реализовать поддержку флага parse_images
+            sheet_content_name = zip(wb.worksheets, wb.sheetnames)
+            img_content_iter = chain(*(
+                tuple(product(content._images, (content,)))
+                for content in wb.worksheets
+                if hasattr(content, '_images')
+            ))
+            # TODO: избейг сильно вложенный коснтрукций, как вариант использовать continue
+            for image, content in img_content_iter:
+                if not hasattr(image, 'ref'):
+                    continue
+                img_bytes = image.ref
+                if isinstance(img_bytes, BytesIO):
+                    img_bytes = img_bytes.getvalue()
+                img_name = f"{blob.path.stem}_image_{content.title}_{content._images.index(image)}.png"
+                with open(img_name, "wb") as f:
+                    f.write(img_bytes)
+                self._logs.add_info(f"Image saved: {img_name}")
 
         except Exception as e:
             raise Exception(f"An error occurred while parsing Excel file: {str(e)}") from e
