@@ -4,23 +4,61 @@ from typing import Union, TypeAlias
 
 class DocExtension(str, Enum):
     """
-    DocExtension - Enum class for parser file extensions.
+    DocExtension - Enum for file extensions.
     """
-    docx = 'docx'
-    doc = 'doc'
-    pdf = 'pdf'
-    xls = 'xls'
-    xlsx = 'xlsx'
-    odt = 'odt'
-    rtf = 'rtf'
-    md = 'md'
-    zip = 'zip'
-    seven_z = '7z'
-    txt = 'txt'
-    not_supported = 'not_supported'
-
-    def __init__(self, value: str):
-        self.value = value.lower()
+    # Text files
+    txt = '.txt'
+    md = '.md'
+    
+    # Microsoft Office
+    doc = '.doc'
+    docx = '.docx'
+    xls = '.xls'
+    xlsx = '.xlsx'
+    ppt = '.ppt'
+    pptx = '.pptx'
+    
+    # PDF
+    pdf = '.pdf'
+    
+    # Images
+    jpg = '.jpg'
+    jpeg = '.jpeg'
+    png = '.png'
+    
+    # Archives
+    zip = '.zip'
+    seven_z = '.7z'
+    
+    def __str__(self) -> str:
+        return self.value
+    
+    @classmethod
+    def from_string(cls, extension: str) -> 'DocExtension':
+        """
+        Create an instance of DocExtension from a string.
+        
+        Args:
+            extension (str): File extension (e.g. '.txt', 'txt', or 'TXT')
+            
+        Returns:
+            DocExtension: Corresponding enumeration element
+            
+        Raises:
+            ValueError: If the extension is not supported
+        """
+        if not extension:
+            raise ValueError("Extension cannot be empty")
+            
+        if not extension.startswith('.'):
+            extension = '.' + extension
+        extension = extension.lower()
+        
+        for ext in cls:
+            if ext.value == extension:
+                return ext
+                
+        raise ValueError(f"Unsupported extension: {extension}")
 
 
 # TypeAlias for DocExtension or str - associated with extensions of files

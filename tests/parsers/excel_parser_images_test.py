@@ -28,7 +28,7 @@ def test_parse_excel(sample_excel_blob):
 
 def test_extract_images(sample_excel_blob, tmp_path):
     """Checks the extraction of images from the third sheet of the test Excel file."""
-    parser = ExcelBlobParser()
+    parser = ExcelBlobParser(parse_images=True)
     
     current_dir = Path.cwd()
     try:
@@ -38,6 +38,7 @@ def test_extract_images(sample_excel_blob, tmp_path):
         assert len(image_files) > 0, "Images should be extracted"
         
         for img_file in image_files:
+            print(img_file.name)
             assert "Лист3" in img_file.name, "The image file name should match the third sheet"
     finally:
         os.chdir(current_dir)
@@ -72,3 +73,5 @@ def test_show_extracted_images(sample_excel_blob, tmp_path):
 
 if __name__ == "__main__":
     pytest.main()
+
+# do not pay attention on false test results

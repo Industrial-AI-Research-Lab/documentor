@@ -7,7 +7,6 @@ from langchain_core.documents.base import Blob
 from overrides import overrides
 
 from documentor.loaders.base import BaseLoader
-from documentor.parsers.text_parser import TextBlobParser
 from parsers.extension_mapping import ExtensionMapping
 from parsers.extensions import ZIP_EXTENSIONS
 
@@ -56,8 +55,7 @@ class RecursiveLoader(BaseLoader):
 
         self.is_recursive = is_recursive
         self.use_unzip = use_unzip
-        # TODO rewrite to use parsers from extension mapping, in init no need to create parsers now
-        self.parser = TextBlobParser()
+        # Parsers are now selected dynamically through extension_mapping, so creating them here is not necessary.
 
     @staticmethod
     def _create_document(content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
@@ -74,6 +72,7 @@ class RecursiveLoader(BaseLoader):
         Returns:
             Document: The created document.
         """
+        # TODO: decide which metadata should be used
         return Document(
             page_content=content,
             metadata={
@@ -110,11 +109,12 @@ class RecursiveLoader(BaseLoader):
         self._logs.add_info(f"Reading file: {path}")
         try:
             blob = Blob.from_path(path)
-            documents = self.parser.parse(blob)
+            file_extension = path.suffix.lower().lstrip('.')
+            parser = self._extension_mapping.get_parser(file_extension)
+            documents = parser.parse(blob)
             for document in documents:
                 yield document
         except ValueError as e:
-
             self._logs.add_warning(str(e))
         except RuntimeError as e:
             self._logs.add_error(str(e))
@@ -132,7 +132,6 @@ class RecursiveLoader(BaseLoader):
         self._logs.add_info(f"Processing ZIP archive: {path}")
         try:
             with zipfile.ZipFile(path, 'r') as zip_ref:
-
                 for name in zip_ref.namelist():
                     # We assume all files inside the ZIP are valid for processing
                     try:
@@ -163,7 +162,6 @@ class RecursiveLoader(BaseLoader):
             Iterator[Document]: Document objects.
         """
         pattern = '**/*' if self.is_recursive else '*'
-
         for path in self.path.glob(pattern):
             if not path.is_dir():
                 continue

@@ -84,13 +84,10 @@ class TextBlobParser(BaseBlobParser):
             if self.batch_lines == 0:
                 yield self._build_document(text, 0, blob)
                 return
-                # Разбиваем текст на строки с сохранением переносов TODO: убрать комментарий
             lines = text.splitlines(keepends=True)
-            # split lines into batches with batch_lines lines in each batch,
-            # last batch has same number of lines, but can contain empty lines (fill with '')
             batches = list(zip_longest(*([iter(lines)] * self.batch_lines), fillvalue=''))
-            for batch in batches:
-                yield self._build_document('\n'.join(batch), lines.index(batch[0]), blob)
-
+            for i, batch in enumerate(batches):
+                content = ''.join(batch)
+                yield self._build_document(content, i * self.batch_lines, blob)
         except Exception as e:
             raise Exception(f"An error occurred: {e}") from e
