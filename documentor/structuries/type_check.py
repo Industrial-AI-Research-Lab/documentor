@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from types import UnionType
-from typing import Any, TypeVar, Iterable
+from typing import Any, TypeVar
 
 import pandas as pd
 

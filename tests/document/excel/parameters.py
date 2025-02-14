@@ -1,4 +1,4 @@
-from documentor.types.excel.fragment import SheetFragment
+from documentor.formats.excel.fragment import SheetFragment
 from sklearn.cluster import k_means, DBSCAN
 
 PARSER_WORK_PARAMETRIZER = [

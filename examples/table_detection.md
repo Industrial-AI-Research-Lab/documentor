@@ -14,8 +14,9 @@ jupyter:
 ---
 
 Import the necessary classes and libraries.
+
 ```python
-from documentor.types.excel_detection import TableDetectionModel
+from documentor.formats.excel_detection import TableDetectionModel
 ```
 
 Initialize the class for table detection.

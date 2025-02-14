@@ -6,7 +6,7 @@ from documentor.structuries.columns import ColumnType
 from documentor.structuries.document import Document
 from documentor.structuries.fragment import Fragment
 from documentor.structuries.structure import StructureNode, DocumentStructure
-from documentor.types.excel.fragment import SheetFragment
+from documentor.formats.excel.fragment import SheetFragment
 
 
 class SheetDocument(Document):

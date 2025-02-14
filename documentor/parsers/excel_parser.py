@@ -7,9 +7,9 @@ import pandas as pd
 from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 
+from documentor.loaders.logger import LoaderLogger
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
-from documentor.loaders.logger import LoaderLogger
 
 
 class ExcelBlobParser(BaseBlobParser):
@@ -33,9 +33,9 @@ class ExcelBlobParser(BaseBlobParser):
         """
         self.parse_images = parse_images
         self._logs = LoaderLogger()
-        
 
-    def _create_document(self, content: str, file_name: str, source: str, file_type: str, sheet_name: str = None) -> Document:
+    def _create_document(self, content: str, file_name: str, source: str, file_type: str,
+                         sheet_name: str = None) -> Document:
         """
         Helper method to create a Document object.
 
@@ -57,7 +57,7 @@ class ExcelBlobParser(BaseBlobParser):
         }
         if sheet_name:
             metadata["sheet_name"] = sheet_name
-        
+
         return Document(
             page_content=content,
             metadata=metadata
@@ -97,11 +97,11 @@ class ExcelBlobParser(BaseBlobParser):
         try:
             # Используем значение из конструктора, если не передано явно
             should_parse_images = self.parse_images if parse_images is None else parse_images
-            
+
             excel_data = BytesIO(blob.data)
             wb = openpyxl.load_workbook(excel_data, data_only=True)
 
-            #parse sheets
+            # parse sheets
             for sheet_name in wb.sheetnames:
                 sheet = wb[sheet_name]
                 rows = []
@@ -119,7 +119,6 @@ class ExcelBlobParser(BaseBlobParser):
 
             # extract images
             if should_parse_images:
-                sheet_content_name = zip(wb.worksheets, wb.sheetnames)
                 img_content_iter = chain(*(
                     tuple(product(content._images, (content,)))
                     for content in wb.worksheets
@@ -136,8 +135,8 @@ class ExcelBlobParser(BaseBlobParser):
                     with open(img_name, "wb") as f:
                         f.write(img_bytes)
                     self._logs.add_info(f"Image saved: {img_name}")
-            
-            #parse formulas
+
+            # parse formulas
             wb_formulas = openpyxl.load_workbook(excel_data, data_only=False)
             for sheet in wb_formulas.worksheets:
                 self._logs.add_info(f"Parsing formulas on sheet: {sheet.title}")
@@ -149,6 +148,6 @@ class ExcelBlobParser(BaseBlobParser):
                     if isinstance(cell.value, str) and cell.value.startswith('='):
                         formula_content = f"Sheet: {sheet.title}, Cell: {cell.coordinate}, Formula: {cell.value}"
                         yield self._build_document(formula_content, blob, sheet.title)
-                        
+
         except Exception as e:
             raise Exception(f"An error occurred while parsing Excel file: {str(e)}") from e

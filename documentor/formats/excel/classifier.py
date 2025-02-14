@@ -6,11 +6,11 @@ from sklearn import metrics
 from sklearn.cluster import DBSCAN
 from sklearn.model_selection import KFold
 from documentor.structuries.classifier import FragmentClassifier, ClassifierModel
-from documentor.types.excel.document import SheetDocument
-from documentor.types.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search_v_measure, devide,
-                                               grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing,
-                                               selecting, print_all_cluster_metrics)
-from documentor.types.excel.fragment import SheetFragment
+from documentor.formats.excel.document import SheetDocument
+from documentor.formats.excel.clustering import (print_metrics, plots, map_vectors, cluster_grid_search_v_measure, devide,
+                                                 grid_optics, grid_kmeans, grid_dbscan, AlgorithmType, row_typing,
+                                                 selecting, print_all_cluster_metrics)
+from documentor.formats.excel.fragment import SheetFragment
 
 SheetFragmentClassType = int | str
 

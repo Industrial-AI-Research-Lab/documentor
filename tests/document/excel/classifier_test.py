@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
 
-from documentor.types.excel.document import SheetDocument
-from documentor.types.excel.classifier import SheetClassifier
+from documentor.formats.excel.document import SheetDocument
+from documentor.formats.excel.classifier import SheetClassifier
 from tests.document.excel.parameters import CLASSIFIER_INIT_PARAMS
 
 

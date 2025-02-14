@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from documentor.structuries.document import Document
-from documentor.structuries.structure import StructureNode, DocumentStructure
+from documentor.structuries.structure import DocumentStructure
 
 
 class StructureFinder(ABC):

@@ -1,5 +1,5 @@
 import pytest
-from documentor.types.excel.parser import SheetLangChainParser
+from documentor.formats.excel.parser import SheetLangChainParser
 from langchain_core.documents import Document
 import os
 

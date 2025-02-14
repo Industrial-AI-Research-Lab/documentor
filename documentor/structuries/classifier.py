@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
-from overrides import overrides
 
-from documentor.structuries.custom_types import LabelType
 from documentor.structuries.document import Document
 
 

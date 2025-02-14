@@ -5,7 +5,7 @@ from openpyxl.utils.exceptions import InvalidFileException
 from documentor.structuries.parser import DocumentParser
 from documentor.structuries.type_check import StaticClassMeta
 
-from documentor.types.excel.document import SheetDocument
+from documentor.formats.excel.document import SheetDocument
 
 from langchain_core.documents import Document
 

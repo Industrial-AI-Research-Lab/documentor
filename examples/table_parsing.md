@@ -16,7 +16,7 @@ jupyter:
 Import of the class responsible for processing primary sheet documents.
 
 ```python
-from documentor.types.excel.parser import SheetParser
+from documentor.formats.excel.parser import SheetParser
 ```
 
 Initialization of the parser.

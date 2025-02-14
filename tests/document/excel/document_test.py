@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
 
-from documentor.types.excel.document import SheetDocument
-from documentor.types.excel.fragment import SheetFragment
+from documentor.formats.excel.document import SheetDocument
+from documentor.formats.excel.fragment import SheetFragment
 from tests.document.excel.parameters import DOCUMENT_PATH_PARAMETRIZER
 
 

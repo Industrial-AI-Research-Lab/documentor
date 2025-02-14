@@ -1,5 +1,5 @@
-from documentor.types.excel.parser import SheetParser
-from documentor.types.excel.document import SheetDocument
+from documentor.formats.excel.parser import SheetParser
+from documentor.formats.excel.document import SheetDocument
 
 from tests.document.excel.parameters import PARSER_WORK_PARAMETRIZER, PARSER_EXCEPTIONS_PARAMETRIZER
 

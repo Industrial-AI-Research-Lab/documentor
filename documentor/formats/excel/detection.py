@@ -10,7 +10,7 @@ from torch.optim import Adam
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 
-from documentor.types.excel.parser import SheetParser
+from documentor.formats.excel.parser import SheetParser
 
 
 class CustomDataset(Dataset):

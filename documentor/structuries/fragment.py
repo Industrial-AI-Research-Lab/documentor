@@ -1,5 +1,3 @@
-from typing import Any
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from types import UnionType

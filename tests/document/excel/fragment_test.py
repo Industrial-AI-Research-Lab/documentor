@@ -3,7 +3,7 @@ from datetime import datetime, date
 import pytest
 
 from documentor.structuries.custom_types import LabelType
-from documentor.types.excel.fragment import SheetFragment
+from documentor.formats.excel.fragment import SheetFragment
 from tests.document.excel.parameters import FRAGMENT_VALUES_PARAMETRIZER, FRAGMENT_POST_INIT_PARAMETRIZER, FRAGMENT_STR_PARAMETRIZER
 
 
