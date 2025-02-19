@@ -1,11 +1,13 @@
 from abc import abstractmethod
-from typing import Iterator
+from typing import Iterator, Optional
 
 from langchain_core.document_loaders import BaseBlobParser as LangChainBaseBlobParser
 from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 
 from documentor.parsers.extensions import Extension
+from loaders.logger import LoaderLogger
+from parsers.config import ParsingConfig
 
 
 class BaseBlobParser(LangChainBaseBlobParser):
@@ -13,6 +15,16 @@ class BaseBlobParser(LangChainBaseBlobParser):
     BaseParser - Abstract base class for all parsers.
     """
     _extensions: set[Extension]
+
+    def __init__(self, config: Optional[ParsingConfig] = None, logger: Optional[LoaderLogger] = None, **kwargs) -> None:
+        """
+        Initializes the parser.
+
+        Args:
+            config (Optional[ParsingConfig]): Configuration for the parser.
+        """
+        self.config = config or ParsingConfig()
+        self._logs = logger or LoaderLogger()
 
     @classmethod
     def extensions(cls) -> set[Extension]:

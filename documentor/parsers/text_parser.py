@@ -4,7 +4,6 @@ from typing import Iterator
 from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 
-from documentor.loaders.logger import LoaderLogger
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
 
@@ -20,20 +19,6 @@ class TextBlobParser(BaseBlobParser):
     """
     batch_lines = 0
     _extension = {DocExtension.txt}
-
-    def __init__(self, batch_lines: int = 0):
-        """
-        Initialize the TextBlobParser.
-
-        Args:
-            batch_lines (int): The number of lines which is one Document.
-                0 value means that whole text blob is one Document. Value should be greater than or equal to 0.
-            Defaults to 0.
-        """
-        if not isinstance(batch_lines, int) or batch_lines < 0:
-            raise ValueError("batch_lines must be a non-negative integer.")
-        self.batch_lines = batch_lines
-        self._logs = LoaderLogger()
 
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """

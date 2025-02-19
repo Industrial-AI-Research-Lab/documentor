@@ -1,14 +1,14 @@
 from io import BytesIO
 from itertools import chain, product
-from typing import Iterator
+from typing import Iterator, Optional
 
 import openpyxl
 import pandas as pd
 from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 
-from documentor.loaders.logger import LoaderLogger
 from documentor.parsers.base import BaseBlobParser
+from documentor.parsers.config import ParsingConfig, ParsingSchema
 from documentor.parsers.extensions import DocExtension
 
 
@@ -22,7 +22,7 @@ class ExcelBlobParser(BaseBlobParser):
 
     _extension = {DocExtension.xlsx, DocExtension.xls}
 
-    def __init__(self, parse_images: bool = False):
+    def __init__(self, config: Optional[ParsingConfig] = None, **kwargs):
         """
         Initialize the TextBlobParser.
 
@@ -31,11 +31,22 @@ class ExcelBlobParser(BaseBlobParser):
                 0 value means that whole text blob is one Document. Value should be greater than or equal to 0.
             Defaults to 0.
         """
-        self.parse_images = parse_images
-        self._logs = LoaderLogger()
+        config = config or ParsingConfig(
+            parsing_schema=ParsingSchema.pages,
+            extract_tables=True,
+            extract_formulas=True,
+            extract_images=False,
+        )
+        super().__init__(config=config, **kwargs)
 
-    def _create_document(self, content: str, file_name: str, source: str, file_type: str,
-                         sheet_name: str = None) -> Document:
+    def _create_document(
+            self,
+            content: str,
+            file_name: str,
+            source: str,
+            file_type: str,
+            sheet_name: str = None
+    ) -> Document:
         """
         Helper method to create a Document object.
 
@@ -96,7 +107,7 @@ class ExcelBlobParser(BaseBlobParser):
         """
         try:
             # Используем значение из конструктора, если не передано явно
-            should_parse_images = self.parse_images if parse_images is None else parse_images
+            should_parse_images = self.config.extract_images if parse_images is None else parse_images
 
             excel_data = BytesIO(blob.data)
             wb = openpyxl.load_workbook(excel_data, data_only=True)
