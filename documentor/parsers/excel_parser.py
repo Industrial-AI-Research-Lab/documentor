@@ -21,6 +21,7 @@ class ExcelBlobParser(BaseBlobParser):
     batch_lines = 0
 
     _extension = {DocExtension.xlsx, DocExtension.xls}
+    _available_parsing_schemas = {ParsingSchema.pages}
 
     def __init__(self, config: Optional[ParsingConfig] = None, **kwargs):
         """

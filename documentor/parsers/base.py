@@ -7,7 +7,7 @@ from langchain_core.documents.base import Blob
 
 from documentor.parsers.extensions import Extension
 from loaders.logger import LoaderLogger
-from parsers.config import ParsingConfig
+from parsers.config import ParsingConfig, ParsingSchema
 
 
 class BaseBlobParser(LangChainBaseBlobParser):
@@ -15,6 +15,7 @@ class BaseBlobParser(LangChainBaseBlobParser):
     BaseParser - Abstract base class for all parsers.
     """
     _extensions: set[Extension]
+    _available_parsing_schemas: set[ParsingSchema] = set()
 
     def __init__(self, config: Optional[ParsingConfig] = None, logger: Optional[LoaderLogger] = None, **kwargs) -> None:
         """
@@ -24,6 +25,8 @@ class BaseBlobParser(LangChainBaseBlobParser):
             config (Optional[ParsingConfig]): Configuration for the parser.
         """
         self.config = config or ParsingConfig()
+        if self.config.parsing_schema not in self._available_parsing_schemas:
+            raise ValueError(f"Invalid parsing scheme: {self.config.parsing_schema}")
         self._logs = logger or LoaderLogger()
 
     @classmethod
