@@ -3,7 +3,17 @@ from enum import Enum
 
 class ParsingSchema(Enum):
     """
-    The class provides a way to specify the parsing schema.
+    The class provides a way to specify the parsing schema. Each schema define atomic elements of the document.
+    So each document after parsing will be split into these elements and contain one or more of them in depend
+    on schema and parsing config.
+
+    Attributes:
+        lines - parse the document line by line
+        paragraphs - parse the document paragraph by paragraph
+        chapters - parse the document chapter by chapter
+        characters - parse the document character by character
+        pages - parse the document page by page
+        full - parse the document as a whole
     """
     paragraphs = 'paragraphs'
     lines = 'lines'

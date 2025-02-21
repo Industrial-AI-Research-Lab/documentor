@@ -107,7 +107,6 @@ class ExcelBlobParser(BaseBlobParser):
             Exception: if parsing fails
         """
         try:
-            # Используем значение из конструктора, если не передано явно
             should_parse_images = self.config.extract_images if parse_images is None else parse_images
 
             excel_data = BytesIO(blob.data)
