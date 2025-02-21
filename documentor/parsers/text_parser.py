@@ -4,9 +4,9 @@ from typing import Iterator
 from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 
-from documentor.loaders.logger import LoaderLogger
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
+from parsers.config import ParsingSchema
 
 
 class TextBlobParser(BaseBlobParser):
@@ -20,20 +20,7 @@ class TextBlobParser(BaseBlobParser):
     """
     batch_lines = 0
     _extension = {DocExtension.txt}
-
-    def __init__(self, batch_lines: int = 0):
-        """
-        Initialize the TextBlobParser.
-
-        Args:
-            batch_lines (int): The number of lines which is one Document.
-                0 value means that whole text blob is one Document. Value should be greater than or equal to 0.
-            Defaults to 0.
-        """
-        if not isinstance(batch_lines, int) or batch_lines < 0:
-            raise ValueError("batch_lines must be a non-negative integer.")
-        self.batch_lines = batch_lines
-        self._logs = LoaderLogger()
+    _available_parsing_schemas = {ParsingSchema.lines, ParsingSchema.full}
 
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
@@ -81,13 +68,16 @@ class TextBlobParser(BaseBlobParser):
         """
         try:
             text = blob.as_string()
-            if self.batch_lines == 0:
+            if self.config.parsing_schema == ParsingSchema.full:
                 yield self._build_document(text, 0, blob)
                 return
-            lines = text.splitlines(keepends=True)
-            batches = list(zip_longest(*([iter(lines)] * self.batch_lines), fillvalue=''))
-            for i, batch in enumerate(batches):
-                content = ''.join(batch)
-                yield self._build_document(content, i * self.batch_lines, blob)
+            elif self.config.parsing_schema == ParsingSchema.lines:
+                lines = text.splitlines(keepends=True)
+                batches = list(zip_longest(*([iter(lines)] * self.batch_lines), fillvalue=''))
+                for i, batch in enumerate(batches):
+                    content = ''.join(batch)
+                    yield self._build_document(content, i * self.batch_lines, blob)
+            else:
+                raise ValueError(f"Unsupported parsing schema: {self.config.parsing_schema}")
         except Exception as e:
             raise Exception(f"An error occurred: {e}") from e

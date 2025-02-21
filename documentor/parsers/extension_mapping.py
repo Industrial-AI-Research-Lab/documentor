@@ -3,6 +3,7 @@ from copy import deepcopy
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension, Extension
 from documentor.parsers.text_parser import TextBlobParser
+from parsers.excel_parser import ExcelBlobParser
 
 
 class ExtensionMapping:
@@ -23,6 +24,8 @@ class ExtensionMapping:
         if ext2parser is None:
             ext2parser = {
                 DocExtension.txt: TextBlobParser(),
+                DocExtension.xlsx: ExcelBlobParser(),
+                DocExtension.xls: ExcelBlobParser(),
             }
         self._ext2parser = deepcopy(ext2parser)
 
