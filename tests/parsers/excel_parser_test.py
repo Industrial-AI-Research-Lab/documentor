@@ -123,11 +123,11 @@ def test_excel_parser_complex_data(tmp_path):
         assert doc.metadata["extension"] == ".xlsx"
         assert "sheet_name" in doc.metadata
 
-def test_excel_parser_real_data():
+def test_excel_parser_real_data(data_dir):
     """
     Test to verify the parsing of an Excel file with multiple sheets
     """
-    file_path = Path("tests/parsers/data/test_excel.xlsx")
+    file_path = Path(f"{data_dir}/test_excel.xlsx")
     
     with open(file_path, 'rb') as f:
         blob = Blob(
@@ -152,12 +152,12 @@ def test_excel_parser_real_data():
         assert doc.metadata["extension"] == ".xlsx"
         assert "sheet_name" in doc.metadata
 
-def test_excel_parser_empty_sheet():
+def test_excel_parser_empty_sheet(data_dir):
     """
     Test to check the processing of an empty Excel sheet.
     The parser must skip empty sheets and not create documents for them.
     """
-    file_path = Path("tests/parsers/data/test_empty.xlsx")
+    file_path = Path(f"{data_dir}/test_empty.xlsx")
 
     # Create an Excel file with an empty sheet
     wb = openpyxl.Workbook()
@@ -205,7 +205,7 @@ def test_excel_parser_multiple_sheets(tmp_path):
     assert all(isinstance(doc, Document) for doc in documents)
     assert all(doc.page_content.strip() for doc in documents)
 
-def test_excel_parser_empty_and_data_sheets():
+def test_excel_parser_empty_and_data_sheets(data_dir):
     """
     Test to check the processing of an Excel file with different types of sheets:
     - empty sheets
@@ -215,7 +215,7 @@ def test_excel_parser_empty_and_data_sheets():
     
     Uses the real file test_excel.xlsx
     """
-    file_path = Path("tests/parsers/data/test_excel.xlsx")
+    file_path = Path(f"{data_dir}/test_excel.xlsx")
     
     with open(file_path, 'rb') as f:
         blob = Blob(

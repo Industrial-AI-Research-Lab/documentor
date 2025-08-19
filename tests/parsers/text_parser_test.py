@@ -125,10 +125,10 @@ def test_metadata_without_source_path():
     assert documents[0].metadata["file_type"] is None
 
 
-def test_parse_real_file():
+def test_parse_real_file(data_dir):
     """Test parsing a real file."""
     parser = TextBlobParser()
-    test_file_path = Path("tests/parsers/data/test_txt.txt")
+    test_file_path = Path(f"{data_dir}/test_txt.txt")
     
     # Checking that the file exists
     assert test_file_path.exists(), "Test file not found"

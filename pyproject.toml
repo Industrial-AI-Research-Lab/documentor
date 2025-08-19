@@ -7,7 +7,7 @@ license = "BSD 3-Clause License"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10"
 pandas = "^2.0.3"
 openpyxl = "^3.0.10"
 typing = "^3.7.4.3"

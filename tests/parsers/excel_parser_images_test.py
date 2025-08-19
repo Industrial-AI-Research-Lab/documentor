@@ -7,16 +7,16 @@ from documentor.parsers.excel_parser import ExcelBlobParser
 import os
 from PIL import Image
 
-def load_test_excel():
+def load_test_excel(data_dir):
     """Loads the test Excel file."""
-    test_file_path = Path("tests/parsers/data/test_excel.xlsx")
+    test_file_path = Path(f"{data_dir}/test_excel.xlsx")
     with open(test_file_path, "rb") as f:
         return Blob(data=f.read(), path=test_file_path)
 
 @pytest.fixture
-def sample_excel_blob():
+def sample_excel_blob(data_dir):
     """Fixture for providing the test Excel file."""
-    return load_test_excel()
+    return load_test_excel(data_dir)
 
 def test_parse_excel(sample_excel_blob):
     """Checks the parsing of textual data from the Excel file."""
