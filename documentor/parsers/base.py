@@ -6,8 +6,8 @@ from langchain_core.documents import Document
 from langchain_core.documents.base import Blob
 
 from documentor.parsers.extensions import Extension
-from loaders.logger import LoaderLogger
-from parsers.config import ParsingConfig, ParsingSchema
+from documentor.loaders.logger import LoaderLogger
+from documentor.parsers.config import ParsingConfig, ParsingSchema
 
 
 class BaseBlobParser(LangChainBaseBlobParser):

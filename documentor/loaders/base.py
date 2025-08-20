@@ -6,7 +6,7 @@ from langchain_core.document_loaders import BaseLoader as LangChainBaseLoader
 from langchain_core.documents import Document
 
 from documentor.loaders.logger import LoaderLogger
-from parsers.extension_mapping import ExtensionMapping
+from documentor.parsers.extension_mapping import ExtensionMapping
 
 
 class BaseLoader(LangChainBaseLoader, ABC):

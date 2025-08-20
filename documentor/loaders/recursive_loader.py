@@ -7,21 +7,21 @@ from langchain_core.documents.base import Blob
 from overrides import overrides
 
 from documentor.loaders.base import BaseLoader
-from parsers.extension_mapping import ExtensionMapping
-from parsers.extensions import ZIP_EXTENSIONS
+from documentor.parsers.extension_mapping import ExtensionMapping
+from documentor.parsers.extensions import ZIP_EXTENSIONS, DocExtension
 
 
 def get_extension(path: Path) -> str:
     """
-    Get the file extension.
+    Get the file extension including leading dot (e.g., '.txt').
 
     Args:
         path (Path): Path to the file.
 
     Returns:
-        str: File extension.
+        str: File extension with leading dot.
     """
-    return path.suffix.lower()[1:]
+    return path.suffix.lower()
 
 
 class RecursiveLoader(BaseLoader):
@@ -37,6 +37,7 @@ class RecursiveLoader(BaseLoader):
     def __init__(
             self,
             path: str | Path,
+            extension: Optional[list[str]] = None,
             extension_mapping: Optional[ExtensionMapping] = None,
             is_recursive: bool = True,
             use_unzip: bool = False,
@@ -47,6 +48,7 @@ class RecursiveLoader(BaseLoader):
 
         Args:
             path (Union[str, Path]): Path to the directory or file.
+            extension (Optional[list[str]]): A whitelist of file extensions to process (e.g., ["txt", "md", "zip"]).
             extension_mapping (Optional[ExtensionMapping]): Mapping of file extensions to parsers. Defaults to None.
             is_recursive (bool): Whether to traverse directories recursively. Defaults to True.
             use_unzip (bool): Whether to process ZIP files. Defaults to False.
@@ -55,6 +57,13 @@ class RecursiveLoader(BaseLoader):
 
         self.is_recursive = is_recursive
         self.use_unzip = use_unzip
+        # Normalize and store allowed extensions for quick checks
+        self._allowed_extensions: set[DocExtension] | None = None
+        if extension is not None:
+            self._allowed_extensions = set()
+            for ext in extension:
+                # Accept values both with and without leading dot
+                self._allowed_extensions.add(DocExtension.from_string(ext))
         # Parsers are now selected dynamically through extension_mapping, so creating them here is not necessary.
 
     @staticmethod
@@ -85,7 +94,7 @@ class RecursiveLoader(BaseLoader):
 
     def _is_valid_extension(self, path: Path) -> bool:
         """
-        Check if the file has a valid extension.
+        Check if the file has a valid extension considering allowed list and known parsers.
 
         Args:
             path (Path): Path to the file.
@@ -93,8 +102,12 @@ class RecursiveLoader(BaseLoader):
         Returns:
             bool: True if the file has a valid extension, False otherwise.
         """
-        file_extension = path.suffix.lower().lstrip('.')
-        return self._extension_mapping.is_valid_extension(file_extension)
+        ext = DocExtension.from_string(path.suffix)
+        # If a whitelist is provided, only allow those
+        if self._allowed_extensions is not None and ext not in self._allowed_extensions:
+            return False
+        # Consider as valid if a parser exists OR it's a plain text-like file we handle inline (txt/md)
+        return self._extension_mapping.is_valid_extension(ext) or ext in {DocExtension.txt, DocExtension.md}
 
     def _process_file(self, path: Path) -> Iterator[Document]:
         """
@@ -109,11 +122,23 @@ class RecursiveLoader(BaseLoader):
         self._logs.add_info(f"Reading file: {path}")
         try:
             blob = Blob.from_path(path)
-            file_extension = path.suffix.lower().lstrip('.')
-            parser = self._extension_mapping.get_parser(file_extension)
-            documents = parser.parse(blob)
-            for document in documents:
-                yield document
+            file_extension = DocExtension.from_string(path.suffix)
+            # Special handling for plain text files to return one Document per line
+            if file_extension in {DocExtension.txt, DocExtension.md}:
+                text = blob.as_string()
+                for line_number, line in enumerate(text.splitlines()):
+                    yield self._create_document(
+                        content=line.strip(),
+                        line_number=line_number,
+                        file_name=path.name,
+                        source=str(path),
+                        file_type=file_extension.value.lstrip('.')
+                    )
+            else:
+                parser = self._extension_mapping.get_parser(file_extension)
+                documents = parser.parse(blob)
+                for document in documents:
+                    yield document
         except ValueError as e:
             self._logs.add_warning(str(e))
         except RuntimeError as e:
@@ -163,14 +188,19 @@ class RecursiveLoader(BaseLoader):
         """
         pattern = '**/*' if self.is_recursive else '*'
         for path in self.path.glob(pattern):
-            if not path.is_dir():
+            if path.is_dir():
                 continue
 
             documents: Iterator[Document] = iter([])
+            ext = DocExtension.from_string(get_extension(path))
+            # Process regular files if extension is allowed
             if self._is_valid_extension(path):
                 documents = self._process_file(path)
-            elif self.use_unzip and get_extension(path) in ZIP_EXTENSIONS:
-                documents = self._process_zip(path)
+            # Process archives if enabled and allowed
+            elif self.use_unzip and ext in ZIP_EXTENSIONS:
+                # Respect whitelist if provided
+                if self._allowed_extensions is None or ext in self._allowed_extensions:
+                    documents = self._process_zip(path)
 
             for document in documents:
                 yield document

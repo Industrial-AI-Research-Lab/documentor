@@ -6,7 +6,7 @@ from langchain_core.documents.base import Blob
 
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
-from parsers.config import ParsingSchema
+from documentor.parsers.config import ParsingSchema
 
 
 class TextBlobParser(BaseBlobParser):
