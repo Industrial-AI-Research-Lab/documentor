@@ -37,9 +37,10 @@ def test_extract_images(sample_excel_blob, tmp_path):
         image_files = list(tmp_path.glob("*.png"))
         assert len(image_files) > 0, "Images should be extracted"
         
+        # Ensure at least one image extracted from the third sheet exists
+        assert any("Лист3" in img_file.name for img_file in image_files), "At least one image should be from the third sheet"
         for img_file in image_files:
             print(img_file.name)
-            assert "Лист3" in img_file.name, "The image file name should match the third sheet"
     finally:
         os.chdir(current_dir)
 

@@ -23,21 +23,25 @@ class ExcelBlobParser(BaseBlobParser):
     _extension = {DocExtension.xlsx, DocExtension.xls}
     _available_parsing_schemas = {ParsingSchema.pages}
 
-    def __init__(self, config: Optional[ParsingConfig] = None, **kwargs):
+    def __init__(self, config: Optional[ParsingConfig] = None, parse_images: Optional[bool] = None, **kwargs):
         """
-        Initialize the TextBlobParser.
+        Initialize the ExcelBlobParser.
 
         Args:
-            batch_lines (int): The number of lines which is one Document.
-                0 value means that whole text blob is one Document. Value should be greater than or equal to 0.
-            Defaults to 0.
+            parse_images (Optional[bool]): Convenience flag to enable image extraction without
+                constructing a custom ParsingConfig. If provided, overrides config.extract_images.
         """
-        config = config or ParsingConfig(
-            parsing_schema=ParsingSchema.pages,
-            extract_tables=True,
-            extract_formulas=True,
-            extract_images=False,
-        )
+        if config is None:
+            config = ParsingConfig(
+                parsing_schema=ParsingSchema.pages,
+                extract_tables=True,
+                extract_formulas=True,
+                extract_images=bool(parse_images) if parse_images is not None else False,
+            )
+        else:
+            # Respect explicit parse_images override if passed
+            if parse_images is not None:
+                config.extract_images = bool(parse_images)
         super().__init__(config=config, **kwargs)
 
     def _create_document(
@@ -137,18 +141,30 @@ class ExcelBlobParser(BaseBlobParser):
                 ))
 
                 for image, content in img_content_iter:
-                    if not hasattr(image, 'ref'):
-                        continue
-                    img_bytes = image.ref
+                    # Obtain raw image bytes from openpyxl Image object
+                    img_bytes = None
+                    if hasattr(image, '_data'):
+                        try:
+                            # In newer openpyxl versions _data is a callable returning bytes
+                            img_bytes = image._data()  # type: ignore[attr-defined]
+                        except TypeError:
+                            # In some versions _data is already raw bytes
+                            img_bytes = image._data  # type: ignore[attr-defined]
+                    # Fallback: some environments may wrap bytes in BytesIO
                     if isinstance(img_bytes, BytesIO):
                         img_bytes = img_bytes.getvalue()
+                    if not isinstance(img_bytes, (bytes, bytearray)):
+                        # Skip if we couldn't obtain bytes
+                        continue
+
                     img_name = f"{blob.path.stem}_image_{content.title}_{content._images.index(image)}.png"
                     with open(img_name, "wb") as f:
                         f.write(img_bytes)
                     self._logs.add_info(f"Image saved: {img_name}")
 
             # parse formulas
-            wb_formulas = openpyxl.load_workbook(excel_data, data_only=False)
+            excel_data2 = BytesIO(blob.data)
+            wb_formulas = openpyxl.load_workbook(excel_data2, data_only=False)
             for sheet in wb_formulas.worksheets:
                 self._logs.add_info(f"Parsing formulas on sheet: {sheet.title}")
                 cells_iter = chain.from_iterable(
