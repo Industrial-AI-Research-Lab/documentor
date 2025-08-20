@@ -1,11 +1,10 @@
 import pytest
 from pathlib import Path
 from langchain_core.documents import Document
-from documentor.parsers.excel_parser import ExcelBlobParser
+from parsers.excel.base import ExcelBlobParser
 from langchain_core.documents.base import Blob
 import openpyxl
-from PIL import Image
-import io
+
 
 def test_excel_parser_with_data(tmp_path):
     """

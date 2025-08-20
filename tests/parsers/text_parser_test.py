@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from langchain_core.documents.base import Blob
 
-from documentor.parsers.text_parser import TextBlobParser
+from parsers.txt.base import TextBlobParser
 from documentor.parsers.extensions import DocExtension
 
 

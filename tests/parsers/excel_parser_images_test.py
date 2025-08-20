@@ -1,9 +1,7 @@
 import pytest
-import openpyxl
-from io import BytesIO
 from pathlib import Path
 from langchain_core.documents.base import Blob
-from documentor.parsers.excel_parser import ExcelBlobParser
+from parsers.excel.base import ExcelBlobParser
 import os
 from PIL import Image
 

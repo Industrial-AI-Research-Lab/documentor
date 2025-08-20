@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 from langchain_core.documents.base import Blob
-from documentor.parsers.excel_parser import ExcelBlobParser
+from parsers.excel.base import ExcelBlobParser
 
 @pytest.fixture
 def sample_excel_blob_for_formulas(data_dir):
