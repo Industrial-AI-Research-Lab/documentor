@@ -11,12 +11,12 @@ from documentor.parsers.config import ParsingSchema
 
 class TextBlobParser(BaseBlobParser):
     """
-    Parser for text blobs.
+    Parser for plain-text blobs.
 
     Attributes:
-        batch_lines (int): The number of lines which is one Document.
-            0 value means that whole text blob is one Document.
-        _extension (set[DocExtension]): The set of file extensions associated with the parser. Not to be modified.
+        batch_lines (int): Number of lines to include in a single Document.
+            A value of 0 means the entire text blob is returned as one Document.
+        _extension (set[DocExtension]): Supported file extensions. Do not modify at runtime.
     """
     batch_lines = 0
     _extension = {DocExtension.txt}
@@ -24,10 +24,10 @@ class TextBlobParser(BaseBlobParser):
 
     def __init__(self, batch_lines: int = 0, **kwargs) -> None:
         """
-        Initialize TextBlobParser.
+        Initialize a TextBlobParser.
 
         Args:
-            batch_lines (int): Number of lines per Document. 0 means whole text.
+            batch_lines (int): Number of lines per Document. 0 means the whole text.
         """
         # Validate batch_lines
         if not isinstance(batch_lines, int):
@@ -39,19 +39,19 @@ class TextBlobParser(BaseBlobParser):
 
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
-        Helper method to create a Document object.
+        Create a Document with consistent metadata fields.
 
         Args:
-            content (str): Content of the document.
-            line_number (int): Line number in the file.
-            file_name (str): Name of the file.
-            source (str): Source path or identifier.
-            file_type (str): Type of the file.
+            content (str): Text content of the document.
+            line_number (int): Starting line number within the file.
+            file_name (str): Name of the file or None.
+            source (str): Full source path or identifier or None.
+            file_type (str): File extension (e.g., ".txt") or None.
 
         Returns:
             Document: The created document.
         """
-        # TODO decide which metadata should be used
+        # TODO: decide which metadata set should be used globally
         return Document(
             page_content=content,
             metadata={
@@ -64,7 +64,7 @@ class TextBlobParser(BaseBlobParser):
 
     def _build_document(self, content: str, line_number: int, blob: Blob) -> Document:
         """
-        Internal helper to remove repeated argument setup for _create_document.
+        Build a Document by extracting file-related metadata from the Blob.
         """
         file_name = blob.path.name if blob.path else None
         source = str(blob.path) if blob.path else None
@@ -73,13 +73,13 @@ class TextBlobParser(BaseBlobParser):
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """
-        Lazy parsing of text blobs.
+        Lazily parse a text blob into one or more Document objects.
 
         Args:
-            blob (Blob): A Blob object containing the text data.
+            blob (Blob): A blob containing the raw text data.
 
         Yields:
-            Document: A Document object containing the parsed data.
+            Document: Parsed document chunks.
         """
         try:
             text = blob.as_string()
@@ -95,4 +95,5 @@ class TextBlobParser(BaseBlobParser):
                 content = ''.join(batch)
                 yield self._build_document(content, start, blob)
         except Exception as e:
-            raise Exception(f"An error occurred: {e}") from e
+            cls_name = self.__class__.__name__
+            raise Exception(f"{cls_name} failed to parse blob: {e}") from e

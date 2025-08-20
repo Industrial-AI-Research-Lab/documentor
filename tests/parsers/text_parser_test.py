@@ -177,3 +177,34 @@ def test_parse_real_file(data_dir):
     # Check that line_number is correct for each document
     for i, doc in enumerate(documents):
         assert doc.metadata["line_number"] == i * 3
+
+
+@pytest.mark.parametrize(
+    "lines,batch_lines,expected_chunks,expected_first_line",
+    [
+        (0, 0, 1, 0),   # empty content, whole blob
+        (1, 0, 1, 0),   # single line, whole blob
+        (5, 2, 3, 0),   # 5 lines by 2 -> 3 chunks, first starts at 0
+        (6, 3, 2, 0),   # exact division
+        (7, 4, 2, 0),   # remainder
+    ],
+)
+
+def test_param_batched_scenarios(lines, batch_lines, expected_chunks, expected_first_line):
+    """
+    Parameterized coverage for different line counts and batch sizes.
+    Ensures chunk count and first chunk metadata are correct.
+    """
+    content = "" if lines == 0 else "\n".join([f"L{i+1}" for i in range(lines)])
+    blob = create_test_blob(content)
+    parser = TextBlobParser(batch_lines=batch_lines)
+    documents = list(parser.lazy_parse(blob))
+
+    assert len(documents) == expected_chunks
+    assert documents[0].metadata["line_number"] == expected_first_line
+
+    # Validate that concatenating chunks reproduces the original (for non-zero batch or zero meaning whole)
+    rebuilt = "".join(doc.page_content for doc in documents).replace("\r\n", "\n")
+    expected = content
+    # When batch==0 we produce the original exactly as one chunk
+    assert rebuilt.replace("\r\n", "\n") == expected

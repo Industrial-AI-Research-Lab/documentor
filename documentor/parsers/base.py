@@ -12,44 +12,44 @@ from documentor.parsers.config import ParsingConfig, ParsingSchema
 
 class BaseBlobParser(LangChainBaseBlobParser):
     """
-    BaseParser - Abstract base class for all parsers.
+    Abstract base class for all blob parsers.
     """
     _extensions: set[Extension]
     _available_parsing_schemas: set[ParsingSchema] = set()
 
     def __init__(self, config: Optional[ParsingConfig] = None, logger: Optional[LoaderLogger] = None, **kwargs) -> None:
         """
-        Initializes the parser.
+        Initialize a parser instance.
 
         Args:
-            config (Optional[ParsingConfig]): Configuration for the parser.
+            config (Optional[ParsingConfig]): Parser configuration with the desired parsing schema and options.
         """
         self.config = config or ParsingConfig()
         if self.config.parsing_schema not in self._available_parsing_schemas:
-            raise ValueError(f"Invalid parsing scheme: {self.config.parsing_schema}")
+            raise ValueError(f"Invalid parsing schema: {self.config.parsing_schema}")
         self._logs = logger or LoaderLogger()
 
     @classmethod
     def extensions(cls) -> set[Extension]:
         """
-        Returns the file extension associated with the parser.
+        Return the set of file extensions associated with this parser.
 
         Returns:
-            set[Extension]: The file extension associated with the parser.
+            set[Extension]: Supported file extensions.
         """
         return cls._extensions
 
     @abstractmethod
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
-        Helper method to create a Document object.
+        Create a Document object with unified metadata.
 
         Args:
-            content (str): Content of the document.
-            line_number (int): Line number in the file.
-            file_name (str): Name of the file.
-            source (str): Source path or identifier.
-            file_type (str): Type of the file.
+            content (str): Text content of the document.
+            line_number (int): Starting line number within the source.
+            file_name (str): Source file name.
+            source (str): Full source path or identifier.
+            file_type (str): File extension including the leading dot.
 
         Returns:
             Document: The created document.
@@ -59,12 +59,12 @@ class BaseBlobParser(LangChainBaseBlobParser):
     @abstractmethod
     def _build_document(self, content: str, line_number: int, blob: Blob) -> Document:
         """
-        Internal helper to remove repeated argument setup for _create_document.
+        Prepare a Document by deriving metadata from the given Blob.
 
         Args:
-            content (str): Content of the document.
-            line_number (int): Line number in the file.
-            blob (Blob): A Blob object containing the raw data to be parsed.
+            content (str): Text content of the document.
+            line_number (int): Starting line number within the source.
+            blob (Blob): Raw data container to be parsed.
 
         Returns:
             Document: A Document object containing the parsed data.
@@ -73,13 +73,13 @@ class BaseBlobParser(LangChainBaseBlobParser):
 
     @abstractmethod
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
-        """kwargs
-        Parses the raw data from a Blob object into one or more Document objects.
+        """
+        Parse the raw data from a Blob into one or more Document objects.
 
         Args:
-            blob (Blob): A Blob object containing the raw data to be parsed.
+            blob (Blob): Raw data container to be parsed.
 
-        Returns:
-            Document: A Document object containing the parsed data.
+        Yields:
+            Document: Documents produced from the blob.
         """
         raise NotImplementedError("Subclasses must implement lazy_parse method")
