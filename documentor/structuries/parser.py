@@ -20,13 +20,16 @@ class DocumentParser(ABC):
     @abstractmethod
     def parse_file(self, path: str) -> pd.DataFrame:
         """
-        Parse file and pandas DataFrame with data about fragments.
+        Parse file and return a pandas DataFrame with data about fragments.
 
-        :param path: path to file
-        :type path: str
-        :return: Document object
-        :rtype: Document
-        :raises ExtensionException: if file extension is not supported
-        :raises OSError: if file is not found or can't be opened
+        Args:
+            path (str): Path to the file.
+
+        Returns:
+            pd.DataFrame: DataFrame with data about fragments.
+
+        Raises:
+            ExtensionException: If file extension is not supported.
+            OSError: If file is not found or can't be opened.
         """
         pass

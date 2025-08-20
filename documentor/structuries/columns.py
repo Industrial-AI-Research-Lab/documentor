@@ -5,14 +5,13 @@ from types import UnionType
 @dataclass
 class ColumnType:
     """
-    Class for checking type of column in DataFrame.
+    Class for checking the type of a column in a DataFrame.
 
-    If type is None or UnionType with None, then column is not required (required=False).
+    If type is None or a UnionType including None, then the column is not required (required=False).
 
-    :param type: expected type of column or several types in form of UnionType
-    :type type: type | UnionType
-    :param required: if column is required or not
-    :type required: bool | None
+    Args:
+        type (type | UnionType): Expected type of the column or a Union of types.
+        required (bool | None, optional): Whether the column is required. Defaults to True.
     """
     type: type | UnionType
     required: bool | None = True

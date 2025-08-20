@@ -26,8 +26,8 @@ class FragmentInterface(ABC):
         """
         String representation of fragment's value.
 
-        :return: value of fragment
-        :rtype: str
+        Returns:
+            str: Value of the fragment.
         """
         pass
 
@@ -36,8 +36,8 @@ class FragmentInterface(ABC):
         """
         Get parameters of the fragment.
 
-        :return: parameters of the fragment
-        :rtype: dict
+        Returns:
+            dict[str, Any]: Parameters of the fragment.
         """
         pass
 
@@ -47,8 +47,8 @@ class FragmentInterface(ABC):
         """
         Get types of parameters of the fragment.
 
-        :return: types of parameters of the fragment
-        :rtype: dict[str, type | UnionType]
+        Returns:
+            dict[str, type | UnionType]: Types of parameters of the fragment.
         """
         pass
 
@@ -56,20 +56,15 @@ class FragmentInterface(ABC):
 @dataclass
 class Fragment(FragmentInterface):
     """
-    Class for simple realization of FragmentInterface for text fragments, which have only value.
+    Simple implementation of FragmentInterface for text fragments that have only value.
 
-    :param value: value of the fragment
-    :type value: str
-    :param ground_truth: ground truth label of the fragment, if it is labeled
-    :type ground_truth: Optional[LabelType]
-    :param label: label of the fragment from classification
-    :type label: Optional[LabelType]
-    :param vector: vector representation of the fragment
-    :type vector: Optional[VectorType]
-    :param tokens: list of tokens of the fragment
-    :type tokens: Optional[list[str]]
-    :param token_vectors: list of vectors of tokens of the fragment
-    :type token_vectors: Optional[list[VectorType]]
+    Args:
+        value (str): Value of the fragment.
+        ground_truth (LabelType | None, optional): Ground truth label of the fragment if it is labeled. Defaults to None.
+        label (LabelType | None, optional): Label of the fragment from classification. Defaults to None.
+        vector (VectorType | None, optional): Vector representation of the fragment. Defaults to None.
+        tokens (list[str] | None, optional): List of tokens of the fragment. Defaults to None.
+        token_vectors (list[VectorType] | None, optional): List of vectors of tokens of the fragment. Defaults to None.
     """
     value: str
     ground_truth: LabelType | None = None

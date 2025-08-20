@@ -35,28 +35,27 @@ class TypeChecker(metaclass=StaticClassMeta):
     @staticmethod
     def check_simple_type(obj: Any, expected_type: type | UnionType) -> None:
         """
-        Check if object is of expected type.
+        Check that an object is of the expected type.
 
-        :param obj: object to check
-        :type obj: Any
-        :param expected_type: expected type
-        :type expected_type: type | UnionType
-        :return:
-        :rtype: None
-        :raises TypeError: if object is not of expected type
+        Args:
+            obj (Any): Object to check.
+            expected_type (type | UnionType): Expected type.
+
+        Raises:
+            TypeError: If object is not of the expected type.
         """
         TypeChecker._raise_if_not_expected_type(obj, expected_type)
 
     @staticmethod
     def check_str(s: Any) -> None:
         """
-        Check if object is of type str.
+        Check that an object is of type str.
 
-        :param s: object to check
-        :type s: Any
-        :return:
-        :rtype: None
-        :raises TypeError: if object is not of type str
+        Args:
+            s (Any): Object to check.
+
+        Raises:
+            TypeError: If object is not of type str.
         """
         TypeChecker.check_simple_type(s, str)
 

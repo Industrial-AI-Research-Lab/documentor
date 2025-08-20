@@ -14,9 +14,10 @@ class StructureFinder(ABC):
         """
         Find structure in the document.
 
-        :param doc: the document
-        :type doc: Document
-        :return: DocumentStructure object with structure of the document
-        :rtype: DocumentStructure
+        Args:
+            doc (Document): The document to analyze.
+
+        Returns:
+            DocumentStructure: Structure of the document.
         """
         pass

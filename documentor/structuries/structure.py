@@ -22,17 +22,16 @@ class StructureNode(ABC):
         """
         Get all fragments of the node and its children.
 
-        :return: list of fragments
-        :rtype: list[TextFragment]
+        Returns:
+            list[Fragment]: List of fragments.
         """
     @property
     def children(self) -> Optional[list['StructureNode']]:
         """
-        Get children nodes of the node, if the node has children.
-        Otherwise, return None.
+        Get children nodes of the node, if the node has children. Otherwise, return None.
 
-        :return: children of the node or None
-        :rtype: list[StructureNode] | None
+        Returns:
+            list[StructureNode] | None: Children of the node or None.
         """
         if self._children is None:
             return None
