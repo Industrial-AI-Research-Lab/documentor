@@ -10,12 +10,36 @@ from documentor.structuries.fragment import Fragment
 @dataclass(frozen=True)
 class StructureNode(ABC):
     """
-    Class for nodes with elements of hierarchical structure of document.
+    Class for nodes with elements of the hierarchical structure of a document.
     """
     _children: Optional[list['StructureNode']] = None
     _parents: Optional[list['StructureNode']] = None
     _value: Optional[pd.Series] = None
+    _fragment: Optional[Fragment] = None
 
+    @property
+    @abstractmethod
+    def next(self) -> Optional['StructureNode']:
+        """
+        Returns the next hierarchical structure node on the same level.
+
+        Returns:
+            next hierarchical structure node
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def previous(self) -> Optional['StructureNode']:
+        """
+        Returns the previous hierarchical structure node on the same level.
+
+        Returns:
+            previous hierarchical structure node
+        """
+        pass
+
+    @property
     @property
     @abstractmethod
     def fragments(self) -> list[Fragment]:
@@ -25,10 +49,12 @@ class StructureNode(ABC):
         Returns:
             list[Fragment]: List of fragments.
         """
+        pass
+
     @property
     def children(self) -> Optional[list['StructureNode']]:
         """
-        Get children nodes of the node, if the node has children. Otherwise, return None.
+        Get children nodes of the node if the node has children. Otherwise, return None.
 
         Returns:
             list[StructureNode] | None: Children of the node or None.
@@ -37,8 +63,11 @@ class StructureNode(ABC):
             return None
         return self._children
 
+    @property
+    def value(self) -> Optional[Fragment]:
+        return self._value
+
 
 @dataclass(frozen=True)
 class DocumentStructure:
     root: StructureNode
-

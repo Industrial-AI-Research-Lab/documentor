@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from types import UnionType
-from typing import Any
+from typing import Any, Optional
 
 from overrides import overrides
 
-from documentor.structuries.custom_types import LabelType, VectorType
-from documentor.structuries.type_check import TypeChecker as tc
+from documentor.structuries.custom_types import LabelType
 
 
 class FragmentInterface(ABC):
@@ -18,13 +17,14 @@ class FragmentInterface(ABC):
     - a table cell
     - a log entry
     - a sentence or paragraph of a document with a string value and parameters.
+    - image in a document
     """
     value: str
 
     @abstractmethod
     def __str__(self) -> str:
         """
-        String representation of fragment's value.
+        String representation of a fragment's value.
 
         Returns:
             str: Value of the fragment.
@@ -48,7 +48,7 @@ class FragmentInterface(ABC):
         Get types of parameters of the fragment.
 
         Returns:
-            dict[str, type | UnionType]: Types of parameters of the fragment.
+            dict[str, type | UnionType]: Types out of parameters of the fragment.
         """
         pass
 
@@ -60,32 +60,16 @@ class Fragment(FragmentInterface):
 
     Args:
         value (str): Value of the fragment.
-        ground_truth (LabelType | None, optional): Ground truth label of the fragment if it is labeled. Defaults to None.
         label (LabelType | None, optional): Label of the fragment from classification. Defaults to None.
-        vector (VectorType | None, optional): Vector representation of the fragment. Defaults to None.
-        tokens (list[str] | None, optional): List of tokens of the fragment. Defaults to None.
-        token_vectors (list[VectorType] | None, optional): List of vectors of tokens of the fragment. Defaults to None.
     """
-    value: str
-    ground_truth: LabelType | None = None
+    value: Any
     label: LabelType | None = None
-    vector: VectorType | None = None
-    tokens: list[str] | None = None
-    token_vectors: list[VectorType] | None = None
+    page: Optional[str] = None
 
-    def __post_init__(self) -> None:
-        # TODO: add type checking for complex types
-        tc.check_str(self.value)
-        # tc.check_simple_type(self.ground_truth, str | int | list | None)
-        # tc.check_simple_type(self.label, str | int | list | None)
-        # tc.check_simple_type(self.vector, list | None)
-        # tc.check_simple_type(self.tokens, list | None)
-        # tc.check_simple_type(self.token_vectors, list | None)
-        pass
 
     @overrides
     def __str__(self) -> str:
-        return self.value
+        return str(self.value)
 
     @overrides
     def to_dict(self) -> dict[str, Any]:

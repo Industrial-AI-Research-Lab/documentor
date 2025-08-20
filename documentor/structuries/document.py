@@ -73,11 +73,7 @@ class Document(DocumentInterface):
             Required columns:
                 - value: Value of the fragment.
             Optional columns used for initialization:
-                - ground_truth: Ground truth label of the fragment if it is labeled.
                 - label: Label of the fragment from classification.
-                - vector: Vector representation of the fragment.
-                - tokens: List of tokens of the fragment.
-                - token_vectors: List of vectors of tokens of the fragment.
         """
         tc.check_data_frame_type(data)
         # tc.check_data_frame_columns(data, self._columns)
