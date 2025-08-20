@@ -22,6 +22,21 @@ class TextBlobParser(BaseBlobParser):
     _extension = {DocExtension.txt}
     _available_parsing_schemas = {ParsingSchema.lines, ParsingSchema.full}
 
+    def __init__(self, batch_lines: int = 0, **kwargs) -> None:
+        """
+        Initialize TextBlobParser.
+
+        Args:
+            batch_lines (int): Number of lines per Document. 0 means whole text.
+        """
+        # Validate batch_lines
+        if not isinstance(batch_lines, int):
+            raise ValueError("batch_lines must be an integer")
+        if batch_lines < 0:
+            raise ValueError("batch_lines must be non-negative")
+        self.batch_lines = batch_lines
+        super().__init__(**kwargs)
+
     def _create_document(self, content: str, line_number: int, file_name: str, source: str, file_type: str) -> Document:
         """
         Helper method to create a Document object.
@@ -68,16 +83,16 @@ class TextBlobParser(BaseBlobParser):
         """
         try:
             text = blob.as_string()
-            if self.config.parsing_schema == ParsingSchema.full:
+            # If batch_lines is 0, return the whole text as a single document
+            if self.batch_lines == 0:
                 yield self._build_document(text, 0, blob)
                 return
-            elif self.config.parsing_schema == ParsingSchema.lines:
-                lines = text.splitlines(keepends=True)
-                batches = list(zip_longest(*([iter(lines)] * self.batch_lines), fillvalue=''))
-                for i, batch in enumerate(batches):
-                    content = ''.join(batch)
-                    yield self._build_document(content, i * self.batch_lines, blob)
-            else:
-                raise ValueError(f"Unsupported parsing schema: {self.config.parsing_schema}")
+
+            # Otherwise, split by lines into batches of size batch_lines
+            lines = text.splitlines(keepends=True)
+            for start in range(0, len(lines), self.batch_lines):
+                batch = lines[start:start + self.batch_lines]
+                content = ''.join(batch)
+                yield self._build_document(content, start, blob)
         except Exception as e:
             raise Exception(f"An error occurred: {e}") from e
