@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.fragment import TextFragment
 
 
 @dataclass(frozen=True)
@@ -15,7 +15,7 @@ class StructureNode(ABC):
     _children: Optional[list['StructureNode']] = None
     _parents: Optional[list['StructureNode']] = None
     _value: Optional[pd.Series] = None
-    _fragment: Optional[Fragment] = None
+    _fragment: Optional[TextFragment] = None
 
     @property
     @abstractmethod
@@ -42,12 +42,12 @@ class StructureNode(ABC):
     @property
     @property
     @abstractmethod
-    def fragments(self) -> list[Fragment]:
+    def fragments(self) -> list[TextFragment]:
         """
         Get all fragments of the node and its children.
 
         Returns:
-            list[Fragment]: List of fragments.
+            list[TextFragment]: List of fragments.
         """
         pass
 
@@ -64,7 +64,7 @@ class StructureNode(ABC):
         return self._children
 
     @property
-    def value(self) -> Optional[Fragment]:
+    def value(self) -> Optional[TextFragment]:
         return self._value
 
 

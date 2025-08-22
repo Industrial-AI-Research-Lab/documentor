@@ -4,7 +4,7 @@ import pandas as pd
 
 from documentor.structuries.columns import ColumnType
 from documentor.structuries.document import Document
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.fragment import TextFragment
 from documentor.structuries.structure import StructureNode, DocumentStructure
 from documentor.formats.excel.fragment import SheetFragment
 
@@ -32,16 +32,16 @@ class SheetDocument(Document):
         List of fragments of Document.
 
         :return: list of fragments
-        :rtype: list[Fragment]
+        :rtype: list[TextFragment]
         """
         return [SheetFragment(**d) for d in self._data.to_dict('records')]
 
-    def iter_all(self) -> Iterator[Fragment]:
+    def iter_all(self) -> Iterator[TextFragment]:
         """
         Iterate over all fragments of the Document.
 
         :return: the document fragments
-        :rtype: Iterator[Fragment]
+        :rtype: Iterator[TextFragment]
         """
         for fragment in self.build_fragments:
             yield fragment

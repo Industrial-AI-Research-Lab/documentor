@@ -5,7 +5,7 @@ import pandas as pd
 from overrides import overrides
 
 from documentor.structuries.columns import ColumnType
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.fragment import TextFragment
 
 from documentor.structuries.structure import StructureNode, DocumentStructure
 from documentor.structuries.type_check import TypeChecker as tc
@@ -17,7 +17,7 @@ class DocumentInterface(ABC):
     """
 
     @abstractmethod
-    def build_fragments(self) -> list[Fragment]:
+    def build_fragments(self) -> list[TextFragment]:
         """
         List of fragments of the Document.
 
@@ -25,7 +25,7 @@ class DocumentInterface(ABC):
             If speed is important, prefer using iter_rows().
 
         Returns:
-            list[Fragment]: List of fragments.
+            list[TextFragment]: List of fragments.
         """
         pass
 
@@ -58,7 +58,7 @@ class Document(DocumentInterface):
     which contain same column names as Fragment class field names.
     """
     _data: pd.DataFrame
-    _columns: dict[str, ColumnType] = {field: ColumnType(type) for field, type in Fragment.param_types_dict().items()}
+    _columns: dict[str, ColumnType] = {field: ColumnType(type) for field, type in TextFragment.param_types_dict().items()}
     _root: StructureNode | None = None
     _structure: DocumentStructure | None = None
 
@@ -81,7 +81,7 @@ class Document(DocumentInterface):
         self._data = data[columns].copy()
 
     @overrides
-    def build_fragments(self) -> list[Fragment]:
+    def build_fragments(self) -> list[TextFragment]:
         """
         List of fragments of the Document.
 
@@ -89,9 +89,9 @@ class Document(DocumentInterface):
             If speed is important, prefer using iter_rows().
 
         Returns:
-            list[Fragment]: List of fragments.
+            list[TextFragment]: List of fragments.
         """
-        return [Fragment(**row.to_dict()) for _, row in self._data.iterrows()]
+        return [TextFragment(**row.to_dict()) for _, row in self._data.iterrows()]
 
     @overrides
     def iter_rows(self) -> Iterator[tuple[int, pd.Series]]:

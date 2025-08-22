@@ -1,7 +1,7 @@
 import pandas as pd
 
 from documentor.structuries.document import Document
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.fragment import TextFragment
 
 
 def init_document(simple_document: pd.DataFrame) -> tuple[Document, pd.DataFrame]:
@@ -27,7 +27,7 @@ def test_build_fragments(simple_document):
     fragments = document.build_fragments()
 
     assert len(fragments) == 2
-    assert isinstance(fragments[0], Fragment)
+    assert isinstance(fragments[0], TextFragment)
     assert fragments[0].value == 'value1'
     assert fragments[1].value == 'value2'
 

@@ -1,4 +1,4 @@
-from documentor.structuries.fragment import Fragment
+from documentor.structuries.fragment import TextFragment
 
 FRAGMENT_POST_INIT_PARAMETRIZER = [
     # Test when all params are None
@@ -75,9 +75,9 @@ FRAGMENT_POST_INIT_PARAMETRIZER = [
 ]
 
 FRAGMENT_STR_PARAMETRIZER = [
-    (Fragment(value="Hello World"), "Hello World"),
-    (Fragment(value="12345"), "12345"),
-    (Fragment(value=""), "")
+    (TextFragment(value="Hello World"), "Hello World"),
+    (TextFragment(value="12345"), "12345"),
+    (TextFragment(value=""), "")
 ]
 
 FRAGMENT_VALUES_PARAMETRIZER = [
