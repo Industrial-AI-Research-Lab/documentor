@@ -3,11 +3,12 @@ from typing import Any
 
 from overrides import overrides
 
-from documentor.structuries.fragment.base import FragmentInterface
+from documentor.structuries.fragment.base import Fragment
+from structuries.fragment.description import PARAGRAPH
 
 
 @dataclass
-class TextFragment(FragmentInterface):
+class TextFragment(Fragment):
     """
     Implementation for general text fragments that have only str value.
 
@@ -15,6 +16,7 @@ class TextFragment(FragmentInterface):
         value (str): Value of the fragment.
     """
     value: str
+    description: str = ""
 
 
     @overrides
@@ -26,34 +28,9 @@ class TextFragment(FragmentInterface):
         return {field: getattr(self, field) for field in self.__annotations__.keys()}
 
 @dataclass
-class HeaderFragment(TextFragment):
-    """
-    Implementation for header text fragments that have only str value.
-    """
-    font_size: int | None = None
-    level: int | None = None
-
-class TitleFragment(HeaderFragment):
-    """
-    Implementation for the title of the document.
-    """
-    pass
-
-
-class ColumnHeaderFragment(HeaderFragment):
-    """
-    Implementation for column header (column number) text fragments that have only str value.
-    """
-    pass
-
-class ListingFragment(TextFragment):
-    """
-    Implementation for listing text fragments that have only str value.
-    """
-    pass
-
 class ParagraphFragment(TextFragment):
     """
     Implementation for paragraph text fragments that have only str value.
     """
+    description: str = PARAGRAPH
     pass

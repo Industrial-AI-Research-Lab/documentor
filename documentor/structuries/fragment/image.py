@@ -4,16 +4,16 @@ from io import BytesIO
 
 from dataclasses import dataclass
 
-from documentor.structuries.fragment import FragmentInterface
+from documentor.structuries.fragment import Fragment
 from documentor.structuries.fragment.description import IMAGE
 
 
 @dataclass
-class ImageFragment(FragmentInterface):
+class ImageFragment(Fragment):
     """
     Implementation for image fragments that have an image value.
     """
-    value: Image
+    value: Image.Image
     format: str = "PNG"
     encoding: str = "utf-8"
     description: str = IMAGE
@@ -43,7 +43,12 @@ class ImageFragment(FragmentInterface):
         }
 
     @staticmethod
-    def from_base64(b64_string: str, format: str = "PNG", encoding: str = "utf-8") -> 'ImageFragment':
+    def from_base64(
+            b64_string: str,
+            format: str = "PNG",
+            encoding: str = "utf-8",
+            description: str = IMAGE,
+    ) -> 'ImageFragment':
         """
         Create an ImageFragment from a base64 encoded string.
 
@@ -51,12 +56,11 @@ class ImageFragment(FragmentInterface):
             b64_string (str): Base64 encoded string of the image.
             format (str, optional): Format of the image. Defaults to "PNG".
             encoding (str, optional): Encoding of the base64 string. Defaults to "utf-8".
+            description (str, optional): Description of the image fragment for llm. Defaults to IMAGE.
 
         Returns:
             ImageFragment: An instance of ImageFragment.
         """
         image_data = base64.b64decode(b64_string.encode(encoding))
-        image = Image.open(BytesIO(image_data))
-        return ImageFragment(value=image, format=format, encoding=encoding)
-
-
+        image: Image.Image = Image.open(BytesIO(image_data))
+        return ImageFragment(value=image, format=format, encoding=encoding, description=description)

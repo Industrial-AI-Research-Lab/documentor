@@ -5,11 +5,11 @@ from typing import Any
 from overrides import overrides
 
 from documentor.structuries.custom_types import LabelType
-from documentor.structuries.fragment import FragmentInterface
+from documentor.structuries.fragment import Fragment
 
 
 @dataclass
-class SheetFragment(FragmentInterface):
+class SheetFragment(Fragment):
     """
     Class for fragments of sheet format document.
     Each fragment represents a cell of a sheet.

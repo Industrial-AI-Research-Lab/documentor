@@ -1,14 +1,24 @@
 from dataclasses import dataclass
 from typing import Any
 
-from documentor.structuries.fragment import FragmentInterface
+from documentor.structuries.fragment import Fragment
 from documentor.structuries.fragment.description import TABLE
+from structuries.fragment import ImageFragment
 
 
 @dataclass
-class TableFragment(FragmentInterface):
+class ImageTableFragment(ImageFragment):
+    """
+    Implementation for table fragments that have an image value.
+    Each instance of this class represents a table in the image.
+    """
+    description: str = TABLE
+
+@dataclass
+class TableFragment(Fragment):
     """
     Implementation for table fragments that have a 2D list value.
+    Each instance of this class represents a table in the document.
     """
     value: list[list[Any]]
     value_types: list[list[type]] | None = None
@@ -61,4 +71,3 @@ class TableFragment(FragmentInterface):
                 }
                 all_params.append(cell_param)
         return all_params
-

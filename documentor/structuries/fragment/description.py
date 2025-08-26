@@ -145,3 +145,33 @@ Slightly cropped or skewed margin areas due to scanning.
 Boundary preference:
 Include only the marginal strip(s) (top and/or bottom) containing the repeating metadata; exclude nearby body text and footnotes.
 """
+
+HEADER = """
+Object: “Heading / Title region” on a scanned document page
+A short line (or small block) of display text that names a document, section, or subsection.
+Visual/structural cues (positive):
+Font size larger than body text and/or increased weight (bold), small caps, or distinctive typeface; often centered or left-aligned with extra whitespace above/below.
+Numbering patterns: “1”, “1.1”, “A.”, “I.”, “Chapter 3”, “Section 2”, “Appendix A”; Russian analogs: “Глава 3”, “Раздел 2”, “Приложение A”.
+Case/typography cues: Title Case, ALL CAPS, or small caps; no end-of-line hyphenation.
+Positioned at the top of a page/column or immediately preceding a paragraph; may include decorative rules above/below.
+Common heading tokens across major languages (non-exhaustive):
+English: “Abstract”, “Introduction”, “Methods”, “Results”, “Conclusion(s)”, “References”
+Russian: “Аннотация”, “Введение”, “Методы/Методика”, “Результаты”, “Заключение”, “Литература/Ссылки”
+Chinese (简体): “摘要”, “引言”, “方法”, “结果”, “结论”, “参考文献”
+Spanish: “Resumen”, “Introducción”, “Métodos”, “Resultados”, “Conclusiones”, “Referencias”
+Arabic: “الملخص”, “المقدمة”, “الطرق/المنهجية”, “النتائج”, “الخاتمة”, “المراجع”
+French: “Résumé”, “Introduction”, “Méthodes”, “Résultats”, “Conclusion”, “Références”
+German: “Zusammenfassung”, “Einleitung”, “Methoden”, “Ergebnisse”, “Fazit/Schlussfolgerung”, “Literatur”
+Portuguese: “Resumo”, “Introdução”, “Métodos”, “Resultados”, “Conclusão”, “Referências”
+Hindi: “सारांश”, “परिचय”, “विधियाँ”, “परिणाम”, “निष्कर्ष”, “संदर्भ”
+Exclusions (negative cues):
+Figure/table captions (begin with tokens like “Figure/Fig./Table”, “Рис.”, “Таблица”, “图/表”, “شكل/جدول”) aligned to a nearby visual or grid.
+Running headers/footers, page numbers, footnotes, watermarks.
+Standalone labels inside figures/diagrams.
+Edge cases to still count as headings:
+Two-line headings (main title + subtitle) with consistent display style.
+Number-only headings followed by a separate title line.
+Section markers with leading icons or ornaments.
+Boundary preference:
+Include the full display line(s) comprising the heading and any directly attached subtitle; exclude subsequent paragraph text and unrelated decorative elements.
+"""

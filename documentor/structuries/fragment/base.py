@@ -1,10 +1,11 @@
+import dataclasses
 from abc import ABC, abstractmethod
 from typing import Any
 
 
-class FragmentInterface(ABC):
+class Fragment(ABC):
     """
-    Interface for fragments of any type.
+    Base class for fragments of any type.
 
     Each fragment represents a structural unit of a document.
     Examples of fragments:
@@ -12,9 +13,15 @@ class FragmentInterface(ABC):
     - a log entry
     - a sentence or paragraph of a document with a string value and parameters.
     - image in a document
+
+    Attributes:
+        value: value of the fragment
+        page: page number of the fragment
+        description: description of the fragment type for llm
     """
     value: Any
     page: str | None = None
+    description: str = ""
 
     @abstractmethod
     def __str__(self) -> str:
@@ -33,16 +40,5 @@ class FragmentInterface(ABC):
 
         Returns:
             dict[str, Any]: Parameters of the fragment.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def description() -> str:
-        """
-        Description of the fragment type.
-
-        Returns:
-            str: Description of the fragment type.
         """
         pass

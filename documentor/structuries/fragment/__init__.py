@@ -1,3 +1,3 @@
-from base import FragmentInterface
+from base import Fragment
 from text import TextFragment
 from image import ImageFragment
