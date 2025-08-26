@@ -1,3 +1,8 @@
+"""
+Base abstractions for document fragments.
+
+Defines the Fragment abstract base class used by all fragment types.
+"""
 import dataclasses
 from abc import ABC, abstractmethod
 from typing import Any
@@ -12,12 +17,12 @@ class Fragment(ABC):
     - a table cell
     - a log entry
     - a sentence or paragraph of a document with a string value and parameters.
-    - image in a document
+    - an image in a document
 
     Attributes:
         value: value of the fragment
         page: page number of the fragment
-        description: description of the fragment type for llm
+        description: description of the fragment type for LLM
     """
     value: Any
     page: str | None = None
@@ -31,7 +36,7 @@ class Fragment(ABC):
         Returns:
             str: Value of the fragment.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __dict__(self) -> dict[str, Any]:
@@ -41,4 +46,4 @@ class Fragment(ABC):
         Returns:
             dict[str, Any]: Parameters of the fragment.
         """
-        pass
+        raise NotImplementedError

@@ -1,10 +1,26 @@
+"""
+Text fragments.
+
+Contains:
+- TextFragment: plain text fragment base for string content.
+- ParagraphFragment: specific paragraph text with PARAGRAPH description.
+"""
 from dataclasses import dataclass
 from typing import Any
 
-from overrides import overrides
+try:
+    from overrides import overrides
+except Exception:
+    # Fallback no-op decorator if `overrides` is not installed
+    def overrides(method=None, *args, **kwargs):
+        if callable(method):
+            return method
+        def decorator(func):
+            return func
+        return decorator
 
-from documentor.structuries.fragment.base import Fragment
-from structuries.fragment.description import PARAGRAPH
+from .base import Fragment
+from .description import PARAGRAPH
 
 
 @dataclass

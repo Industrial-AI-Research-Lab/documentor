@@ -1,9 +1,16 @@
+"""
+Table fragment implementations.
+
+Contains:
+- ImageTableFragment: table recognized within an image region.
+- TableFragment: structured 2D data with optional cell typing/params.
+"""
 from dataclasses import dataclass
 from typing import Any
 
-from documentor.structuries.fragment import Fragment
-from documentor.structuries.fragment.description import TABLE
-from structuries.fragment import ImageFragment
+from .base import Fragment
+from .description import TABLE
+from .image import ImageFragment
 
 
 @dataclass

@@ -1,3 +1,8 @@
+"""
+Descriptions for fragment types, intended for use by LLMs and heuristics.
+
+Each constant is a multi-line guidance string describing how to identify a region type.
+"""
 IMAGE = """
 A contiguous page area that primarily contains visual content rather than running body text. Includes photographs, drawings, diagrams, charts/plots, maps, flowcharts, infographics, screenshots, and pictograms. May appear grayscale or color, with continuous-tone textures (photos/halftones) or line art (sharp strokes, vector-like edges).
 Visual/structural cues (positive):

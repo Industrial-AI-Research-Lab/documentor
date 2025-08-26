@@ -1,11 +1,18 @@
+"""
+Image fragment implementation.
+
+Stores image fragments and utility to convert to/from base64.
+Contains:
+- ImageFragment: holds PIL.Image with serialization helpers.
+"""
 from PIL import Image
 import base64
 from io import BytesIO
 
 from dataclasses import dataclass
 
-from documentor.structuries.fragment import Fragment
-from documentor.structuries.fragment.description import IMAGE
+from .base import Fragment
+from .description import IMAGE
 
 
 @dataclass

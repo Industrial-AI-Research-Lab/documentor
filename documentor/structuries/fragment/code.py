@@ -1,8 +1,15 @@
-from structuries.fragment import TextFragment
+"""
+Code listing fragment.
+
+Contains:
+- ListingFragment: represents code or log listing as plain text.
+"""
+from .description import LISTING
+from .text import TextFragment
 
 
 class ListingFragment(TextFragment):
     """
-    Implementation for listing text fragments that have only str value.
+    Implementation for listing text fragments with only a str value.
     """
-    pass
+    description: str = LISTING
