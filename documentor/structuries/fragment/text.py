@@ -28,8 +28,9 @@ class TextFragment(Fragment):
     """
     Implementation for general text fragments that have only str value.
 
-    Args:
+    Attributes:
         value (str): Value of the fragment.
+        description (str): Fragment type description for LLMs.
     """
     value: str
     description: str = ""
@@ -47,6 +48,10 @@ class TextFragment(Fragment):
 class ParagraphFragment(TextFragment):
     """
     Implementation for paragraph text fragments that have only str value.
+
+    Attributes:
+        value (str): Text of the paragraph.
+        description (str): Fragment type description for LLMs.
     """
     description: str = PARAGRAPH
     pass

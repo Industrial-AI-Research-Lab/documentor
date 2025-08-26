@@ -18,16 +18,27 @@ from .description import FORMULA
 class ImageFormulaFragment(ImageFragment):
     """
     Implementation for formula fragments that have an image value.
+
+    Attributes:
+        value (PIL.Image.Image): The image content of the formula.
+        format (str): Image format used for serialization.
+        encoding (str): Text encoding used for base64 conversion.
+        description (str): Fragment type description for LLMs.
+        need_to_recognize (bool): Indicates if OCR/recognition is required for this fragment.
     """
     description: str = FORMULA
+    need_to_recognize: bool = True
 
 
 @dataclass
 class LatexFormulaFragment(TextFragment):
     """
     Implementation for formula fragments that have a LaTeX value.
+
     Attributes:
-        source (Image): Optional original image of the formula.
+        value (str): LaTeX source string of the formula.
+        description (str): Fragment type description for LLMs.
+        source (PIL.Image.Image | None): Optional original image of the formula.
     """
     description: str = FORMULA
     source: Image | None = None

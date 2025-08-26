@@ -19,11 +19,19 @@ from .description import IMAGE
 class ImageFragment(Fragment):
     """
     Implementation for image fragments that have an image value.
+
+    Attributes:
+        value (PIL.Image.Image): The image content of the fragment.
+        format (str): Image format used for serialization (e.g., "PNG").
+        encoding (str): Text encoding used for base64 conversion.
+        description (str): Fragment type description for LLMs.
+        need_to_recognize (bool): Indicates if OCR/recognition is required for this fragment.
     """
     value: Image.Image
     format: str = "PNG"
     encoding: str = "utf-8"
     description: str = IMAGE
+    need_to_recognize: bool = False
 
     def __str__(self) -> str:
         """

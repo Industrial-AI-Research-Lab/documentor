@@ -11,5 +11,9 @@ from .text import TextFragment
 class ListingFragment(TextFragment):
     """
     Implementation for listing text fragments with only a str value.
+
+    Attributes:
+        value (str): Listing content (code, commands, logs, or pseudocode).
+        description (str): Fragment type description for LLMs.
     """
     description: str = LISTING

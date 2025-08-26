@@ -18,6 +18,12 @@ class ImageTableFragment(ImageFragment):
     """
     Implementation for table fragments that have an image value.
     Each instance of this class represents a table in the image.
+
+    Attributes:
+        value (PIL.Image.Image): The image content of the table region.
+        format (str): Image format used for serialization.
+        encoding (str): Text encoding used for base64 conversion.
+        description (str): Fragment type description for LLMs.
     """
     description: str = TABLE
 
@@ -26,6 +32,15 @@ class TableFragment(Fragment):
     """
     Implementation for table fragments that have a 2D list value.
     Each instance of this class represents a table in the document.
+
+    Attributes:
+        value (list[list[Any]]): 2D array of cell values.
+        value_types (list[list[type]] | None): Optional 2D array of cell value types.
+        cell_params (list[list[dict[str, Any]]] | None): Optional 2D array of cell parameters.
+        column_separators (str): Separator used when converting the table to string.
+        row_separator (str): Row separator used when converting the table to string.
+        description (str): Fragment type description for LLMs.
+        need_to_recognize (bool): Indicates if recognition is required for this fragment.
     """
     value: list[list[Any]]
     value_types: list[list[type]] | None = None
@@ -35,6 +50,7 @@ class TableFragment(Fragment):
     row_separator: str = '\n'
 
     description: str = TABLE
+    need_to_recognize: bool = True
 
     def __str__(self) -> str:
         """
