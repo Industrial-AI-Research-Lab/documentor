@@ -27,7 +27,7 @@ class ImageFormulaFragment(ImageFragment):
         need_to_recognize (bool): Indicates if OCR/recognition is required for this fragment.
     """
     description: str = FORMULA
-    need_to_recognize: bool = True
+    is_processed: bool = False
 
 
 @dataclass

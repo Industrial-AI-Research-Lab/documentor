@@ -25,13 +25,13 @@ class ImageFragment(Fragment):
         format (str): Image format used for serialization (e.g., "PNG").
         encoding (str): Text encoding used for base64 conversion.
         description (str): Fragment type description for LLMs.
-        need_to_recognize (bool): Indicates if OCR/recognition is required for this fragment.
+        is_processed (bool): Indicates if OCR/recognition is required for this fragment.
     """
     value: Image.Image
     format: str = "PNG"
     encoding: str = "utf-8"
     description: str = IMAGE
-    need_to_recognize: bool = False
+    is_processed: bool = True
 
     def __str__(self) -> str:
         """

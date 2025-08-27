@@ -26,6 +26,7 @@ class ImageTableFragment(ImageFragment):
         description (str): Fragment type description for LLMs.
     """
     description: str = TABLE
+    is_processed: bool = False
 
 @dataclass
 class TableFragment(Fragment):
@@ -50,7 +51,6 @@ class TableFragment(Fragment):
     row_separator: str = '\n'
 
     description: str = TABLE
-    need_to_recognize: bool = True
 
     def __str__(self) -> str:
         """

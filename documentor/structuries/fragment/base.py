@@ -27,6 +27,7 @@ class Fragment(ABC):
     value: Any
     page: str | None = None
     description: str = ""
+    is_processed: bool = True
 
     @abstractmethod
     def __str__(self) -> str:

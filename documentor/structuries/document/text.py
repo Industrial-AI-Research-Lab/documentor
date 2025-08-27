@@ -1,14 +1,11 @@
-from typing import Iterator
-
-import pandas as pd
-from overrides import overrides
-
-from structuries.columns import ColumnType
 from structuries.document.base import Document
-from structuries.fragment import TextFragment
-from structuries.structure import StructureNode, DocumentStructure
 
 
 class TextDocument(Document):
+    """
+    Document type for plain text sources.
 
-
+    Attributes:
+        lines_count: Number of text lines in the source (if known).
+    """
+    lines_count: int
