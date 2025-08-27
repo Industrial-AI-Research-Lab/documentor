@@ -52,15 +52,3 @@ class Document:
         """
         for fragment in self._fragments:
             yield fragment
-
-    def to_df(self) -> pd.DataFrame:
-        """
-        Convert the document fragments to a pandas DataFrame.
-
-        Each fragment contributes a single row created from its __dict__() representation.
-
-        Returns:
-            pd.DataFrame: DataFrame containing one row per fragment.
-        """
-        data = [f.__dict__() for f in self._fragments]
-        return pd.DataFrame(data)

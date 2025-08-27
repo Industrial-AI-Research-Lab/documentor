@@ -29,22 +29,6 @@ def test_document_fragments_and_iteration(doc_cls: type[Document], values: list[
     assert [str(f) for f in doc.iter_fragments()] == values
 
 
-@pytest.mark.parametrize(
-    "values",
-    [[], ["one"], ["one", "two"]],
-)
-def test_document_to_df(values: list[str]):
-    doc = TextDocument([TextFragment(v) for v in values])
-    df = doc.to_df()
-
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) == len(values)
-
-    # TextFragment.__dict__ returns only fields from its annotations: value and description
-    expected_cols = {"value", "description"}
-    assert expected_cols.issubset(set(df.columns))
-
-
 def test_documents_are_independent():
     doc1 = TextDocument([TextFragment("a")])
     doc2 = TextDocument([TextFragment("b"), TextFragment("c")])
