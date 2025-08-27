@@ -3,6 +3,7 @@ from typing import Iterator
 import pandas as pd
 
 from structuries.fragment import Fragment
+from structuries.metadata import Metadata
 from structuries.structure import DocumentStructure
 
 
@@ -19,8 +20,14 @@ class Document:
     # Instance attributes are initialized in __init__ to avoid shared mutable defaults.
     _fragments: list[Fragment]
     structure: DocumentStructure | None
+    metadata: Metadata
 
-    def __init__(self, fragments: list[Fragment], structure: DocumentStructure | None = None):
+    def __init__(
+            self,
+            fragments: list[Fragment],
+            structure: DocumentStructure | None = None,
+            metadata: Metadata | None = None,
+    ):
         """
         Initialize a Document.
 
@@ -30,6 +37,9 @@ class Document:
         """
         self._fragments = fragments
         self.structure = structure
+        if metadata is None:
+            metadata = Metadata()
+        self.metadata = metadata
 
     def fragments(self) -> list[Fragment]:
         """
