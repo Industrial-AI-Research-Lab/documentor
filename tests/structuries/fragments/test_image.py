@@ -31,6 +31,19 @@ def test_image_fragment_roundtrip_base64(fname, data_dir):
     assert frag.description == IMAGE
 
     d = frag.__dict__()
-    assert set(d.keys()) == {"value", "format", "encoding"}
+    assert set(d.keys()) == {
+        "value",
+        "format",
+        "encoding",
+        "page",
+        "description",
+        "is_processed",
+        "id",
+        "bbox",
+        "style",
+    }
+    assert d["id"] is None
+    assert d["bbox"] is None
+    assert d["style"] is None
     # Ensure value is valid base64
     base64.b64decode(d["value"].encode("utf-8"))
