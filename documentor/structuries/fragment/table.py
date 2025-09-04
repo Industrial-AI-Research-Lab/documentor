@@ -64,16 +64,15 @@ class TableFragment(Fragment):
         )
 
     def __dict__(self) -> dict[str, Any]:
-        """
-        Get parameters of the table fragment.
-        """
-        return {
-            "value": self.value,
+        """Get parameters of the table fragment."""
+        data = super().__dict__()
+        data.update({
             "value_types": self.value_types,
             "cell_params": self.cell_params,
             "column_separators": self.column_separators,
-            "row_separator": self.row_separator
-        }
+            "row_separator": self.row_separator,
+        })
+        return data
 
     def get_all_params(self) -> list[dict[str, Any]]:
         """

@@ -10,6 +10,7 @@ import base64
 from io import BytesIO
 
 from dataclasses import dataclass
+from typing import Any
 
 from .base import Fragment
 from .description import IMAGE
@@ -44,18 +45,15 @@ class ImageFragment(Fragment):
         self.value.save(buffered, format=self.format)
         return base64.b64encode(buffered.getvalue()).decode(self.encoding)
 
-    def __dict__(self) -> dict[str, str]:
-        """
-        Get parameters of the image fragment.
-
-        Returns:
-            dict[str, str]: Parameters of the image fragment.
-        """
-        return {
+    def __dict__(self) -> dict[str, Any]:
+        """Get parameters of the image fragment."""
+        data = super().__dict__()
+        data.update({
             "value": str(self),
             "format": self.format,
-            "encoding": self.encoding
-        }
+            "encoding": self.encoding,
+        })
+        return data
 
     @staticmethod
     def from_base64(

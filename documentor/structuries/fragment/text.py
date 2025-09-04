@@ -42,7 +42,7 @@ class TextFragment(Fragment):
 
     @overrides
     def __dict__(self) -> dict[str, Any]:
-        return {field: getattr(self, field) for field in self.__annotations__.keys()}
+        return super().__dict__()
 
 @dataclass
 class ParagraphFragment(TextFragment):
