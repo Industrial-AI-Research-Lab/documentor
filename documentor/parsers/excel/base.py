@@ -10,6 +10,7 @@ from langchain_core.documents.base import Blob
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.config import ParsingConfig, ParsingSchema
 from documentor.parsers.extensions import DocExtension
+from documentor.structuries.metadata import Metadata, to_document_metadata
 
 
 class ExcelBlobParser(BaseBlobParser):
@@ -65,14 +66,21 @@ class ExcelBlobParser(BaseBlobParser):
         Returns:
             Document: The created document.
         """
-        # TODO: decide which metadata should be used
-        metadata = {
-            "file_name": file_name,
-            "source": source,
-            "extension": file_type,
-        }
-        if sheet_name:
-            metadata["sheet_name"] = sheet_name
+        # Build unified metadata via documentor.structuries.metadata
+        meta = Metadata(
+            name=file_name,
+            extension=file_type,
+            source=self._current_blob if hasattr(self, "_current_blob") else None,
+            sheet_name=sheet_name if sheet_name else None,
+        )
+        metadata = to_document_metadata(
+            meta,
+            extension_key="extension",  # excel tests expect key "extension"
+            name_key="file_name",
+        )
+        # Preserve explicit source string if provided
+        if source is not None:
+            metadata["source"] = source
 
         return Document(
             page_content=content,
@@ -91,10 +99,15 @@ class ExcelBlobParser(BaseBlobParser):
         Returns:
             Document: A Document object containing the parsed data.
         """
+        # Save blob to use inside _create_document for Metadata.source
+        self._current_blob = blob
         file_name = blob.path.name if blob.path else None
         source = str(blob.path) if blob.path else None
         file_type = blob.path.suffix if blob.path else None
-        return self._create_document(content, file_name, source, file_type, sheet_name)
+        doc = self._create_document(content, file_name, source, file_type, sheet_name)
+        if hasattr(self, "_current_blob"):
+            delattr(self, "_current_blob")
+        return doc
 
     def lazy_parse(self, blob: Blob, parse_images: bool = None) -> Iterator[Document]:
         """

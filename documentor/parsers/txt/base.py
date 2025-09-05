@@ -7,6 +7,7 @@ from langchain_core.documents.base import Blob
 from documentor.parsers.base import BaseBlobParser
 from documentor.parsers.extensions import DocExtension
 from documentor.parsers.config import ParsingSchema
+from documentor.structuries.metadata import Metadata, to_document_metadata
 
 
 class TextBlobParser(BaseBlobParser):
@@ -51,25 +52,40 @@ class TextBlobParser(BaseBlobParser):
         Returns:
             Document: The created document.
         """
-        # TODO: decide which metadata set should be used globally
+        # Build unified metadata via documentor.structuries.metadata
+        meta = Metadata(
+            name=file_name,
+            extension=file_type,
+            source=self._current_blob if hasattr(self, "_current_blob") else None,
+            line_number=line_number,
+        )
+        metadata_dict = to_document_metadata(
+            meta,
+            extension_key="file_type",  # keep backward compatibility with existing tests
+            name_key="file_name",
+        )
+        # Override source string when explicit source is provided in args
+        if source is not None:
+            metadata_dict["source"] = source
         return Document(
             page_content=content,
-            metadata={
-                "line_number": line_number,
-                "file_name": file_name,
-                "source": source,
-                "file_type": file_type
-            }
+            metadata=metadata_dict,
         )
 
     def _build_document(self, content: str, line_number: int, blob: Blob) -> Document:
         """
         Build a Document by extracting file-related metadata from the Blob.
         """
+        # Save blob to use inside _create_document for Metadata.source
+        self._current_blob = blob
         file_name = blob.path.name if blob.path else None
         source = str(blob.path) if blob.path else None
         file_type = blob.path.suffix if blob.path else None
-        return self._create_document(content, line_number, file_name, source, file_type)
+        doc = self._create_document(content, line_number, file_name, source, file_type)
+        # Cleanup attribute to avoid accidental reuse
+        if hasattr(self, "_current_blob"):
+            delattr(self, "_current_blob")
+        return doc
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """
