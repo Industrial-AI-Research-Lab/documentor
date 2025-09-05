@@ -1,5 +1,13 @@
 from typing import Iterator
 
+try:  # pragma: no cover - optional langchain dependency
+    from langchain_core.documents import Document as LCDocument
+except Exception:  # pragma: no cover
+    class LCDocument:  # type: ignore[override]
+        def __init__(self, page_content: str = "", metadata: dict | None = None) -> None:
+            self.page_content = page_content
+            self.metadata = metadata or {}
+
 import pandas as pd
 
 from structuries.fragment import Fragment
@@ -7,7 +15,7 @@ from structuries.metadata import Metadata
 from structuries.structure import DocumentStructure
 
 
-class Document:
+class Document(LCDocument):
     """
     Base interface for documents that contain a sequence of fragments.
 
@@ -23,22 +31,18 @@ class Document:
     metadata: Metadata
 
     def __init__(
-            self,
-            fragments: list[Fragment],
-            structure: DocumentStructure | None = None,
-            metadata: Metadata | None = None,
-    ):
-        """
-        Initialize a Document.
-
-        Args:
-            fragments: The list of fragments contained in the document.
-            structure: Optional structural representation of the document.
-        """
-        self._fragments = fragments
-        self.structure = structure
+        self,
+        fragments: list[Fragment],
+        structure: DocumentStructure | None = None,
+        metadata: Metadata | None = None,
+    ) -> None:
+        """Initialize a Document."""
         if metadata is None:
             metadata = Metadata()
+        text = "\n".join(str(fragment) for fragment in fragments)
+        super().__init__(page_content=text, metadata=dict(metadata.__dict__))
+        self._fragments = fragments
+        self.structure = structure
         self.metadata = metadata
 
     def fragments(self) -> list[Fragment]:
