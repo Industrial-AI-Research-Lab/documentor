@@ -2,7 +2,7 @@
 
 import dataclasses
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Hashable
 
 from .style import BlockStyle
 
@@ -28,7 +28,7 @@ class Fragment(ABC):
         style: block level style of the fragment
     """
 
-    value: Any
+    value: Hashable
     page: str | None = None
     description: str = ""
     is_processed: bool = True
