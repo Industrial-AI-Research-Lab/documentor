@@ -1,5 +1,6 @@
+from typing import Any
+
 import pytest
-import pandas as pd
 
 from structuries.document.base import Document
 from structuries.document.text import TextDocument
@@ -9,18 +10,18 @@ from structuries.fragment.text import TextFragment
 
 
 @pytest.mark.parametrize(
-    "doc_cls, values",
+    "doc_cls, kwargs, values",
     [
-        (TextDocument, []),
-        (TextDocument, ["a"]),
-        (TextDocument, ["a", "b", "c"]),
-        (SheetDocument, ["row1"]),
-        (DocDocument, ["x", "y"]),
+        (TextDocument, {"lines_count": 0}, [""]),
+        (TextDocument, {"lines_count": 1}, ["a"]),
+        (TextDocument, {"lines_count": 3}, ["a", "b", "c"]),
+        (SheetDocument, {"pages_names": ["d"]}, ["row1"]),
+        (DocDocument, {"pages_count": 1}, ["x", "y"]),
     ],
 )
-def test_document_fragments_and_iteration(doc_cls: type[Document], values: list[str]):
+def test_document_fragments_and_iteration(doc_cls: type[Document], kwargs: dict[str, Any], values: list[str]):
     fragments = [TextFragment(v) for v in values]
-    doc = doc_cls(fragments)
+    doc = doc_cls(fragments=fragments, **kwargs)
 
     # fragments() returns the same sequence
     assert [str(f) for f in doc.fragments()] == values
@@ -30,8 +31,8 @@ def test_document_fragments_and_iteration(doc_cls: type[Document], values: list[
 
 
 def test_documents_are_independent():
-    doc1 = TextDocument([TextFragment("a")])
-    doc2 = TextDocument([TextFragment("b"), TextFragment("c")])
+    doc1 = TextDocument(lines_count=1, fragments=[TextFragment("a")])
+    doc2 = TextDocument(lines_count=2, fragments=[TextFragment("b"), TextFragment("c")])
 
     # Ensure no shared state between instances
     assert [str(f) for f in doc1.fragments()] == ["a"]

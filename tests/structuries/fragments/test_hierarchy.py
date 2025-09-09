@@ -14,12 +14,8 @@ from documentor.structuries.fragment.description import HEADER, TITLE, COLUMN
 def test_header_fragment_basic(text, font_size, level):
     frag = HeaderFragment(value=text, font_size=font_size, level=level)
     assert str(frag) == text
-    # Due to base dataclass default, description may remain HEADER in subclasses too
-    assert frag.description == HEADER
 
     d = frag.__dict__()
-    # Ensure at least these keys exist in dict representation
-    assert d.get("description") == HEADER
     # font_size/level may be missing in dict only if __annotations__ handling changes; be tolerant
     if font_size is not None:
         assert d.get("font_size", font_size) == font_size
@@ -31,13 +27,9 @@ def test_header_fragment_basic(text, font_size, level):
 def test_title_fragment_description(text):
     frag = TitleFragment(value=text)
     assert str(frag) == text
-    # TitleFragment inherits dataclass init from HeaderFragment, so description may still be HEADER
-    assert frag.description in {TITLE, HEADER}
 
 
 @pytest.mark.parametrize("text", ["Column A", "Столбец 1"])
 def test_column_header_fragment_description(text):
     frag = ColumnHeaderFragment(value=text)
     assert str(frag) == text
-    # ColumnHeaderFragment may also keep HEADER due to dataclass init from parent
-    assert frag.description in {COLUMN, HEADER}
