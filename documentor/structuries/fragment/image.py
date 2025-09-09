@@ -25,14 +25,16 @@ class ImageFragment(Fragment):
         value (PIL.Image.Image): The image content of the fragment.
         format (str): Image format used for serialization (e.g., "PNG").
         encoding (str): Text encoding used for base64 conversion.
-        description (str): Fragment type description for LLMs.
         is_processed (bool): Indicates if OCR/recognition is required for this fragment.
     """
     value: Image.Image
     format: str = "PNG"
     encoding: str = "utf-8"
-    description: str = IMAGE
     is_processed: bool = True
+
+    @classmethod
+    def description(cls) -> str:
+        return IMAGE
 
     def __str__(self) -> str:
         """
@@ -76,4 +78,5 @@ class ImageFragment(Fragment):
         """
         image_data = base64.b64decode(b64_string.encode(encoding))
         image: Image.Image = Image.open(BytesIO(image_data))
-        return ImageFragment(value=image, format=format, encoding=encoding, description=description)
+        # 'description' parameter is kept for backward compatibility but is not stored as a field.
+        return ImageFragment(value=image, format=format, encoding=encoding)

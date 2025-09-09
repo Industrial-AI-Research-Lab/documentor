@@ -28,8 +28,8 @@ def test_paragraph_fragment_description(text):
     frag = ParagraphFragment(value=text)
     assert str(frag) == text
     # Paragraph has fixed description
-    assert frag.description == PARAGRAPH
+    assert frag.description() == PARAGRAPH
     d = frag.__dict__()
     # Some subclasses may not include 'value' in annotations-based __dict__.
     # Ensure description is set to PARAGRAPH and __str__ works.
-    assert frag.description == PARAGRAPH
+    assert frag.description() == PARAGRAPH

@@ -28,7 +28,7 @@ def test_image_fragment_roundtrip_base64(fname, data_dir):
 
     # Compare sizes to ensure correctness
     assert frag2.value.size == image.size
-    assert frag.description == IMAGE
+    assert frag.description() == IMAGE
 
     d = frag.__dict__()
     assert set(d.keys()) == {

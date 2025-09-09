@@ -23,10 +23,12 @@ class ImageTableFragment(ImageFragment):
         value (PIL.Image.Image): The image content of the table region.
         format (str): Image format used for serialization.
         encoding (str): Text encoding used for base64 conversion.
-        description (str): Fragment type description for LLMs.
     """
-    description: str = TABLE
     is_processed: bool = False
+
+    @classmethod
+    def description(cls) -> str:
+        return TABLE
 
 @dataclass
 class TableFragment(Fragment):
@@ -50,7 +52,9 @@ class TableFragment(Fragment):
     column_separators: str = ' | '
     row_separator: str = '\n'
 
-    description: str = TABLE
+    @classmethod
+    def description(cls) -> str:
+        return TABLE
 
     def __str__(self) -> str:
         """

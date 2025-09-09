@@ -30,11 +30,16 @@ class Fragment(ABC):
 
     value: Hashable
     page: str | None = None
-    description: str = ""
     is_processed: bool = True
     id: str | None = None
     bbox: tuple[int, int, int, int] | None = None
     style: BlockStyle | None = None
+
+    @classmethod
+    @abstractmethod
+    def description(cls) -> str:
+        """Description of the fragment type for LLM."""
+        pass
 
     @abstractmethod
     def __str__(self) -> str:
@@ -43,7 +48,13 @@ class Fragment(ABC):
 
     def __dict__(self) -> dict[str, Any]:
         """Get parameters of the fragment."""
-        return {
+        data = {
             field.name: getattr(self, field.name)
             for field in dataclasses.fields(self)
         }
+        # Ensure description is always included, even if it's not a dataclass field
+        try:
+            data["description"] = type(self).description()
+        except Exception:
+            pass
+        return data

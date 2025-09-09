@@ -12,7 +12,6 @@ from .text import TextFragment
 from .description import TITLE, COLUMN, HEADER
 
 
-@dataclass
 class HeaderFragment(TextFragment):
     """
     Header text fragments with a str value and header metadata.
@@ -21,11 +20,15 @@ class HeaderFragment(TextFragment):
         value (str): Header text.
         font_size (int | None): Optional font size of the header.
         level (int | None): Optional hierarchical level (e.g., 1 for H1).
-        description (str): Fragment type description for LLMs.
     """
-    font_size: int | None = None
-    level: int | None = None
-    description: str = HEADER
+    def __init__(self, value: str, font_size: int | None = None, level: int | None = None, **kwargs):
+        super().__init__(value=value, **kwargs)
+        self.font_size = font_size
+        self.level = level
+
+    @classmethod
+    def description(cls) -> str:
+        return HEADER
 
 
 class TitleFragment(HeaderFragment):
@@ -36,9 +39,10 @@ class TitleFragment(HeaderFragment):
         value (str): Title text.
         font_size (int | None): Optional font size of the title.
         level (int | None): Optional hierarchical level.
-        description (str): Fragment type description for LLMs.
     """
-    description: str = TITLE
+    @classmethod
+    def description(cls) -> str:
+        return TITLE
 
 
 class ColumnHeaderFragment(HeaderFragment):
@@ -49,6 +53,7 @@ class ColumnHeaderFragment(HeaderFragment):
         value (str): Column header text.
         font_size (int | None): Optional font size of the header.
         level (int | None): Optional hierarchical level.
-        description (str): Fragment type description for LLMs.
     """
-    description: str = COLUMN
+    @classmethod
+    def description(cls) -> str:
+        return COLUMN

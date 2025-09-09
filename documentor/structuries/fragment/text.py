@@ -30,11 +30,12 @@ class TextFragment(Fragment):
 
     Attributes:
         value (str): Value of the fragment.
-        description (str): Fragment type description for LLMs.
     """
     value: str
-    description: str = ""
 
+    @classmethod
+    def description(cls) -> str:
+        return ""
 
     @overrides
     def __str__(self) -> str:
@@ -44,14 +45,13 @@ class TextFragment(Fragment):
     def __dict__(self) -> dict[str, Any]:
         return super().__dict__()
 
-@dataclass
 class ParagraphFragment(TextFragment):
     """
     Implementation for paragraph text fragments that have only str value.
 
     Attributes:
         value (str): Text of the paragraph.
-        description (str): Fragment type description for LLMs.
     """
-    description: str = PARAGRAPH
-    pass
+    @classmethod
+    def description(cls) -> str:
+        return PARAGRAPH

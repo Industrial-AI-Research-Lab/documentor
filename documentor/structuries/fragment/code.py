@@ -14,6 +14,8 @@ class ListingFragment(TextFragment):
 
     Attributes:
         value (str): Listing content (code, commands, logs, or pseudocode).
-        description (str): Fragment type description for LLMs.
     """
-    description: str = LISTING
+
+    @classmethod
+    def description(cls) -> str:
+        return LISTING

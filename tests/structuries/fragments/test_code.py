@@ -19,4 +19,4 @@ def test_listing_fragment_behaves_like_text(code_str):
     assert str(frag) == code_str
     # ListingFragment may keep base default description or override constant
     from documentor.structuries.fragment.description import LISTING
-    assert frag.description in {"", LISTING}
+    assert frag.description() in {"", LISTING}

@@ -61,7 +61,7 @@ def test_table_fragment_get_all_params(table, value_types, cell_params, expected
 def test_image_table_fragment_description_and_base64(fname, data_dir):
     img = Image.open(data_dir / "fragments" / fname)
     frag = ImageTableFragment(value=img)
-    assert frag.description == TABLE
+    assert frag.description() == TABLE
     # Ensure base64 conversion works
     s = str(frag)
     assert isinstance(s, str) and len(s) > 10
