@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-from documentor.structuries.document import Document
+from .document import Document
 
 
 # TODO rewrite this class

@@ -1,8 +1,8 @@
 from typing import Iterator
 
-from structuries.fragment import Fragment
-from structuries.metadata import Metadata
-from structuries.structure import DocumentStructure
+from ..fragment import Fragment
+from ..metadata import Metadata
+from ..structure import DocumentStructure
 
 
 class Document:

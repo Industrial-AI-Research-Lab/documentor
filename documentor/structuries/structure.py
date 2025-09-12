@@ -5,7 +5,7 @@ from typing import Optional
 
 import pandas as pd
 
-from structuries.fragment import Fragment, HeaderFragment
+from .fragment import Fragment, HeaderFragment
 
 
 @dataclass(frozen=True)

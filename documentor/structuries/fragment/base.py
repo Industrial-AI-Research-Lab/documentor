@@ -4,7 +4,7 @@ import dataclasses
 from abc import ABC, abstractmethod
 from typing import Any, Hashable
 
-from structuries.style import BlockStyle
+from ..style import BlockStyle
 
 
 @dataclasses.dataclass

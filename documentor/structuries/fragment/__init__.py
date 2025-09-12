@@ -10,7 +10,7 @@ from .code import ListingFragment
 from .formula import ImageFormulaFragment, LatexFormulaFragment
 from .hierarchy import HeaderFragment, TitleFragment, ColumnHeaderFragment
 from .table import TableFragment, ImageTableFragment
-from structuries.style import BlockStyle, InlineStyle
+from ..style import BlockStyle, InlineStyle
 from .description import (
     IMAGE,
     TABLE,

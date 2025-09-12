@@ -1,4 +1,4 @@
-from structuries.document.base import Document
+from .base import Document
 
 
 class SheetDocument(Document):
