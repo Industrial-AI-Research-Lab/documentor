@@ -10,6 +10,10 @@ from .code import ListingFragment
 from .formula import ImageFormulaFragment, LatexFormulaFragment
 from .hierarchy import HeaderFragment, TitleFragment, ColumnHeaderFragment
 from .table import TableFragment, ImageTableFragment
+from .caption import CaptionFragment
+from .footnote import FootnoteFragment
+from .list_item import ListItemFragment
+from .page_metadata import PageHeaderFragment, PageFooterFragment
 from ..style import BlockStyle, InlineStyle
 from .description import (
     IMAGE,
@@ -35,6 +39,11 @@ __all__ = [
     "ColumnHeaderFragment",
     "TableFragment",
     "ImageTableFragment",
+    "CaptionFragment",
+    "FootnoteFragment",
+    "ListItemFragment",
+    "PageHeaderFragment",
+    "PageFooterFragment",
     "BlockStyle",
     "InlineStyle",
     "IMAGE",

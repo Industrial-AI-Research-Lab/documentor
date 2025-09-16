@@ -10,13 +10,22 @@ from .columns import ColumnType
 from .metadata import Metadata, to_document_metadata
 
 # Style definitions
-from .style import BlockStyle, InlineStyle
+from .style import BlockStyle, InlineStyle, LayoutStyle
 
 # Structure management
 from .structure import StructureNode, DocumentStructure
 
 # Document types
 from .document import Document, DocDocument, SheetDocument, TextDocument
+
+# Additional fragment types for layout understanding
+from .fragment import (
+    CaptionFragment,
+    FootnoteFragment, 
+    ListItemFragment,
+    PageHeaderFragment,
+    PageFooterFragment,
+)
 
 # Classifier interfaces
 from .classifier import ClassifierModel, FragmentClassifier
@@ -36,6 +45,7 @@ __all__ = [
     # Styles
     "BlockStyle", 
     "InlineStyle",
+    "LayoutStyle",
     
     # Structure
     "StructureNode",
@@ -46,6 +56,13 @@ __all__ = [
     "DocDocument",
     "SheetDocument", 
     "TextDocument",
+    
+    # Additional fragment types for layout understanding
+    "CaptionFragment",
+    "FootnoteFragment",
+    "ListItemFragment", 
+    "PageHeaderFragment",
+    "PageFooterFragment",
     
     # Classifiers
     "ClassifierModel",

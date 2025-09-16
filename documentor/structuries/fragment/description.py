@@ -246,3 +246,167 @@ Section markers with leading icons or ornaments.
 Boundary preference:
 Include the full display line(s) comprising the heading and any directly attached subtitle; exclude subsequent paragraph text and unrelated decorative elements.
 """
+
+
+
+CAPTION = """
+Object: "Caption region" on a scanned document page
+A short descriptive text accompanying visual elements such as figures, tables, or formulas.
+Visual/structural cues (positive):
+Positioned directly above or below the associated visual element; often separated by minimal whitespace.
+Smaller font size than body text; may be italicized, centered, or left-aligned.
+Common caption tokens and their variants: "Figure", "Fig.", "Table", "Tab.", "Equation", "Eq.", "Formula".
+Multilingual caption tokens (non-exhaustive):
+- Russian: "Рис.", "Рисунок", "Таблица", "Табл.", "Формула", "Уравнение"
+- Chinese (简体): "图", "图表", "表", "表格", "公式", "方程"
+- Spanish: "Figura", "Fig.", "Tabla", "Ecuación", "Fórmula"
+- Arabic: "شكل", "صورة", "جدول", "معادلة", "صيغة"
+- French: "Figure", "Fig.", "Tableau", "Équation", "Formule"
+- German: "Abb.", "Abbildung", "Tabelle", "Gleichung", "Formel"
+- Portuguese: "Figura", "Tabela", "Equação", "Fórmula"
+- Hindi: "आकृति", "चित्र", "तालिका", "समीकरण", "सूत्र"
+Often includes numbering or labeling: "Figure 1:", "Table 2:", "Equation (3)".
+May contain brief explanatory text describing the visual content.
+Exclusions (negative cues):
+Standalone text blocks not clearly associated with visual elements.
+Running headers/footers or page numbers.
+Figure/table content itself (the actual visual data).
+Edge cases to still count as captions:
+Multi-line captions with continuation text.
+Captions with special formatting or symbols.
+Captions that appear slightly separated from their visual elements due to layout constraints.
+Boundary preference:
+Include the complete caption text and any associated numbering; exclude the visual element itself and unrelated surrounding text.
+"""
+
+FOOTNOTE = """
+Object: "Footnote region" on a scanned document page
+Supplementary information or citations appearing at the bottom of pages, referenced by markers in the main text.
+Visual/structural cues (positive):
+Positioned in the lower portion of the page, often separated from body text by a horizontal rule or extra whitespace.
+Smaller font size than body text; typically single-spaced or slightly condensed.
+Referenced by superscript markers in the main text: ¹, ², ³, *, †, ‡, or bracketed numbers [1], [2], [3].
+Common footnote patterns:
+- Citation references: "Author, Title, Journal, Year"
+- Explanatory notes: "See also...", "Note that...", "For details see..."
+- Cross-references: "See Section 2.1", "As mentioned above"
+- Legal disclaimers or copyright information
+Multilingual footnote markers (non-exhaustive):
+- Russian: "¹", "²", "³", "[1]", "[2]", "См. также", "Примечание"
+- Chinese (简体): "¹", "²", "注", "参见", "详见"
+- Spanish: "¹", "²", "Nota", "Véase", "Ver también"
+- Arabic: "¹", "²", "ملاحظة", "انظر أيضاً"
+- French: "¹", "²", "Note", "Voir aussi", "Cf."
+- German: "¹", "²", "Anmerkung", "Siehe auch", "Vgl."
+- Portuguese: "¹", "²", "Nota", "Ver também", "Cf."
+- Hindi: "¹", "²", "नोट", "देखें भी", "संदर्भ"
+Exclusions (negative cues):
+Page footers containing only page numbers or publication information.
+Figure/table captions that happen to appear at the bottom of the page.
+Running headers or watermarks.
+Edge cases to still count as footnotes:
+Footnotes that continue across multiple lines.
+Footnotes with complex formatting or multiple references.
+Footnotes that appear slightly above the page footer due to space constraints.
+Boundary preference:
+Include the complete footnote text and its reference marker; exclude the horizontal rule separator and unrelated footer content.
+"""
+
+LIST_ITEM = """
+Object: "List item region" on a scanned document page
+Individual elements within ordered, unordered, or definition lists.
+Visual/structural cues (positive):
+Consistent indentation from the left margin; uniform spacing between items.
+Leading markers: bullets (•, ◦, ▪, ▫), numbers (1., 2., 3.), letters (a., b., c.), or dashes (-, —).
+Monospaced or proportional font; may be indented with spaces or tabs.
+Common list patterns:
+- Unordered lists: bullet points, dashes, or other symbols
+- Ordered lists: Arabic numerals, Roman numerals, or letters
+- Definition lists: term followed by definition, often with special formatting
+- Nested lists: sub-items with increased indentation
+Multilingual list markers (non-exhaustive):
+- Russian: "•", "◦", "1.", "2.", "а)", "б)", "—", "–"
+- Chinese (简体): "•", "1.", "2.", "（一）", "（二）", "—", "—"
+- Spanish: "•", "◦", "1.", "2.", "a)", "b)", "—", "–"
+- Arabic: "•", "◦", "1.", "2.", "أ)", "ب)", "—", "–"
+- French: "•", "◦", "1.", "2.", "a)", "b)", "—", "–"
+- German: "•", "◦", "1.", "2.", "a)", "b)", "—", "–"
+- Portuguese: "•", "◦", "1.", "2.", "a)", "b)", "—", "–"
+- Hindi: "•", "◦", "1.", "2.", "क)", "ख)", "—", "–"
+Exclusions (negative cues):
+Paragraph text that happens to start with a number or symbol.
+Table rows or cells that appear list-like but are part of a grid structure.
+Code blocks or algorithm steps that use indentation but aren't true lists.
+Edge cases to still count as list items:
+Multi-line list items that wrap to subsequent lines.
+List items with complex formatting or nested structures.
+List items that use non-standard markers or formatting.
+Boundary preference:
+Include the complete list item text and its marker; exclude surrounding paragraph text and unrelated content.
+"""
+
+PAGE_HEADER = """
+Object: "Page header region" on a scanned document page
+Repeating header information appearing at the top of pages, typically containing section titles, chapter names, or other metadata.
+Visual/structural cues (positive):
+Positioned within the top margin, separated from body text by extra whitespace or a thin horizontal rule.
+Smaller font size than body text; often single-line or two-line maximum.
+Repeating content across multiple pages: section titles, chapter names, document titles, or author names.
+Common header patterns:
+- Section titles: "Chapter 3: Methods", "Section 2.1: Introduction"
+- Document titles: "Research Paper Title", "Annual Report 2024"
+- Author information: "J. Smith, M. Johnson", "Department of Computer Science"
+- Publication metadata: "Journal Name", "Volume 15, Issue 3"
+Multilingual header patterns (non-exhaustive):
+- Russian: "Глава 3: Методы", "Раздел 2.1", "Исследование", "Автор: И. Иванов"
+- Chinese (简体): "第3章：方法", "2.1节", "研究报告", "作者：张三"
+- Spanish: "Capítulo 3: Métodos", "Sección 2.1", "Investigación", "Autor: J. García"
+- Arabic: "الفصل 3: الطرق", "القسم 2.1", "البحث", "المؤلف: أ. أحمد"
+- French: "Chapitre 3: Méthodes", "Section 2.1", "Recherche", "Auteur: P. Martin"
+- German: "Kapitel 3: Methoden", "Abschnitt 2.1", "Forschung", "Autor: H. Müller"
+- Portuguese: "Capítulo 3: Métodos", "Seção 2.1", "Pesquisa", "Autor: M. Silva"
+- Hindi: "अध्याय 3: विधियाँ", "खंड 2.1", "अनुसंधान", "लेखक: आ. शर्मा"
+Exclusions (negative cues):
+Main document titles or section headings that appear only once.
+Figure/table captions that happen to appear at the top of the page.
+Page numbers that appear alone without other header content.
+Edge cases to still count as page headers:
+Headers with decorative elements or logos.
+Headers that alternate between even and odd pages.
+Headers that appear slightly below the page top due to layout constraints.
+Boundary preference:
+Include the complete header text and any associated formatting; exclude the horizontal rule separator and unrelated content.
+"""
+
+PAGE_FOOTER = """
+Object: "Page footer region" on a scanned document page
+Repeating footer information appearing at the bottom of pages, typically containing page numbers, publication information, or other metadata.
+Visual/structural cues (positive):
+Positioned within the bottom margin, separated from body text by extra whitespace or a thin horizontal rule.
+Smaller font size than body text; often single-line or two-line maximum.
+Repeating content across multiple pages: page numbers, publication information, copyright notices, or document metadata.
+Common footer patterns:
+- Page numbers: "Page 15", "15", "p. 15", "pp. 15-16"
+- Publication info: "Journal of Research, Vol. 15, No. 3", "© 2024 Author"
+- Document metadata: "Confidential", "Draft", "Version 2.1"
+- Legal information: "All rights reserved", "Proprietary and confidential"
+Multilingual footer patterns (non-exhaustive):
+- Russian: "Стр. 15", "Страница 15", "Журнал исследований, Том 15", "© 2024 Автор"
+- Chinese (简体): "第15页", "页15", "研究期刊，第15卷", "© 2024 作者"
+- Spanish: "Pág. 15", "Página 15", "Revista de Investigación, Vol. 15", "© 2024 Autor"
+- Arabic: "صفحة 15", "ص 15", "مجلة البحث، المجلد 15", "© 2024 المؤلف"
+- French: "p. 15", "Page 15", "Revue de Recherche, Vol. 15", "© 2024 Auteur"
+- German: "S. 15", "Seite 15", "Forschungszeitschrift, Bd. 15", "© 2024 Autor"
+- Portuguese: "p. 15", "Página 15", "Revista de Pesquisa, Vol. 15", "© 2024 Autor"
+- Hindi: "पृष्ठ 15", "पृ. 15", "अनुसंधान पत्रिका, खंड 15", "© 2024 लेखक"
+Exclusions (negative cues):
+Footnotes that appear at the bottom of the page.
+Figure/table captions that happen to appear at the bottom of the page.
+Watermarks or background text that appears across the page.
+Edge cases to still count as page footers:
+Footers with decorative elements or logos.
+Footers that alternate between even and odd pages.
+Footers that appear slightly above the page bottom due to layout constraints.
+Boundary preference:
+Include the complete footer text and any associated formatting; exclude the horizontal rule separator and unrelated content.
+"""

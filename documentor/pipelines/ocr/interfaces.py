@@ -18,23 +18,27 @@ class Block:
     """Container representing a detected block in an image.
 
     The block may represent a line of text, table, image or any other
-    structural element detected on a page.  The container keeps only the
+    structural element detected on a page. The container keeps only the
     minimum information required for the subsequent stages of the pipeline
     and deliberately avoids tying to any specific OCR library.
 
     Attributes:
-        image:    Cropped image data for the block.  Type is intentionally
+        image:    Cropped image data for the block. Type is intentionally
                    loose to allow use of any imaging library (e.g. PIL, numpy).
         bbox:     Optional bounding box in (x1, y1, x2, y2) coordinates.
         category: Optional classification label supplied by
                   :class:`BlockClassifier`.
         order:    Optional index representing the reading order.
+        confidence: Optional confidence score for the detection.
+        layout_hints: Optional dictionary with additional layout information.
     """
 
     image: Any
     bbox: tuple[int, int, int, int] | None = None
     category: str | None = None
     order: int | None = None
+    confidence: float | None = None
+    layout_hints: dict[str, Any] | None = None
 
 
 class BlockDetector(ABC):
