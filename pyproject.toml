@@ -26,6 +26,7 @@ dependencies = [
     "pypdf2>=3.0.0,<4.0.0",
     "langchain-core>=0.1.0,<1.0.0",
     "overrides>=7.0.0,<8.0.0",
+    "pdf2image (>=1.17.0,<2.0.0)",
 ]
 
 [project.optional-dependencies]

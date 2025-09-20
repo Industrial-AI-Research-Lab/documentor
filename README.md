@@ -35,26 +35,45 @@ For installation from the source code, you need to have the poetry package manag
 ```shell
 poetry install
 ```
-If you want to run the jupyter notebooks, you need to install jupyter and jupytext:
-```shell
-poetry install -E jupyter
 
-# for convert .md to .ipynb
-jupytext --to notebook notebook_name.md 
+
+## Quick start
+
+Run the daemon (folder monitoring):
+```bash
+poetry run python -m documentor.cli.daemon --single-run
+poetry run python -m documentor.cli.daemon --file test_folder/example.pdf
+poetry run python -m documentor.cli.daemon --dir test_folder
+poetry run python -m documentor.cli.daemon
+poetry run python -m documentor.cli.daemon --status
+poetry run python -m documentor.cli.daemon --config documentor/config/daemon_config.json
 ```
 
-## Examples
+## Environment
 
+`.env` is auto-loaded by `documentor/core/load_env.py`. Use `docs/env.example` as a template.
 
-All examples made in jupyter notebooks, so you should have jupyter installed to run them.
-Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the 
-jupytext library (see installation section for details).
+Required OCR variables:
+- `DOTS_OCR_BASE_URL`, `DOTS_OCR_API_KEY`, `DOTS_OCR_MODEL_NAME`
+- `QWEN_BASE_URL`, `QWEN_API_KEY`, `QWEN_MODEL_NAME`
 
-- usage of specialized terms search - [link](examples/semantic_example.md)
-- usage of excel to csv parser  - [link](examples/table_parsing.md)
-- usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
+Optional:
+- `DOTS_OCR_TEMPERATURE`, `DOTS_OCR_MAX_TOKENS`, `DOTS_OCR_TIMEOUT`
+- `QWEN_TEMPERATURE`, `QWEN_MAX_TOKENS`, `QWEN_TIMEOUT`
+- `OCR_MAX_IMAGE_SIZE`, `OCR_MIN_CONFIDENCE`
 
+## Documentation
 
+- vLLM integration: see `docs/README_vllm.md`
+- Environment template: see `docs/env.example`
+
+## Sequence diagrams
+
+![Documentor workflow](Sequence_Diagram_Documentor.png)
+
+![OCR pipeline](Sequence_Diagram_OCR.png)
+
+ 
 ## Project structure
 
 - [documentor](documentor/README.md) - main library folder

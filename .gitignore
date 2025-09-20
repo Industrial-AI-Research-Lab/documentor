@@ -16,3 +16,5 @@ __pychache__/
 /examples/data/work_names.csv
 *.pyc
 /__pycache__/
+.env
+/SAMPO
