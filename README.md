@@ -39,14 +39,9 @@ poetry install
 
 ## Quick start
 
-Run the daemon (folder monitoring):
+Run the daemon (process all files once):
 ```bash
 poetry run python -m documentor.cli.daemon --single-run
-poetry run python -m documentor.cli.daemon --file test_folder/example.pdf
-poetry run python -m documentor.cli.daemon --dir test_folder
-poetry run python -m documentor.cli.daemon
-poetry run python -m documentor.cli.daemon --status
-poetry run python -m documentor.cli.daemon --config documentor/config/daemon_config.json
 ```
 
 ## Environment
@@ -64,8 +59,8 @@ Optional:
 
 ## Documentation
 
-- vLLM integration: see `docs/README_vllm.md`
-- Environment template: see `docs/env.example`
+- [vLLM integration](docs/README_vllm.md)
+- [Environment template](docs/env.example)
 
 ## Sequence diagrams
 
