@@ -69,9 +69,9 @@ Optional:
 
 ## Sequence diagrams
 
-![Documentor workflow](docs/Sequence_Diagram_Documentor.png)
+![Documentor workflow](images/Sequence_Diagram_Documentor.png)
 
-![OCR pipeline](docs/Sequence_Diagram_OCR.png)
+![OCR pipeline](images/Sequence_Diagram_OCR.png)
 
  
 ## Project structure
