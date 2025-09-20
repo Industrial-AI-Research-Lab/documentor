@@ -78,7 +78,7 @@ Optional:
 
 ```
 documentor/
-├── documentor/                    # Main library package
+├── documentor/                   # Main library package
 │   ├── cli/                      # Command line interface
 │   ├── config/                   # Configuration files
 │   ├── core/                     # Core functionality
