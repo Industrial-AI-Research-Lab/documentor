@@ -1,0 +1,13 @@
+{
+  "total_processed": 2,
+  "total_errors": 0,
+  "processing_times": [
+    12.849002,
+    13.488999
+  ],
+  "file_types": {
+    "image_ocr": 1,
+    "pdf_ocr": 1
+  },
+  "last_reset": "2025-09-20T17:55:55.277275"
+}

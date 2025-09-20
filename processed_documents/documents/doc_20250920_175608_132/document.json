@@ -1,0 +1,30 @@
+{
+  "document_id": "doc_20250920_175608_132",
+  "original_file": {
+    "path": "test_folder\\example.jpg",
+    "name": "example.jpg",
+    "extension": "jpg",
+    "size_bytes": 670320,
+    "created_at": "2025-09-18T19:08:16.642516",
+    "md5_hash": "3a5116250002f548c4d6ec5da2326c75"
+  },
+  "processing": {
+    "method": "image_ocr",
+    "started_at": "2025-09-20T17:55:55.787276",
+    "completed_at": "2025-09-20T17:56:08.636278",
+    "duration_seconds": 12,
+    "status": "success"
+  },
+  "content_summary": {
+    "total_fragments": 19,
+    "fragment_types": {
+      "pageheader": 5,
+      "image": 1,
+      "header": 2,
+      "paragraph": 8,
+      "footnote": 3
+    },
+    "total_text_length": 0,
+    "language": "unknown"
+  }
+}

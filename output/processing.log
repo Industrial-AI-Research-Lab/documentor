@@ -1,0 +1,83 @@
+2025-09-20 17:55:55,529 - documentor.processing.parsers.image_parser - INFO - OCR pipeline configured for image processing
+2025-09-20 17:55:55,784 - documentor.processing.parsers.pdf_parser - INFO - PDF parser initialized
+2025-09-20 17:55:55,784 - documentor.processing.parsers.registry - INFO - Registered parsers for extensions: ['.txt', '.jpg', '.png', '.jpeg', '.pdf']
+2025-09-20 17:55:55,785 - documentor.processing.processors.document_processor - INFO - DocumentProcessor initialized
+2025-09-20 17:55:55,787 - documentor.processing.processors.document_processor - INFO - Processing file: test_folder\example.jpg
+2025-09-20 17:55:55,788 - documentor.processing.loaders.recursive_loader - INFO - Parsing file: test_folder\example.jpg
+2025-09-20 17:55:55,788 - documentor.processing.parsers.image_parser - INFO - Parsing image with OCR: test_folder\example.jpg
+2025-09-20 17:55:55,810 - documentor.processing.parsers.image_parser - INFO - Image loaded: (1705, 2203), mode: RGB
+2025-09-20 17:56:01,042 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8069/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:01,047 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 662x26 -> 814x32
+2025-09-20 17:56:01,048 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 455x25 -> 582x32
+2025-09-20 17:56:01,048 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 272x26 -> 334x32
+2025-09-20 17:56:01,050 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 1452x27 -> 1720x32
+2025-09-20 17:56:01,051 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 592x26 -> 728x32
+2025-09-20 17:56:01,053 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 969x31 -> 1000x32
+2025-09-20 17:56:01,053 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 361x23 -> 502x32
+2025-09-20 17:56:01,055 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 895x26 -> 1101x32
+2025-09-20 17:56:01,056 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 490x23 -> 681x32
+2025-09-20 17:56:01,471 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:01,766 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:01,902 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:02,283 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:02,670 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:02,846 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:03,084 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:03,485 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:03,577 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:04,073 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:04,216 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:04,396 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:04,573 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:05,186 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:05,449 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:05,515 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:07,995 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:08,634 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:08,635 - documentor.processing.parsers.image_parser - INFO - OCR processing completed: found 19 fragments
+2025-09-20 17:56:08,636 - documentor.processing.processors.document_processor - INFO - File processed: 19 fragments
+2025-09-20 17:56:08,637 - documentor.storage.structured_storage - INFO - Saving document doc_20250920_175608_132 from file example.jpg
+2025-09-20 17:56:08,666 - documentor.storage.structured_storage - INFO - Saved 1 fragment images
+2025-09-20 17:56:08,668 - documentor.storage.structured_storage - INFO - Document doc_20250920_175608_132 successfully saved
+2025-09-20 17:56:08,668 - documentor.processing.processors.document_processor - INFO - Processing file: test_folder\example.pdf
+2025-09-20 17:56:08,669 - documentor.processing.loaders.recursive_loader - INFO - Parsing file: test_folder\example.pdf
+2025-09-20 17:56:08,669 - documentor.processing.parsers.pdf_parser - INFO - Parsing PDF file: test_folder\example.pdf
+2025-09-20 17:56:08,670 - documentor.processing.parsers.pdf_parser - INFO - PDF contains 1 pages
+2025-09-20 17:56:08,670 - documentor.processing.parsers.pdf_parser - INFO - Processing page 1/1
+2025-09-20 17:56:08,671 - documentor.processing.parsers.pdf_parser - INFO - Using OCR for page 1
+2025-09-20 17:56:14,273 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8069/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:14,275 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 662x26 -> 814x32
+2025-09-20 17:56:14,276 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 455x25 -> 582x32
+2025-09-20 17:56:14,277 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 272x26 -> 334x32
+2025-09-20 17:56:14,278 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 1452x27 -> 1720x32
+2025-09-20 17:56:14,279 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 591x26 -> 727x32
+2025-09-20 17:56:14,281 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 973x27 -> 1153x32
+2025-09-20 17:56:14,282 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 483x27 -> 572x32
+2025-09-20 17:56:14,283 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 969x31 -> 1000x32
+2025-09-20 17:56:14,284 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 360x23 -> 500x32
+2025-09-20 17:56:14,285 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 896x26 -> 1102x32
+2025-09-20 17:56:14,286 - documentor.processing.pipelines.ocr.detector - INFO - Image enlarged: 491x23 -> 683x32
+2025-09-20 17:56:14,668 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:14,998 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:15,144 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:15,589 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:16,002 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:16,228 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:16,331 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:16,515 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:16,918 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:17,042 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:17,486 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:17,645 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:17,847 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:18,028 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:18,634 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:18,896 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:18,965 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:21,485 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:22,154 - httpx - INFO - HTTP Request: POST http://10.32.2.11:8070/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-20 17:56:22,156 - documentor.processing.parsers.pdf_parser - INFO - Created 20 fragments from 1 pages
+2025-09-20 17:56:22,157 - documentor.processing.processors.document_processor - INFO - File processed: 20 fragments
+2025-09-20 17:56:22,159 - documentor.storage.structured_storage - INFO - Saving document doc_20250920_175622_422 from file example.pdf
+2025-09-20 17:56:22,188 - documentor.storage.structured_storage - INFO - Saved 1 fragment images
+2025-09-20 17:56:22,189 - documentor.storage.structured_storage - INFO - Document doc_20250920_175622_422 successfully saved
