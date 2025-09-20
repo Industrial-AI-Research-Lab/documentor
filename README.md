@@ -76,13 +76,21 @@ Optional:
  
 ## Project structure
 
-- [documentor](documentor/README.md) - main library folder
-- [deployment](deployment/README.md) - folder for storing scripts and dockerfiles for deploying the library or its components
-- [examples](examples/README.md) - folder for storing examples of using the library
-- [notebooks](notebooks/README.md) - folder for storing notebooks with researches and base experiments
-- [tests](tests/README.md) - folder for storing tests for the library
-- [experiments](experiments/README.md) - folder for storing experiments with the library
-- [docs](docs/README.md) - folder for storing documentation for the library
+```
+documentor/
+├── documentor/                    # Main library package
+│   ├── cli/                      # Command line interface
+│   ├── config/                   # Configuration files
+│   ├── core/                     # Core functionality
+│   ├── data/structures/          # Data structures and models
+│   ├── processing/               # Document processing pipelines
+│   └── storage/                  # Document storage and serialization
+├── docs/                         # Documentation
+├── images/                       # Diagrams and images
+├── test_folder/                  # Test files
+├── output/                       # Processing logs
+└── processed_documents/          # Processed document results
+```
 
 
 ## Development tasks
