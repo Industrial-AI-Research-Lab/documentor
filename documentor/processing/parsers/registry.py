@@ -48,6 +48,24 @@ class ParserRegistry:
             for ext in pdf_parser.supported_extensions():
                 self._parsers[ext] = pdf_parser
             
+            # DOCX parser
+            try:
+                from .docx_parser import DocxParser
+                docx_parser = DocxParser()
+                for ext in docx_parser.supported_extensions():
+                    self._parsers[ext] = docx_parser
+            except ImportError as e:
+                logger.warning(f"DOCX parser not available: {e}")
+            
+            # DOC parser
+            try:
+                from .doc_parser import DocParser
+                doc_parser = DocParser()
+                for ext in doc_parser.supported_extensions():
+                    self._parsers[ext] = doc_parser
+            except ImportError as e:
+                logger.warning(f"DOC parser not available: {e}")
+            
             logger.info(f"Registered parsers for extensions: {list(self._parsers.keys())}")
             
         except Exception as e:

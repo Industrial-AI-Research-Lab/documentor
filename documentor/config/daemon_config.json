@@ -2,7 +2,7 @@
   "input_directory": "test_folder",
   "output_directory": "processed_documents",
   "watch_subdirectories": true,
-  "supported_extensions": ["pdf", "jpg", "png", "jpeg", "txt"],
+  "supported_extensions": ["pdf", "jpg", "png", "jpeg", "txt", "docx", "doc"],
   "max_file_size_mb": 100,
   "processing_timeout_seconds": 300,
   "save_fragment_images": true,

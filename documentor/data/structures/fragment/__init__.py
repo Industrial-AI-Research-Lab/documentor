@@ -14,6 +14,7 @@ from .caption import CaptionFragment
 from .footnote import FootnoteFragment
 from .list_item import ListItemFragment
 from .page_metadata import PageHeaderFragment, PageFooterFragment
+from .word_fragments import HyperlinkFragment, StyleFragment, CommentFragment, BreakFragment
 from ..style import BlockStyle, InlineStyle
 from .description import (
     IMAGE,
@@ -44,6 +45,10 @@ __all__ = [
     "ListItemFragment",
     "PageHeaderFragment",
     "PageFooterFragment",
+    "HyperlinkFragment",
+    "StyleFragment", 
+    "CommentFragment",
+    "BreakFragment",
     "BlockStyle",
     "InlineStyle",
     "IMAGE",

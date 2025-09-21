@@ -1,13 +1,19 @@
 {
-  "total_processed": 2,
+  "total_processed": 8,
   "total_errors": 0,
   "processing_times": [
-    12.849002,
-    13.488999
+    10.934027,
+    13.131222,
+    1.586209,
+    0.251544,
+    1.252642,
+    0.014001,
+    0.062628,
+    0.933921
   ],
   "file_types": {
-    "image_ocr": 1,
+    "image_ocr": 7,
     "pdf_ocr": 1
   },
-  "last_reset": "2025-09-20T17:55:55.277275"
+  "last_reset": "2025-09-21T19:21:23.615182"
 }

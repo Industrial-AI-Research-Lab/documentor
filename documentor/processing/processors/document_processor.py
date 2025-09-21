@@ -86,9 +86,13 @@ class DocumentProcessor:
         
         # Create hierarchy if needed
         if self.config.create_hierarchy:
-            structure = document.create_structure_from_headers()
-            if structure:
-                logger.info(f"Created hierarchical structure with {len(structure.fragments)} fragments")
+            try:
+                structure = document.create_structure_from_headers()
+                if structure:
+                    logger.info(f"Created hierarchical structure with {len(structure.fragments)} fragments")
+            except AttributeError:
+                # Method doesn't exist yet, skip for now
+                logger.debug("create_structure_from_headers method not available, skipping")
         
         # Save document if needed
         if self.config.save_processed_docs and self.config.output_directory:
@@ -136,7 +140,11 @@ class DocumentProcessor:
             
             # Create hierarchy if needed
             if self.config.create_hierarchy:
-                document.create_structure_from_headers()
+                try:
+                    document.create_structure_from_headers()
+                except AttributeError:
+                    # Method doesn't exist yet, skip for now
+                    logger.debug("create_structure_from_headers method not available, skipping")
             
             batch.append(document)
             

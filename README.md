@@ -25,9 +25,13 @@ The library performs the following tasks:
 
 ## Core features
 
-1. Pipelines for preprocessing texts and algorithm processing specialized terms
-2. The algorithm for highlighting the borders of tables in excel files
-3. The algorithm for classifying sheet fragments in excel files
+1. **OCR Processing** - Extract text from PDFs and images using external APIs (Qwen, Dots OCR)
+2. **Document Parsing** - Parse tables, text blocks, headers, and structured content from PDF, TXT, images, DOC, and DOCX with automatic DOC→DOCX conversion
+3. **Fragment Classification** - Classify document fragments by type (text, table, image, formula, hyperlinks, comments)
+4. **Rich Word Support** - Extract formatting, styles, lists, hyperlinks, and comments from Word documents (DOCX and DOC via Word COM conversion)
+5. **Structured Storage** - Save processed documents with metadata, fragments, and images
+6. **Daemon Mode** - Monitor folders and automatically process new documents
+7. **Configurable Pipelines** - Flexible processing workflows for different document types
 
 ## Installation
 
@@ -52,10 +56,24 @@ Required OCR variables:
 - `DOTS_OCR_BASE_URL`, `DOTS_OCR_API_KEY`, `DOTS_OCR_MODEL_NAME`
 - `QWEN_BASE_URL`, `QWEN_API_KEY`, `QWEN_MODEL_NAME`
 
+**DOC Support Requirements:**
+- Microsoft Word installed (for DOC→DOCX conversion via Word COM)
+
 Optional:
 - `DOTS_OCR_TEMPERATURE`, `DOTS_OCR_MAX_TOKENS`, `DOTS_OCR_TIMEOUT`
 - `QWEN_TEMPERATURE`, `QWEN_MAX_TOKENS`, `QWEN_TIMEOUT`
 - `OCR_MAX_IMAGE_SIZE`, `OCR_MIN_CONFIDENCE`
+
+### Supported formats
+- **Input**: `pdf`, `png`, `jpg`, `jpeg`, `tiff`, `txt`, `docx`, `doc`
+- **Output**: structured JSON + indexes and metadata in `processed_documents/`
+
+### Processing Statistics
+The library successfully processes various document types:
+- **PDF documents** - OCR text extraction with table detection
+- **Images** - OCR processing with text and table recognition
+- **Word documents** - Rich content extraction including formatting, hyperlinks, and structure (DOCX native, DOC via Word COM conversion)
+- **Text files** - Direct text processing and fragment classification
 
 ## Documentation
 

@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
-
-import pandas as pd
+from typing import TYPE_CHECKING
 
 from .document import Document
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 # TODO rewrite this class
@@ -25,7 +27,7 @@ class FragmentClassifier(ABC):
     model: ClassifierModel
 
     @abstractmethod
-    def classify_fragments(self, doc: Document) -> pd.Series:
+    def classify_fragments(self, doc: Document) -> "pd.Series":
         """
         Classify fragments of the document.
 

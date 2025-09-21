@@ -26,6 +26,19 @@ from .core.logging import get_logger, setup_logging
 
 from .processing import DocumentProcessor, ProcessingConfig
 from .processing.parsers import TxtParser, ImageParser, PdfParser, ParserRegistry
+
+# Optional Word parsers
+try:
+    from .processing.parsers import DocxParser
+    DOCX_PARSER_AVAILABLE = True
+except ImportError:
+    DOCX_PARSER_AVAILABLE = False
+
+try:
+    from .processing.parsers import DocParser
+    DOC_PARSER_AVAILABLE = True
+except ImportError:
+    DOC_PARSER_AVAILABLE = False
 from .processing import RecursiveDocumentLoader
 from .processing.pipelines.ocr.config import OCRPipelineConfig
 
@@ -39,7 +52,13 @@ from .data.structures.fragment import (
     HeaderFragment,
     TitleFragment,
     ImageFormulaFragment,
-    LatexFormulaFragment
+    LatexFormulaFragment,
+    ListItemFragment,
+    FootnoteFragment,
+    HyperlinkFragment,
+    StyleFragment,
+    CommentFragment,
+    BreakFragment
 )
 
 # Metadata and structure exports
@@ -81,6 +100,12 @@ __all__ = [
     "TitleFragment",
     "ImageFormulaFragment",
     "LatexFormulaFragment",
+    "ListItemFragment",
+    "FootnoteFragment", 
+    "HyperlinkFragment",
+    "StyleFragment",
+    "CommentFragment",
+    "BreakFragment",
     
     # Metadata and structures
     "Metadata",
