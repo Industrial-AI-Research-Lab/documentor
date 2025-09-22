@@ -25,9 +25,13 @@ The library performs the following tasks:
 
 ## Core features
 
-1. Pipelines for preprocessing texts and algorithm processing specialized terms
-2. The algorithm for highlighting the borders of tables in excel files
-3. The algorithm for classifying sheet fragments in excel files
+1. **OCR Processing** - Extract text from PDFs and images using external APIs (Qwen, Dots OCR)
+2. **Document Parsing** - Parse tables, text blocks, headers, and structured content from PDF, TXT, images, DOC, and DOCX with automatic DOC→DOCX conversion
+3. **Fragment Classification** - Classify document fragments by type (text, table, image, formula, hyperlinks, comments)
+4. **Rich Word Support** - Extract formatting, styles, lists, hyperlinks, and comments from Word documents (DOCX and DOC via Word COM conversion)
+5. **Structured Storage** - Save processed documents with metadata, fragments, and images
+6. **Daemon Mode** - Monitor folders and automatically process new documents
+7. **Configurable Pipelines** - Flexible processing workflows for different document types
 
 ## Installation
 
@@ -35,35 +39,71 @@ For installation from the source code, you need to have the poetry package manag
 ```shell
 poetry install
 ```
-If you want to run the jupyter notebooks, you need to install jupyter and jupytext:
-```shell
-poetry install -E jupyter
 
-# for convert .md to .ipynb
-jupytext --to notebook notebook_name.md 
+
+## Quick start
+
+Run the daemon (process all files once):
+```bash
+poetry run python -m documentor.cli.daemon --single-run
 ```
 
-## Examples
+## Environment
 
+`.env` is auto-loaded by `documentor/core/load_env.py`. Use `docs/env.example` as a template.
 
-All examples made in jupyter notebooks, so you should have jupyter installed to run them.
-Jupyter notebooks are saved with the .md extension, to convert to .ipynb, you can manually copy the code or use the 
-jupytext library (see installation section for details).
+Required OCR variables:
+- `DOTS_OCR_BASE_URL`, `DOTS_OCR_API_KEY`, `DOTS_OCR_MODEL_NAME`
+- `QWEN_BASE_URL`, `QWEN_API_KEY`, `QWEN_MODEL_NAME`
 
-- usage of specialized terms search - [link](examples/semantic_example.md)
-- usage of excel to csv parser  - [link](examples/table_parsing.md)
-- usage of sheet fragment classification  - [link](examples/table_fragmentation.md)
+**DOC Support Requirements:**
+- Microsoft Word installed (for DOC→DOCX conversion via Word COM)
 
+Optional:
+- `DOTS_OCR_TEMPERATURE`, `DOTS_OCR_MAX_TOKENS`, `DOTS_OCR_TIMEOUT`
+- `QWEN_TEMPERATURE`, `QWEN_MAX_TOKENS`, `QWEN_TIMEOUT`
+- `OCR_MAX_IMAGE_SIZE`, `OCR_MIN_CONFIDENCE`
 
+### Supported formats
+- **Input**: `pdf`, `png`, `jpg`, `jpeg`, `tiff`, `txt`, `docx`, `doc`
+- **Output**: structured JSON + indexes and metadata in `processed_documents/`
+
+### Processing Statistics
+The library successfully processes various document types:
+- **PDF documents** - OCR text extraction with table detection
+- **Images** - OCR processing with text and table recognition
+- **Word documents** - Rich content extraction including formatting, hyperlinks, and structure (DOCX native, DOC via Word COM conversion)
+- **Text files** - Direct text processing and fragment classification
+
+## Documentation
+
+- [vLLM integration](docs/README_vllm.md)
+- [Environment template](docs/env.example)
+
+## Sequence diagrams
+
+![Documentor workflow](images/Sequence_Diagram_Documentor.png)
+
+![OCR pipeline](images/Sequence_Diagram_OCR.png)
+
+ 
 ## Project structure
 
-- [documentor](documentor/README.md) - main library folder
-- [deployment](deployment/README.md) - folder for storing scripts and dockerfiles for deploying the library or its components
-- [examples](examples/README.md) - folder for storing examples of using the library
-- [notebooks](notebooks/README.md) - folder for storing notebooks with researches and base experiments
-- [tests](tests/README.md) - folder for storing tests for the library
-- [experiments](experiments/README.md) - folder for storing experiments with the library
-- [docs](docs/README.md) - folder for storing documentation for the library
+```
+documentor/
+├── documentor/                   # Main library package
+│   ├── cli/                      # Command line interface
+│   ├── config/                   # Configuration files
+│   ├── core/                     # Core functionality
+│   ├── data/structures/          # Data structures and models
+│   ├── processing/               # Document processing pipelines
+│   └── storage/                  # Document storage and serialization
+├── docs/                         # Documentation
+├── images/                       # Diagrams and images
+├── test_folder/                  # Test files
+├── output/                       # Processing logs
+└── processed_documents/          # Processed document results
+```
 
 
 ## Development tasks
