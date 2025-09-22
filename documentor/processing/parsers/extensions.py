@@ -11,7 +11,6 @@ class DocExtension(str, Enum):
     md = '.md'
     
     # Microsoft Office
-    doc = '.doc'
     docx = '.docx'
     xls = '.xls'
     xlsx = '.xlsx'

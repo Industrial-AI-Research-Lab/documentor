@@ -56,8 +56,6 @@ Required OCR variables:
 - `DOTS_OCR_BASE_URL`, `DOTS_OCR_API_KEY`, `DOTS_OCR_MODEL_NAME`
 - `QWEN_BASE_URL`, `QWEN_API_KEY`, `QWEN_MODEL_NAME`
 
-**DOC Support Requirements:**
-- Microsoft Word installed (for DOC→DOCX conversion via Word COM)
 
 Optional:
 - `DOTS_OCR_TEMPERATURE`, `DOTS_OCR_MAX_TOKENS`, `DOTS_OCR_TIMEOUT`
@@ -65,14 +63,16 @@ Optional:
 - `OCR_MAX_IMAGE_SIZE`, `OCR_MIN_CONFIDENCE`
 
 ### Supported formats
-- **Input**: `pdf`, `png`, `jpg`, `jpeg`, `tiff`, `txt`, `docx`, `doc`
+- **Input**: `pdf`, `png`, `jpg`, `jpeg`, `tiff`, `txt`, `docx`
 - **Output**: structured JSON + indexes and metadata in `processed_documents/`
+
+**Note**: For DOC files, please convert them to DOCX format first using Microsoft Word, LibreOffice, or online converters before processing.
 
 ### Processing Statistics
 The library successfully processes various document types:
 - **PDF documents** - OCR text extraction with table detection
 - **Images** - OCR processing with text and table recognition
-- **Word documents** - Rich content extraction including formatting, hyperlinks, and structure (DOCX native, DOC via Word COM conversion)
+- **Word documents** - Rich content extraction including formatting, hyperlinks, and structure (DOCX only)
 - **Text files** - Direct text processing and fragment classification
 
 ## Documentation

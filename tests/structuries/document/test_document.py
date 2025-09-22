@@ -2,11 +2,9 @@ from typing import Any
 
 import pytest
 
-from structuries.document.base import Document
-from structuries.document.text import TextDocument
-from structuries.document.sheet import SheetDocument
-from structuries.document.doc import DocDocument
-from structuries.fragment.text import TextFragment
+from documentor.data.structures.document.base import Document
+from documentor.data.structures.document.text import TextDocument
+from documentor.data.structures.fragment.text import TextFragment
 
 
 @pytest.mark.parametrize(
@@ -15,8 +13,6 @@ from structuries.fragment.text import TextFragment
         (TextDocument, {"lines_count": 0}, [""]),
         (TextDocument, {"lines_count": 1}, ["a"]),
         (TextDocument, {"lines_count": 3}, ["a", "b", "c"]),
-        (SheetDocument, {"pages_names": ["d"]}, ["row1"]),
-        (DocDocument, {"pages_count": 1}, ["x", "y"]),
     ],
 )
 def test_document_fragments_and_iteration(doc_cls: type[Document], kwargs: dict[str, Any], values: list[str]):
