@@ -1,10 +1,9 @@
 """
-Word document types for DOC/DOCX files.
+Word document types for DOCX files.
 
 Contains document classes specific to Microsoft Word formats:
 - WordDocument: Base class for Word documents
 - DocxDocument: DOCX format documents  
-- DocDocument: DOC format documents
 """
 
 from typing import Optional, Dict, Any, List
@@ -115,39 +114,3 @@ class DocxDocument(WordDocument):
         }
 
 
-class DocDocument(WordDocument):
-    """
-    Document type for DOC format files.
-    
-    DOC files are binary format with limited structure extraction
-    capabilities compared to DOCX.
-    
-    Attributes:
-        conversion_method: Method used for conversion (e.g., "docx2txt", "libreoffice")
-        conversion_quality: Quality assessment of conversion
-        original_encoding: Original file encoding if detected
-    """
-    
-    def __init__(
-        self,
-        fragments: List[Fragment],
-        conversion_method: str = "docx2txt",
-        conversion_quality: str = "unknown",
-        original_encoding: Optional[str] = None,
-        **kwargs
-    ):
-        super().__init__(fragments=fragments, **kwargs)
-        self.conversion_method = conversion_method
-        self.conversion_quality = conversion_quality
-        self.original_encoding = original_encoding
-    
-    def get_format_info(self) -> Dict[str, Any]:
-        """Get DOC-specific format information."""
-        return {
-            **self.get_document_info(),
-            "format": "DOC",
-            "is_xml_based": False,
-            "conversion_method": self.conversion_method,
-            "conversion_quality": self.conversion_quality,
-            "original_encoding": self.original_encoding
-        }

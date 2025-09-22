@@ -20,7 +20,7 @@ class RecursiveDocumentLoader(BaseLoader):
     """
     
     # Supported extensions
-    SUPPORTED_EXTENSIONS = {'.txt', '.pdf', '.png', '.jpg', '.jpeg', '.docx', '.doc'}
+    SUPPORTED_EXTENSIONS = {'.txt', '.pdf', '.png', '.jpg', '.jpeg', '.docx'}
     ZIP_EXTENSIONS = {'.zip'}
     
     def __init__(

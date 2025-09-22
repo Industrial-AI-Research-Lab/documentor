@@ -57,14 +57,6 @@ class ParserRegistry:
             except ImportError as e:
                 logger.warning(f"DOCX parser not available: {e}")
             
-            # DOC parser
-            try:
-                from .doc_parser import DocParser
-                doc_parser = DocParser()
-                for ext in doc_parser.supported_extensions():
-                    self._parsers[ext] = doc_parser
-            except ImportError as e:
-                logger.warning(f"DOC parser not available: {e}")
             
             logger.info(f"Registered parsers for extensions: {list(self._parsers.keys())}")
             
