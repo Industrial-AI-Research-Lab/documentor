@@ -1,7 +1,7 @@
 import pytest
 
-from documentor.structuries.fragment.hierarchy import HeaderFragment, TitleFragment, ColumnHeaderFragment
-from documentor.structuries.fragment.description import HEADER, TITLE, COLUMN
+from documentor.data.structures.fragment.hierarchy import HeaderFragment, TitleFragment, ColumnHeaderFragment
+from documentor.data.structures.fragment.description import HEADER, TITLE, COLUMN
 
 
 @pytest.mark.parametrize(

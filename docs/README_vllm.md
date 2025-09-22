@@ -24,9 +24,24 @@ OCR config will read the variables from `.env` via `documentor/core/load_env.py`
 
 ### Docker & Compose
 
-- **Dockerfile**: [Dockerfile.dotsocr](Dockerfile.dotsocr)
+- **Dockerfile**: [dotsocr.dockerfile](dotsocr.dockerfile)
 - **Docker Compose**: [compose.yml](compose.yml)
 
 ### Entrypoint script
 
 - **Entrypoint script**: [entrypoint.sh](entrypoint.sh)
+
+
+### Models installation
+
+You can install models from Hugging Face.
+
+[DotsOCR](https://huggingface.co/rednote-hilab/dots.ocr)
+[Qwen2.5-VL](https://huggingface.co/collections/Qwen/qwen25-vl-6795ffac22b334a837c0f9a5)
+
+
+### Models configuration
+
+You can configure models in `compose.yml` file.
+
+

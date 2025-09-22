@@ -1,6 +1,6 @@
 import pytest
 
-from documentor.structuries.fragment.code import ListingFragment
+from documentor.data.structures.fragment.code import ListingFragment
 
 
 @pytest.mark.parametrize(
@@ -18,5 +18,5 @@ def test_listing_fragment_behaves_like_text(code_str):
     # Subclass may not include 'value' key due to annotations resolution
     assert str(frag) == code_str
     # ListingFragment may keep base default description or override constant
-    from documentor.structuries.fragment.description import LISTING
+    from documentor.data.structures.fragment.description import LISTING
     assert frag.description() in {"", LISTING}

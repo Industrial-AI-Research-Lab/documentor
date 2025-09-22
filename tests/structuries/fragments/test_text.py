@@ -1,7 +1,7 @@
 import pytest
 
-from documentor.structuries.fragment.text import TextFragment, ParagraphFragment
-from documentor.structuries.fragment.description import PARAGRAPH
+from documentor.data.structures.fragment.text import TextFragment, ParagraphFragment
+from documentor.data.structures.fragment.description import PARAGRAPH
 
 
 @pytest.mark.parametrize(

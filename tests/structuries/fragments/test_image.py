@@ -4,8 +4,8 @@ from io import BytesIO
 import pytest
 from PIL import Image
 
-from documentor.structuries.fragment.image import ImageFragment
-from documentor.structuries.fragment.description import IMAGE
+from documentor.data.structures.fragment.image import ImageFragment
+from documentor.data.structures.fragment.description import IMAGE
 
 
 @pytest.mark.parametrize(

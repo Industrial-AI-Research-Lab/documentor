@@ -133,8 +133,8 @@ class RecursiveDocumentLoader(BaseLoader):
         Returns:
             Document: Document with archive metadata
         """
-        from ..structuries.metadata import Metadata
-        from ..structuries.fragment.text import ParagraphFragment
+        from ...data.structures.metadata import Metadata
+        from ...data.structures.fragment.text import ParagraphFragment
         
         metadata = Metadata.from_path(
             archive_path,
@@ -206,8 +206,8 @@ class RecursiveDocumentLoader(BaseLoader):
         Returns:
             Document: Processed document
         """
-        from ..structuries.metadata import Metadata
-        from ..structuries.fragment.text import ParagraphFragment
+        from ...data.structures.metadata import Metadata
+        from ...data.structures.fragment.text import ParagraphFragment
         
         extension = file_path.suffix.lower()
         
