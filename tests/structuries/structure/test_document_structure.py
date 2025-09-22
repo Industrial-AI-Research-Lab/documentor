@@ -1,8 +1,8 @@
 import pytest
 
-from structuries.structure import DocumentStructure, StructureNode
-from structuries.fragment.hierarchy import HeaderFragment
-from structuries.fragment.text import TextFragment
+from documentor.data.structures.structure import DocumentStructure, StructureNode
+from documentor.data.structures.fragment.hierarchy import HeaderFragment
+from documentor.data.structures.fragment.text import TextFragment
 
 
 @pytest.fixture

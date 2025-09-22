@@ -1,210 +1,147 @@
 import pytest
 from pathlib import Path
-from langchain_core.documents.base import Blob
 
-from parsers.txt.base import TextBlobParser
-from documentor.parsers.extensions import DocExtension
+from documentor.processing.parsers.txt_parser import TxtParser
+from documentor.data.structures.fragment.text import ParagraphFragment
 
 
-def create_test_blob(content: str, source_path: str = "test.txt") -> Blob:
-    """Helper function for creating a test Blob."""
-    return Blob(
-        data=content.encode(),
-        mimetype="text/plain",
-        source=None,
-        path=Path(source_path)  # Now using path instead of source_path
-    )
+def create_test_file(content: str, file_path: Path) -> Path:
+    """Helper function for creating a test file."""
+    file_path.write_text(content, encoding="utf-8")
+    return file_path
 
 
 def test_text_parser_initialization():
-    """Test initialization of TextBlobParser."""
+    """Test initialization of TxtParser."""
     # Checking correct initialization
-    parser = TextBlobParser(batch_lines=5)
-    assert parser.batch_lines == 5
-    assert DocExtension.txt in parser._extension
+    parser = TxtParser(encoding="utf-8")
+    assert parser.encoding == "utf-8"
+    assert '.txt' in parser.supported_extensions()
 
     # Checking the default value
-    parser = TextBlobParser()
-    assert parser.batch_lines == 0
-
-    # Checking invalid values of batch_lines
-    with pytest.raises(ValueError):
-        TextBlobParser(batch_lines=-1)
-    
-    with pytest.raises(ValueError):
-        TextBlobParser(batch_lines=1.5)
+    parser = TxtParser()
+    assert parser.encoding == "utf-8"  # Default encoding
 
 
-def test_parse_whole_text():
-    """Test parsing the entire text (batch_lines=0)."""
-    parser = TextBlobParser()
+def test_parse_whole_text(tmp_path):
+    """Test parsing the entire text file."""
+    parser = TxtParser()
     test_content = "Line 1\nLine 2\nLine 3"
-    blob = create_test_blob(test_content)
+    test_file = create_test_file(test_content, tmp_path / "test.txt")
 
-    documents = list(parser.lazy_parse(blob))
-    assert len(documents) == 1
-    assert documents[0].page_content == test_content
-    assert documents[0].metadata["line_number"] == 0
-    assert documents[0].metadata["file_name"] == "test.txt"
-    assert documents[0].metadata["source"] == str(Path("test.txt"))
-    assert documents[0].metadata["file_type"] == ".txt"
-
-
-def test_parse_batched_text():
-    """Test parsing text with batch_lines=2."""
-    parser = TextBlobParser(batch_lines=2)
-    test_content = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5"
-    blob = create_test_blob(test_content)
-
-    documents = list(parser.lazy_parse(blob))
-    assert len(documents) == 3
-    assert documents[0].page_content == "Line 1\nLine 2\n"
-    assert documents[1].page_content == "Line 3\nLine 4\n"
-    assert documents[2].page_content == "Line 5"
-
-    # Checking line_number
-    assert documents[0].metadata["line_number"] == 0
-    assert documents[1].metadata["line_number"] == 2
-    assert documents[2].metadata["line_number"] == 4
+    document = parser.parse(test_file)
+    
+    # Check that we have 3 fragments (one per line)
+    assert len(document.fragments()) == 3
+    
+    # Check fragment content
+    fragments = document.fragments()
+    assert str(fragments[0]) == "Line 1"
+    assert str(fragments[1]) == "Line 2"
+    assert str(fragments[2]) == "Line 3"
+    
+    # Check metadata
+    assert document.metadata.name == "test.txt"
+    assert document.metadata.file_path == str(test_file)
+    assert document.metadata.processing_method == "text_extraction"
 
 
-def test_parse_empty_text():
-    """Test parsing an empty text."""
-    parser = TextBlobParser()
-    blob = create_test_blob("")
+def test_parse_empty_text(tmp_path):
+    """Test parsing an empty text file."""
+    parser = TxtParser()
+    test_file = create_test_file("", tmp_path / "empty.txt")
 
-    documents = list(parser.lazy_parse(blob))
-    assert len(documents) == 1
-    assert documents[0].page_content == ""
+    document = parser.parse(test_file)
+    
+    # Empty file should result in no fragments
+    assert len(document.fragments()) == 0
 
 
-def test_parse_single_line():
-    """Test parsing a single-line text with different batch_lines values."""
+def test_parse_single_line(tmp_path):
+    """Test parsing a single-line text file."""
+    parser = TxtParser()
     test_content = "Single line"
-    blob = create_test_blob(test_content)
+    test_file = create_test_file(test_content, tmp_path / "single.txt")
 
-    # With batch_lines=0
-    parser = TextBlobParser()
-    documents = list(parser.lazy_parse(blob))
-    assert len(documents) == 1
-    assert documents[0].page_content == test_content
-
-    # With batch_lines=2
-    parser = TextBlobParser(batch_lines=2)
-    documents = list(parser.lazy_parse(blob))
-    assert len(documents) == 1
-    assert documents[0].page_content == test_content
+    document = parser.parse(test_file)
+    
+    assert len(document.fragments()) == 1
+    assert str(document.fragments()[0]) == "Single line"
 
 
-def test_parse_with_error():
+def test_parse_with_empty_lines(tmp_path):
+    """Test parsing text with empty lines (should be skipped)."""
+    parser = TxtParser()
+    test_content = "Line 1\n\nLine 3\n\n\nLine 6"
+    test_file = create_test_file(test_content, tmp_path / "with_empty.txt")
+
+    document = parser.parse(test_file)
+    
+    # Should have 3 fragments (empty lines skipped)
+    assert len(document.fragments()) == 3
+    fragments = document.fragments()
+    assert str(fragments[0]) == "Line 1"
+    assert str(fragments[1]) == "Line 3"
+    assert str(fragments[2]) == "Line 6"
+
+
+def test_parse_with_error(tmp_path):
     """Test error handling when parsing."""
-    parser = TextBlobParser()
+    parser = TxtParser()
     
-    # Create a Blob with invalid data
-    invalid_blob = Blob(data=None, source=None, source_path=Path("test.txt"))
+    # Test with non-existent file
+    with pytest.raises(FileNotFoundError):
+        parser.parse(tmp_path / "non_existent.txt")
     
-    with pytest.raises(Exception):
-        list(parser.lazy_parse(invalid_blob))
-
-
-def test_metadata_without_source_path():
-    """Test document metadata without source_path."""
-    parser = TextBlobParser()
-    # Create a Blob without a path
-    blob = Blob(
-        data="Test content".encode(),
-        mimetype="text/plain",
-        source=None,
-        path=None
-    )
-
-    documents = list(parser.lazy_parse(blob))
-    assert len(documents) == 1
-    assert documents[0].metadata["file_name"] is None
-    assert documents[0].metadata["source"] is None
-    assert documents[0].metadata["file_type"] is None
+    # Test with unsupported extension
+    test_file = create_test_file("content", tmp_path / "test.doc")
+    with pytest.raises(ValueError, match="Unsupported file extension"):
+        parser.parse(test_file)
 
 
 def test_parse_real_file(data_dir):
     """Test parsing a real file."""
-    parser = TextBlobParser()
+    parser = TxtParser()
     test_file_path = Path(f"{data_dir}/test_txt.txt")
     
     # Checking that the file exists
     assert test_file_path.exists(), "Test file not found"
     
-    with open(test_file_path, 'rb') as f:
-        blob = Blob(
-            data=f.read(),
-            mimetype="text/plain",
-            source=None,
-            path=test_file_path
-        )
-
-    # Test parsing the entire file (batch_lines=0)
-    documents = list(parser.lazy_parse(blob))
-    assert len(documents) == 1
+    # Parse the file
+    document = parser.parse(test_file_path)
     
     # Get the original file content for comparison
     with open(test_file_path, 'r', encoding='utf-8') as f:
         original_content = f.read()
     
-    # Normalize texts for comparison (remove \r\n and trailing spaces)
-    parsed_content = documents[0].page_content.replace('\r\n', '\n').rstrip()
-    original_content = original_content.replace('\r\n', '\n').rstrip()
+    # Get non-empty lines from original content
+    original_lines = [line.strip() for line in original_content.splitlines() if line.strip()]
     
-    # Check that the content matches the original
-    assert parsed_content == original_content
-    assert len(parsed_content.splitlines()) == len(original_content.splitlines())
+    # Check that we have the right number of fragments
+    assert len(document.fragments()) == len(original_lines)
+    
+    # Check that each fragment matches the corresponding line
+    fragments = document.fragments()
+    for i, fragment in enumerate(fragments):
+        assert str(fragment) == original_lines[i]
     
     # Check metadata
-    assert documents[0].metadata["file_name"] == "test_txt.txt"
-    assert documents[0].metadata["source"] == str(test_file_path)
-    assert documents[0].metadata["file_type"] == ".txt"
+    assert document.metadata.name == "test_txt.txt"
+    assert document.metadata.file_path == str(test_file_path)
+    assert document.metadata.processing_method == "text_extraction"
+
+
+def test_fragment_properties(tmp_path):
+    """Test that fragments have correct properties."""
+    parser = TxtParser()
+    test_content = "Line 1\nLine 2\nLine 3"
+    test_file = create_test_file(test_content, tmp_path / "test.txt")
+
+    document = parser.parse(test_file)
+    fragments = document.fragments()
     
-    # Test parsing the file with batch_lines=3
-    parser = TextBlobParser(batch_lines=3)
-    documents = list(parser.lazy_parse(blob))
-    
-    # Combine content of all parts and normalize
-    combined_content = ''.join(doc.page_content for doc in documents).replace('\r\n', '\n').rstrip()
-    assert combined_content == original_content
-    
-    # Check the number of lines in each part
-    original_lines = original_content.splitlines(keepends=True)
-    assert len(documents) == (len(original_lines) + 2) // 3  # rounding up
-    
-    # Check that line_number is correct for each document
-    for i, doc in enumerate(documents):
-        assert doc.metadata["line_number"] == i * 3
-
-
-@pytest.mark.parametrize(
-    "lines,batch_lines,expected_chunks,expected_first_line",
-    [
-        (0, 0, 1, 0),   # empty content, whole blob
-        (1, 0, 1, 0),   # single line, whole blob
-        (5, 2, 3, 0),   # 5 lines by 2 -> 3 chunks, first starts at 0
-        (6, 3, 2, 0),   # exact division
-        (7, 4, 2, 0),   # remainder
-    ],
-)
-
-def test_param_batched_scenarios(lines, batch_lines, expected_chunks, expected_first_line):
-    """
-    Parameterized coverage for different line counts and batch sizes.
-    Ensures chunk count and first chunk metadata are correct.
-    """
-    content = "" if lines == 0 else "\n".join([f"L{i+1}" for i in range(lines)])
-    blob = create_test_blob(content)
-    parser = TextBlobParser(batch_lines=batch_lines)
-    documents = list(parser.lazy_parse(blob))
-
-    assert len(documents) == expected_chunks
-    assert documents[0].metadata["line_number"] == expected_first_line
-
-    # Validate that concatenating chunks reproduces the original (for non-zero batch or zero meaning whole)
-    rebuilt = "".join(doc.page_content for doc in documents).replace("\r\n", "\n")
-    expected = content
-    # When batch==0 we produce the original exactly as one chunk
-    assert rebuilt.replace("\r\n", "\n") == expected
+    # Check that all fragments are ParagraphFragment instances
+    for fragment in fragments:
+        assert isinstance(fragment, ParagraphFragment)
+        assert hasattr(fragment, 'page')  # Should have page number
+        assert hasattr(fragment, 'id')    # Should have ID

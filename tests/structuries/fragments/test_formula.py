@@ -1,8 +1,8 @@
 import pytest
 from PIL import Image
 
-from documentor.structuries.fragment.formula import ImageFormulaFragment, LatexFormulaFragment
-from documentor.structuries.fragment.description import FORMULA
+from documentor.data.structures.fragment.formula import ImageFormulaFragment, LatexFormulaFragment
+from documentor.data.structures.fragment.description import FORMULA
 
 
 @pytest.mark.parametrize("fname", ["single_formula.png"])

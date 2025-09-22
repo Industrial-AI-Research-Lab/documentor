@@ -48,6 +48,36 @@ Run the daemon (process all files once):
 poetry run python -m documentor.cli.daemon --single-run
 ```
 
+### Configuration
+
+The daemon processes files from the `test_folder/` directory by default. You can change this by editing the configuration file:
+
+**File**: `documentor/config/daemon_config.json`
+```json
+{
+  "input_directory": "test_folder",
+  "output_directory": "processed_documents",
+  "watch_subdirectories": true,
+  "supported_extensions": ["pdf", "jpg", "png", "jpeg", "txt", "docx"],
+  "max_file_size_mb": 100,
+  "processing_timeout_seconds": 300,
+  "save_fragment_images": true,
+  "log_level": "INFO",
+  "file_check_interval_seconds": 2,
+  "enable_deduplication": true,
+  "auto_start_processing": true,
+  "max_concurrent_files": 1,
+  "daemon_mode": true
+}
+```
+
+**Key settings:**
+- `input_directory`: Directory to monitor for new files (default: "test_folder")
+- `output_directory`: Directory to save processed documents (default: "processed_documents")
+- `supported_extensions`: File types to process
+- `watch_subdirectories`: Whether to monitor subdirectories recursively
+- `daemon_mode`: Enable continuous monitoring vs single-run processing
+
 ## Environment
 
 `.env` is auto-loaded by `documentor/core/load_env.py`. Use `docs/env.example` as a template.

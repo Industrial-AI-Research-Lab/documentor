@@ -1,8 +1,8 @@
 import pytest
 from PIL import Image
 
-from documentor.structuries.fragment.table import TableFragment, ImageTableFragment
-from documentor.structuries.fragment.description import TABLE
+from documentor.data.structures.fragment.table import TableFragment, ImageTableFragment
+from documentor.data.structures.fragment.description import TABLE
 
 
 @pytest.mark.parametrize(
