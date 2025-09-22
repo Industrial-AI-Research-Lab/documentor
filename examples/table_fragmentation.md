@@ -16,11 +16,12 @@ jupyter:
 Import the necessary classes and libraries.
 
 ```python
-from documentor.types.excel.classifier import SheetClassifier
-from documentor.types.excel.document import SheetDocument
+from documentor.formats.excel.classifier import SheetClassifier
+from documentor.formats.excel.document import SheetDocument
 
 import pandas as pd
 import warnings
+
 warnings.filterwarnings('ignore')
 ```
 

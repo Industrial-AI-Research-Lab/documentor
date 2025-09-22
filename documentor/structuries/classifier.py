@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
-from overrides import overrides
 
-from documentor.structuries.custom_types import LabelType
 from documentor.structuries.document import Document
 
 
@@ -31,10 +29,11 @@ class FragmentClassifier(ABC):
         """
         Classify fragments of the document.
 
-        :param doc: the document
-        :type doc: Document
-        :return: series with types of fragments
-        :rtype: pd.Series[LabelType]
+        Args:
+            doc (Document): The document to classify.
+
+        Returns:
+            pd.Series: Series with types of fragments.
         """
         pass
 

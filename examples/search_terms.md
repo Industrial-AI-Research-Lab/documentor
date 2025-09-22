@@ -27,7 +27,7 @@ Imports methods, classes and entities from documentor
 ```python
 import pandas as pd
 
-from documentor.types.text.document import SimpleDocument
+from documentor.formats.text.document import SimpleDocument
 from documentor.semantic.models.wiki2vec import WikiWord2VecModel
 from documentor.semantic.preprocessing.tokenization import tokenize
 from documentor.semantic.preprocessing.lemmatization import lemmatize
